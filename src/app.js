@@ -18,7 +18,7 @@ export class App {
                 }
             }
         }
-        this.router.start();
+        this.debounce(this.router.start.bind(this.router));
     }
 
     static get ViewHelper() {
