@@ -1,0 +1,44 @@
+{
+  "name": "synapse",
+  "version": "0.0.1",
+  "description": "Just another micro MVC framework for Web Apps.",
+  "main": "src/synapse.js",
+  "build": {
+    "globalName": "Synapse",
+    "bundleName": "synapse.js"
+  },
+  "scripts": {
+    "add-editorconfig": "node ./node_modules/es6-workflow/scripts/add-editorconfig.js",
+    "add-eslint": "node ./node_modules/es6-workflow/scripts/add-eslint.js",
+    "add-travis": "node ./node_modules/es6-workflow/scripts/add-travis.js",
+    "build": "node ./node_modules/es6-workflow/scripts/build.js",
+    "test": "node ./node_modules/es6-workflow/scripts/test.js",
+    "codecov": "node ./node_modules/es6-workflow/scripts/codecov.js",
+    "coveralls": "node ./node_modules/es6-workflow/scripts/coveralls.js",
+    "doc": "node ./node_modules/es6-workflow/scripts/doc.js",
+    "test-ci": "node ./node_modules/es6-workflow/scripts/test-ci.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chialab/synapse.git"
+  },
+  "keywords": [
+    "Chialab",
+    "MVC",
+    "framework"
+  ],
+  "author": "Chialab <dev@chialab.io> (http://chialab.io)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Chialab/synapse/issues"
+  },
+  "homepage": "https://github.com/Chialab/synapse#readme",
+  "devDependencies": {
+    "es6-workflow": "^0.4.6"
+  },
+  "dependencies": {
+    "chialab-ajax": "^1.1.1",
+    "chialab-i18n": "^1.1.1",
+    "chialab-router": "0.0.1"
+  }
+}
