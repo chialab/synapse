@@ -8,6 +8,8 @@ export * from './helpers/pages.js';
 export * from './helpers/view.js';
 // models
 export * from './models/ajax.js';
+export * from './models/cache.js';
+export * from './models/local.js';
 // views
 export * from './views/page.js';
 
