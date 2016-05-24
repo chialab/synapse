@@ -8,7 +8,7 @@ export class App {
         if (element) {
             this.bindTo(element);
         }
-        this.i18n = new this.constructor.I18NHelper();
+        this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
         this.router = new Router(this.routeOptions);
         for (let k in this.routeRoules) {
@@ -63,6 +63,10 @@ export class App {
     }
 
     get routeMap() {
+        return {};
+    }
+
+    get i18nOptions() {
         return {};
     }
 
