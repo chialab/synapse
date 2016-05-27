@@ -1,8 +1,11 @@
 import { Router } from 'chialab/router/src/router.js';
+import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
 import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CacheHelper } from './helpers/cache.js';
+
+const manager = new CallbackManager();
 
 export class App {
     constructor(element) {
@@ -100,26 +103,9 @@ export class App {
                     } else {
                         promise = ctr.exec(action, ...paths);
                     }
-                    promise.then((ctrRes) => {
-                        let ViewComponent = ctrRes[0];
-                        let vars = ctrRes[1];
-                        let content = new ViewComponent(ctr);
-                        for (let k in vars) {
-                            if (vars.hasOwnProperty(k)) {
-                                content[k] = vars[k];
-                            }
-                        }
-                        let oldPage = this.currentPage;
-                        let oldContent = this.currentContent;
-                        let currentPage =
-                            this.currentPage = this.pagesDispatcher.add(content, false);
-                        this.currentContent = content;
-                        if (oldPage) {
-                            oldContent.beforeDetachedCallback();
-                            this.pagesDispatcher.remove(oldPage);
-                        }
-                        this.debounce(currentPage.show.bind(currentPage));
-                    });
+                    promise.then((ctrRes) =>
+                        this.dispatchView(ctr, ctrRes)
+                    );
                 }, () => {
                     this.error();
                 });
@@ -127,6 +113,33 @@ export class App {
                 this.notFound();
             }
         }
+    }
+
+    dispatchView(controller, controllerResponse) {
+        return new Promise((resolve) => {
+            let ViewComponent = controllerResponse[0];
+            let vars = controllerResponse[1];
+            let content = new ViewComponent(controller);
+            for (let k in vars) {
+                if (vars.hasOwnProperty(k)) {
+                    content[k] = vars[k];
+                }
+            }
+            let oldPage = this.currentPage;
+            let oldContent = this.currentContent = this.currentContent;
+            this.currentPage = this.pagesDispatcher.add(content, false);
+            if (oldPage) {
+                oldContent.beforeDetachedCallback();
+                this.pagesDispatcher.remove(oldPage);
+            }
+            this.debounce(() => {
+                this.currentPage.show();
+                if (controller.dispatchResolved) {
+                    controller.dispatchResolved();
+                }
+                resolve();
+            });
+        });
     }
 
     debounce(callback) {
@@ -151,3 +164,5 @@ export class App {
         this.router.back();
     }
 }
+
+manager.attachToPrototype(App.prototype);

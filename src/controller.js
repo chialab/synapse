@@ -1,3 +1,7 @@
+import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
+
+const manager = new CallbackManager();
+
 export class Controller {
     constructor(appInstance) {
         let Ctr = this.constructor;
@@ -13,7 +17,13 @@ export class Controller {
     }
 
     resolve(view, vars) {
-        this._resolve([view, vars]);
+        return new Promise((resolve) => {
+            this.dispatchResolved = resolve;
+            this._resolve([view, vars]);
+        }).then(() => {
+            delete this.dispatchResolved;
+            return Promise.resolve();
+        });
     }
 
     exec() {
@@ -28,3 +38,5 @@ export class Controller {
 }
 
 Controller.ready = Promise.resolve();
+
+manager.attachToPrototype(Controller.prototype);
