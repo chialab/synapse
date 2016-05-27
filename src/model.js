@@ -21,3 +21,5 @@ export class Model {
         return res;
     }
 }
+
+Model.ready = Promise.resolve();

@@ -1,4 +1,4 @@
-import PouchDB from 'pouchdb';
+import PouchDB from 'pouchdb/pouchdb';
 import { Model } from '../model.js';
 
 export class LocalModel extends Model {
@@ -15,11 +15,27 @@ export class LocalModel extends Model {
         return this.id;
     }
 
-    fetch() {
-        return this.__db.get(this.dbKey).then((data) => {
-            this.set(data);
-            Promise.resolve(data);
-        });
+    get fetchOptions() {
+        return {};
+    }
+
+    beforeFetch() {
+        return Promise.resolve();
+    }
+
+    afterFetch(data) {
+        return Promise.resolve(data);
+    }
+
+    fetch(...args) {
+        return this.beforeFetch(...args).then(() =>
+            this.__db.get(this.dbKey).then((data) =>
+                this.afterFetch(data).then(() => {
+                    this.set(data);
+                    return Promise.resolve(data);
+                })
+            )
+        );
     }
 
     sync() {
