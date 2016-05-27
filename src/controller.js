@@ -1,13 +1,15 @@
 export class Controller {
     constructor(appInstance) {
+        let Ctr = this.constructor;
         this.App = appInstance;
-        this.promise = new Promise((resolve) => {
-            this._resolve = resolve;
-        });
+        this.ready = Ctr.ready;
     }
 
-    ready() {
-        return this.promise;
+    promise(callback) {
+        return new Promise((resolve) => {
+            this._resolve = resolve;
+            callback();
+        });
     }
 
     resolve(view, vars) {
@@ -15,10 +17,14 @@ export class Controller {
     }
 
     exec() {
-        this.resolve();
+        return this.promise(() => {
+            this.resolve();
+        });
     }
 
     redirect(path) {
         this.App.navigate(path);
     }
 }
+
+Controller.ready = Promise.resolve();

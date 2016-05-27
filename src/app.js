@@ -2,6 +2,7 @@ import { Router } from 'chialab/router/src/router.js';
 import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
+import { CacheHelper } from './helpers/cache.js';
 
 export class App {
     constructor(element) {
@@ -10,6 +11,10 @@ export class App {
         }
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
+        if (this.serviceWorkerUrl) {
+            this.cache = new this.constructor.CacheHelper(
+                this.serviceWorkerUrl, this.serviceWorkerOptions);
+        }
         this.router = new Router(this.routeOptions);
         for (let k in this.routeRoules) {
             if (this.routeRoules.hasOwnProperty(k)) {
@@ -31,6 +36,10 @@ export class App {
 
     static get I18NHelper() {
         return I18NHelper;
+    }
+
+    static get CacheHelper() {
+        return CacheHelper;
     }
 
     static addStyle(css) {
@@ -84,29 +93,35 @@ export class App {
             let Controller = this.routeMap[controller];
             if (typeof Controller !== 'undefined') {
                 let ctr = new Controller(this);
-                if (action && typeof ctr[action] === 'function') {
-                    ctr[action].call(ctr, ...paths);
-                } else {
-                    ctr.exec(action, ...paths);
-                }
-                ctr.ready().then((ctrRes) => {
-                    let ViewComponent = ctrRes[0];
-                    let vars = ctrRes[1];
-                    let content = new ViewComponent(ctr);
-                    for (let k in vars) {
-                        if (vars.hasOwnProperty(k)) {
-                            content[k] = vars[k];
+                ctr.ready.then(() => {
+                    let promise;
+                    if (action && typeof ctr[action] === 'function') {
+                        promise = ctr[action].call(ctr, ...paths);
+                    } else {
+                        promise = ctr.exec(action, ...paths);
+                    }
+                    promise.then((ctrRes) => {
+                        let ViewComponent = ctrRes[0];
+                        let vars = ctrRes[1];
+                        let content = new ViewComponent(ctr);
+                        for (let k in vars) {
+                            if (vars.hasOwnProperty(k)) {
+                                content[k] = vars[k];
+                            }
                         }
-                    }
-                    let oldPage = this.currentPage;
-                    let oldContent = this.currentContent;
-                    let currentPage = this.currentPage = this.pagesDispatcher.add(content, false);
-                    this.currentContent = content;
-                    if (oldPage) {
-                        oldContent.beforeDetachedCallback();
-                        this.pagesDispatcher.remove(oldPage);
-                    }
-                    this.debounce(currentPage.show.bind(currentPage));
+                        let oldPage = this.currentPage;
+                        let oldContent = this.currentContent;
+                        let currentPage =
+                            this.currentPage = this.pagesDispatcher.add(content, false);
+                        this.currentContent = content;
+                        if (oldPage) {
+                            oldContent.beforeDetachedCallback();
+                            this.pagesDispatcher.remove(oldPage);
+                        }
+                        this.debounce(currentPage.show.bind(currentPage));
+                    });
+                }, () => {
+                    this.error();
                 });
             } else {
                 this.notFound();
@@ -126,6 +141,10 @@ export class App {
 
     notFound() {
         // NOT FOUND
+    }
+
+    error() {
+        // ERROR
     }
 
     backState() {
