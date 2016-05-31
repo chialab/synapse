@@ -126,10 +126,13 @@ export class App {
                 }
             }
             let oldPage = this.currentPage;
-            let oldContent = this.currentContent = this.currentContent;
+            let oldContent = this.currentContent;
+            this.currentContent = content;
             this.currentPage = this.pagesDispatcher.add(content, false);
             if (oldPage) {
-                oldContent.beforeDetachedCallback();
+                if (oldContent) {
+                    oldContent.beforeDetachedCallback();
+                }
                 this.pagesDispatcher.remove(oldPage);
             }
             this.debounce(() => {
