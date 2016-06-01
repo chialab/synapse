@@ -26,7 +26,9 @@ export class App {
                 }
             }
         }
-        this.debounce(this.router.start.bind(this.router));
+        this.debounce(() => {
+            this.router.start();
+        });
     }
 
     static get ViewHelper() {
@@ -112,6 +114,8 @@ export class App {
             } else {
                 this.notFound();
             }
+        } else {
+            this.notFound();
         }
     }
 
