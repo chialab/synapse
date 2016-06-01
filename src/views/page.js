@@ -22,29 +22,37 @@ export class PageView {
         let element = document.createElement('section');
         element.className = 'page-view';
         Object.defineProperty(element, 'hide', {
-            value: () =>
+            value: (immediate) =>
                 new Promise((resolve) => {
                     element.setAttribute('hidden', '');
-                    element.setAttribute('data-hidden-animation', '');
-                    let duration = getAnimationDuration(element) ||
-                        getTransitionDuration(element) || 0;
-                    setTimeout(() => {
-                        element.removeAttribute('data-hidden-animation');
+                    if (!immediate) {
+                        element.setAttribute('data-hidden-animation', '');
+                        let duration = getAnimationDuration(element) ||
+                            getTransitionDuration(element) || 0;
+                        setTimeout(() => {
+                            element.removeAttribute('data-hidden-animation');
+                            resolve();
+                        }, duration * 1000);
+                    } else {
                         resolve();
-                    }, duration * 1000);
+                    }
                 }),
         });
         Object.defineProperty(element, 'show', {
-            value: () =>
+            value: (immediate) =>
                 new Promise((resolve) => {
                     element.removeAttribute('hidden');
-                    element.setAttribute('data-hidden-animation', '');
-                    let duration = getAnimationDuration(element) ||
-                        getTransitionDuration(element) || 0;
-                    setTimeout(() => {
-                        element.removeAttribute('data-hidden-animation');
+                    if (!immediate) {
+                        element.setAttribute('data-hidden-animation', '');
+                        let duration = getAnimationDuration(element) ||
+                            getTransitionDuration(element) || 0;
+                        setTimeout(() => {
+                            element.removeAttribute('data-hidden-animation');
+                            resolve();
+                        }, duration * 1000);
+                    } else {
                         resolve();
-                    }, duration * 1000);
+                    }
                 }),
         });
         return element;

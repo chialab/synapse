@@ -140,7 +140,7 @@ export class App {
                 this.pagesDispatcher.remove(oldPage);
             }
             this.debounce(() => {
-                this.currentPage.show();
+                this.currentPage.show(oldContent ? false : true);
                 if (controller.dispatchResolved) {
                     controller.dispatchResolved();
                 }
