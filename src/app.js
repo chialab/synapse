@@ -5,6 +5,7 @@ import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CacheHelper } from './helpers/cache.js';
+import { CssHelper } from './helpers/css.js';
 import * as EXCEPTIONS from './exceptions.js';
 
 const manager = new CallbackManager();
@@ -55,14 +56,7 @@ export class App {
     }
 
     static addStyle(css) {
-        let style = document.createElement('style');
-        style.type = 'text/css';
-        if (style.styleSheet) {
-            style.styleSheet.cssText = css;
-        } else {
-            style.appendChild(document.createTextNode(css));
-        }
-        document.head.appendChild(style);
+        CssHelper.add(css);
     }
 
     get defaultRouteOptions() {
