@@ -4,11 +4,13 @@ import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CacheHelper } from './helpers/cache.js';
+import EXCEPTIONS from './exceptions.js';
 
 const manager = new CallbackManager();
 
 export class App {
     constructor(element) {
+        this.handleExceptions();
         if (element) {
             this.bindTo(element);
         }
@@ -108,14 +110,14 @@ export class App {
                     promise.then((ctrRes) =>
                         this.dispatchView(ctr, ctrRes)
                     );
-                }, () => {
-                    this.error();
+                }, (err) => {
+                    throw new EXCEPTIONS.ContentErrorException(err);
                 });
             } else {
-                this.notFound();
+                throw new EXCEPTIONS.ContentNotFoundException();
             }
         } else {
-            this.notFound();
+            throw new EXCEPTIONS.ContentNotFoundException();
         }
     }
 
@@ -140,7 +142,7 @@ export class App {
                 this.pagesDispatcher.remove(oldPage);
             }
             this.debounce(() => {
-                this.currentPage.show(oldContent ? false : true);
+                this.currentPage.show(!oldContent);
                 if (controller.dispatchResolved) {
                     controller.dispatchResolved();
                 }
@@ -157,6 +159,26 @@ export class App {
 
     navigate(url) {
         this.router.navigate(url);
+    }
+
+    handleExceptions() {
+        window.addEventListener('error', (msg, url, lineNo, columnNo, error) => {
+            if (error instanceof EXCEPTIONS.AppException) {
+                return this.handleException(error);
+            }
+            return true;
+        });
+    }
+
+    handleException(err) {
+        if (err instanceof EXCEPTIONS.ContentNotFoundException) {
+            this.notFound();
+            return false;
+        } else if (err instanceof EXCEPTIONS.ContentErrorException) {
+            this.error();
+            return false;
+        }
+        return true;
     }
 
     notFound() {
