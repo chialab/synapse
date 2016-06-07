@@ -1,29 +1,22 @@
-export class AppException extends Error {
+export class AppException {
     get defaultMessage() {
         return 'Generic app error';
     }
 
-    constructor(message, err, ...args) {
-        if (typeof message === 'undefined' || message instanceof Error) {
-            err = message;
-            message = this.defaultMessage;
+    constructor(message, original, ...args) {
+        let err = new Error(message, ...args);
+        if (typeof message === 'undefined') {
+            err.message = this.defaultMessage;
+        } else if (message instanceof Error) {
+            original = message;
+            err.message = this.defaultMessage;
         }
-        if (err) {
-            this.originalError = err;
-            message = `${message}, from ${err.name}: ${err.message}.`;
+        if (original) {
+            err.originalError = original;
+            err.message = `${err.message}, from ${original.name}: ${original.message}.`;
         }
-        super(message, ...args);
-    }
-
-    get originalStack() {
-        return this.originalError && this.originalError.stack;
-    }
-
-    get originalMessage() {
-        return this.originalError && this.originalError.message;
-    }
-
-    get originalName() {
-        return this.originalError && this.originalError.name;
+        err.name = this.constructor.name;
+        Object.setPrototypeOf(err, this.constructor.prototype);
+        return err;
     }
 }

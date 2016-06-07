@@ -4,7 +4,7 @@ import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CacheHelper } from './helpers/cache.js';
-import EXCEPTIONS from './exceptions.js';
+import * as EXCEPTIONS from './exceptions.js';
 
 const manager = new CallbackManager();
 
@@ -100,7 +100,7 @@ export class App {
             let Controller = this.routeMap[controller];
             if (typeof Controller !== 'undefined') {
                 let ctr = new Controller(this);
-                ctr.ready.then(() => {
+                return ctr.ready.then(() => {
                     let promise;
                     if (action && typeof ctr[action] === 'function') {
                         promise = ctr[action].call(ctr, ...paths);
@@ -117,12 +117,9 @@ export class App {
                 }, (err) => {
                     throw new EXCEPTIONS.ContentErrorException(err);
                 });
-            } else {
-                throw new EXCEPTIONS.ContentNotFoundException();
             }
-        } else {
-            throw new EXCEPTIONS.ContentNotFoundException();
         }
+        throw new EXCEPTIONS.ContentNotFoundException();
     }
 
     dispatchView(controller, controllerResponse) {
@@ -166,23 +163,23 @@ export class App {
     }
 
     handleExceptions() {
-        window.addEventListener('error', (msg, url, lineNo, columnNo, error) => {
+        window.onerror = (msg, url, lineNo, columnNo, error) => {
             if (error instanceof EXCEPTIONS.AppException) {
                 return this.handleException(error);
             }
-            return true;
-        });
+            return false;
+        };
     }
 
     handleException(err) {
         if (err instanceof EXCEPTIONS.ContentNotFoundException) {
             this.notFound();
-            return false;
+            return true;
         } else if (err instanceof EXCEPTIONS.ContentErrorException) {
             this.error();
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     notFound() {
