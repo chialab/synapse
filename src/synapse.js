@@ -1,6 +1,7 @@
 // base
 export * from './controller.js';
 export * from './model.js';
+export * from './view.js';
 export * from './exceptions.js';
 
 // helpers

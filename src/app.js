@@ -1,5 +1,6 @@
 import { Router } from 'chialab/router/src/router.js';
 import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
+import { View } from './view.js';
 import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
@@ -31,6 +32,10 @@ export class App {
         this.debounce(() => {
             this.router.start();
         });
+    }
+
+    static get View() {
+        return View;
     }
 
     static get ViewHelper() {
@@ -123,31 +128,28 @@ export class App {
     }
 
     dispatchView(controller, controllerResponse) {
+        const AppView = this.constructor.View;
         return new Promise((resolve) => {
-            let ViewComponent = controllerResponse[0];
-            let vars = controllerResponse[1];
-            let content = new ViewComponent(controller);
-            for (let k in vars) {
-                if (vars.hasOwnProperty(k)) {
-                    content[k] = vars[k];
-                }
-            }
+            let content = new AppView(controller, controllerResponse);
             let oldPage = this.currentPage;
             let oldContent = this.currentContent;
             this.currentContent = content;
             this.currentPage = this.pagesDispatcher.add(content, false);
+            let destroyPromise = Promise.resolve();
             if (oldPage) {
                 if (oldContent) {
-                    oldContent.beforeDetachedCallback();
+                    destroyPromise = oldContent.destroy();
                 }
                 this.pagesDispatcher.remove(oldPage);
             }
             this.debounce(() => {
-                this.currentPage.show(!oldContent);
-                if (controller.dispatchResolved) {
-                    controller.dispatchResolved();
-                }
-                resolve();
+                destroyPromise.then(() => {
+                    this.currentPage.show(!oldContent);
+                    if (controller.dispatchResolved) {
+                        controller.dispatchResolved();
+                    }
+                    resolve();
+                });
             });
         });
     }

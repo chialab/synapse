@@ -17,10 +17,10 @@ export class Controller {
         });
     }
 
-    resolve(view, vars) {
+    resolve(vars = {}) {
         return new Promise((resolve) => {
             this.dispatchResolved = resolve;
-            this._resolve([view, vars]);
+            this._resolve(vars);
         }).then(() => {
             delete this.dispatchResolved;
             return Promise.resolve();
