@@ -109,7 +109,11 @@ export class App {
                     }
                     promise.then((ctrRes) =>
                         this.dispatchView(ctr, ctrRes)
-                    );
+                    , (err) => {
+                        if (err instanceof Error) {
+                            throw err;
+                        }
+                    });
                 }, (err) => {
                     throw new EXCEPTIONS.ContentErrorException(err);
                 });

@@ -10,8 +10,9 @@ export class Controller {
     }
 
     promise(callback) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             this._resolve = resolve;
+            this._reject = reject;
             callback();
         });
     }
@@ -24,6 +25,10 @@ export class Controller {
             delete this.dispatchResolved;
             return Promise.resolve();
         });
+    }
+
+    fail(err) {
+        this._reject(err);
     }
 
     exec() {
