@@ -12,7 +12,8 @@
 
         listen() {
             global.addEventListener('fetch', (event) => {
-                if (event.request.method === 'GET') {
+                if (event.request.method === 'GET' &&
+                    event.request.url.match(new RegExp(`^${global.location.origin}`))) {
                     event.respondWith(
                         this.fetchBootstrap(event)
                     );
