@@ -82,7 +82,9 @@ export class App {
     }
 
     get i18nOptions() {
-        return {};
+        return {
+            languages: [],
+        };
     }
 
     ready() {
