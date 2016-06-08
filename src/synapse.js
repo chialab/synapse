@@ -9,6 +9,7 @@ export * from './helpers/cache.js';
 export * from './helpers/css.js';
 export * from './helpers/i18n.js';
 export * from './helpers/pages.js';
+export * from './helpers/script.js';
 export * from './helpers/view.js';
 // models
 export * from './models/ajax.js';
