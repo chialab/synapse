@@ -46,6 +46,12 @@
         }
 
         add(url) {
+            if (url instanceof RegExp) {
+                return new Promise((resolve) => {
+                    toolbox.router.get(url, toolbox.fastest, {});
+                    resolve();
+                });
+            }
             return this.has(url)
                 .catch(() => {
                     toolbox.cache(url).then(() => {
