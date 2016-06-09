@@ -22,11 +22,13 @@ export class PageView {
         let element = document.createElement('section');
         element.className = 'page-view';
         Object.defineProperty(element, 'destroy', {
-            value: () =>
+            value: (immediate) =>
                 view.destroy().then(() => {
-                    if (element && element.parentNode) {
-                        element.parentNode.removeChild(element);
-                    }
+                    element.hide(immediate).then(() => {
+                        if (element && element.parentNode) {
+                            element.parentNode.removeChild(element);
+                        }
+                    });
                     return Promise.resolve();
                 })
             ,
