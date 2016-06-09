@@ -18,9 +18,19 @@ function getTransitionDuration(element) {
 }
 
 export class PageView {
-    constructor() {
+    constructor(view) {
         let element = document.createElement('section');
         element.className = 'page-view';
+        Object.defineProperty(element, 'destroy', {
+            value: () =>
+                view.destroy().then(() => {
+                    if (element && element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    }
+                    return Promise.resolve();
+                })
+            ,
+        });
         Object.defineProperty(element, 'hide', {
             value: (immediate) =>
                 new Promise((resolve) => {
