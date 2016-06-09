@@ -8,8 +8,12 @@ export class View {
         }
         content.controller = controller;
         this.content = content;
-        return content;
     }
+
+    getContent() {
+        return Promise.resolve(this.content);
+    }
+
     destroy() {
         if (this.content && this.content.parentNode) {
             this.content.parentNode.removeChild(this.content);

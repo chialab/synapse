@@ -126,25 +126,27 @@ export class App {
     dispatchView(controller, controllerResponse) {
         const AppView = this.constructor.View;
         return new Promise((resolve) => {
-            let content = new AppView(controller, controllerResponse);
+            let view = new AppView(controller, controllerResponse);
             let oldPage = this.currentPage;
             let oldContent = this.currentContent;
-            this.currentContent = content;
-            this.currentPage = this.pagesDispatcher.add(content, false);
-            let destroyPromise = Promise.resolve();
-            if (oldPage) {
-                if (oldContent) {
-                    destroyPromise = oldContent.destroy();
-                }
-                this.pagesDispatcher.remove(oldPage);
-            }
-            this.debounce(() => {
-                destroyPromise.then(() => {
-                    this.currentPage.show(!oldContent);
-                    if (controller.dispatchResolved) {
-                        controller.dispatchResolved();
+            view.getContent().then((content) => {
+                this.currentContent = content;
+                this.currentPage = this.pagesDispatcher.add(content, false);
+                let destroyPromise = Promise.resolve();
+                if (oldPage) {
+                    if (oldContent) {
+                        destroyPromise = oldContent.destroy();
                     }
-                    resolve();
+                    this.pagesDispatcher.remove(oldPage);
+                }
+                this.debounce(() => {
+                    destroyPromise.then(() => {
+                        this.currentPage.show(!oldContent);
+                        if (controller.dispatchResolved) {
+                            controller.dispatchResolved();
+                        }
+                        resolve();
+                    });
                 });
             });
         });
