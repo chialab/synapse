@@ -1,7 +1,7 @@
 import { AjaxModel } from './ajax.js';
-import { LocalModel } from './local.js';
+import { DBModel } from './db.js';
 
-export class SyncModel extends LocalModel {
+export class SyncModel extends DBModel {
     fetch(...args) {
         return AjaxModel.prototype.fetch.call(this, ...args).then(
             () => this.sync(),

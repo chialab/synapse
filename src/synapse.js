@@ -13,8 +13,8 @@ export * from './helpers/script.js';
 export * from './helpers/view.js';
 // models
 export * from './models/ajax.js';
+export * from './models/db.js';
 export * from './models/sync.js';
-export * from './models/local.js';
 // views
 export * from './views/page.js';
 

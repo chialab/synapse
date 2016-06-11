@@ -1,7 +1,7 @@
 import PouchDB from 'pouchdb/pouchdb';
 import { Model } from '../model.js';
 
-export class LocalModel extends Model {
+export class DBModel extends Model {
     constructor() {
         super();
         let ModelCtr = this.constructor;
