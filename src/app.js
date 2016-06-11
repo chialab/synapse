@@ -1,5 +1,6 @@
 import { Router } from 'chialab/router/src/router.js';
 import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
+import { RegisterHelper } from 'chialab/sw-helpers/src/browser/register-helper.js';
 import { View } from './view.js';
 import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
@@ -19,8 +20,13 @@ export class App {
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
         if (this.serviceWorkerUrl) {
-            this.cache = new this.constructor.CacheHelper(
-                this.serviceWorkerUrl, this.serviceWorkerOptions);
+            this.sw = new RegisterHelper(
+                this.serviceWorkerUrl,
+                this.serviceWorkerOptions
+            );
+            this.sw.register().then(() => {
+                this.cache = new this.constructor.CacheHelper(this.sw);
+            });
         }
         this.router = new Router(this.routeOptions);
         for (let k in this.routeRoules) {
