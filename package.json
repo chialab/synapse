@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/Chialab/synapse#readme",
   "devDependencies": {
-    "es6-workflow": "^0.4.6"
+    "es6-workflow": "latest"
   },
   "dependencies": {
     "chialab-ajax": "^1.1.1",
