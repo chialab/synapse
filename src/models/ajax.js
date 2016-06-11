@@ -14,22 +14,26 @@ export class AjaxModel extends Model {
         return Promise.resolve(data);
     }
 
+    execFetch() {
+        return Ajax.get(`${this.endpoint}`, this.fetchOptions).then((data) =>
+            Promise.resolve(data)
+        , (xhr) => {
+            // cordova status 0
+            if (xhr && xhr.status === 0 &&
+                typeof xhr.response !== 'undefined' &&
+                xhr.response !== null) {
+                return Promise.resolve(xhr.response);
+            }
+            return Promise.reject(xhr);
+        });
+    }
+
     fetch(...args) {
         let Ctr = this.constructor;
         return Ctr.ready.then(() =>
             this.beforeFetch(...args).then(() => {
                 if (this.endpoint) {
-                    return Ajax.get(`${this.endpoint}`, this.fetchOptions).then((data) =>
-                        Promise.resolve(data)
-                    , (xhr) => {
-                        // cordova status 0
-                        if (xhr && xhr.status === 0 &&
-                            typeof xhr.response !== 'undefined' &&
-                            xhr.response !== null) {
-                            return Promise.resolve(xhr.response);
-                        }
-                        return Promise.reject(xhr);
-                    }).then((data) =>
+                    return this.execFetch(...args).then((data) =>
                         this.afterFetch(data).then((props) => {
                             this.set(props);
                             return Promise.resolve(props);
