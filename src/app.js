@@ -140,7 +140,7 @@ export class App {
                 this.debounce(() => {
                     destroyPromise.then(() => {
                         this.currentPage.show(!oldPage);
-                        if (controller.dispatchResolved) {
+                        if (controller && controller.dispatchResolved) {
                             controller.dispatchResolved();
                         }
                         resolve();

@@ -6,7 +6,9 @@ export class View {
                 content[k] = options[k];
             }
         }
-        content.controller = controller;
+        if (controller) {
+            content.controller = controller;
+        }
         this.content = content;
     }
 
