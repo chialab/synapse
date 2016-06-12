@@ -13,7 +13,6 @@ const manager = new CallbackManager();
 
 export class App {
     constructor(element) {
-        this.handleExceptions();
         if (element) {
             this.bindTo(element);
         }
@@ -161,13 +160,14 @@ export class App {
         this.router.navigate(url);
     }
 
-    handleExceptions() {
-        window.onerror = (msg, url, lineNo, columnNo, error) => {
-            if (error instanceof EXCEPTIONS.AppException) {
-                return this.handleException(error);
-            }
-            return false;
-        };
+    throwException(err) {
+        if (err && err instanceof EXCEPTIONS.AppException) {
+            this.debounce(() => {
+                if (!this.handleException(err)) {
+                    throw err;
+                }
+            });
+        }
     }
 
     handleException(err) {
