@@ -4,4 +4,8 @@ export class ContentException extends AppException {
     get defaultMessage() {
         return 'Generic content error.';
     }
+
+    get exceptionName() {
+        return 'ContentException';
+    }
 }

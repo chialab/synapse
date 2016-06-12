@@ -3,6 +3,10 @@ export class AppException {
         return 'Generic app error';
     }
 
+    get exceptionName() {
+        return 'AppException';
+    }
+
     constructor(message, original, ...args) {
         let err = new Error(message, ...args);
         if (typeof message === 'undefined') {
@@ -15,7 +19,7 @@ export class AppException {
             err.originalError = original;
             err.message = `${err.message}, from ${original.name}: ${original.message}.`;
         }
-        err.name = this.constructor.name;
+        err.name = this.constructor.exceptionName;
         Object.setPrototypeOf(err, this.constructor.prototype);
         return err;
     }

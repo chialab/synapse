@@ -4,4 +4,8 @@ export class ContentNotFoundException extends ContentException {
     get defaultMessage() {
         return 'Content not found';
     }
+
+    get exceptionName() {
+        return 'ContentNotFoundException';
+    }
 }
