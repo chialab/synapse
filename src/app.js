@@ -121,11 +121,12 @@ export class App {
                         }
                     });
                 }, (err) => {
-                    throw new EXCEPTIONS.ContentErrorException(err);
+                    this.throwException(new EXCEPTIONS.ContentErrorException(err));
                 });
             }
         }
-        throw new EXCEPTIONS.ContentNotFoundException();
+        this.throwException(new EXCEPTIONS.ContentNotFoundException());
+        return Promise.reject();
     }
 
     dispatchView(controller, controllerResponse) {
@@ -157,7 +158,7 @@ export class App {
     }
 
     navigate(url) {
-        this.router.navigate(url);
+        return this.router.navigate(url);
     }
 
     throwException(err) {
@@ -190,7 +191,11 @@ export class App {
     }
 
     backState() {
-        this.router.back();
+        return this.router.back();
+    }
+
+    forwardState() {
+        return this.router.forward();
     }
 }
 
