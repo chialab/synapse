@@ -3,12 +3,16 @@ export class Model {
         return [];
     }
 
-    set(data) {
+    set(data, value) {
         let Ctr = this.constructor;
-        for (let k in data) {
-            if (data.hasOwnProperty(k) && Ctr.properties.indexOf(k) !== -1) {
-                this[k] = data[k];
+        if (typeof data === 'object') {
+            for (let k in data) {
+                if (data.hasOwnProperty(k) && Ctr.properties.indexOf(k) !== -1) {
+                    this[k] = data[k];
+                }
             }
+        } else if (typeof data === 'string') {
+            this[data] = value;
         }
     }
 
