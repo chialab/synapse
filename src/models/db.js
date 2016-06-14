@@ -1,5 +1,7 @@
 import PouchDB from 'pouchdb/pouchdb';
 import { Model } from '../model.js';
+import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
+import { DBSyncFailedException } from '../exceptions/db-sync-failed.js';
 
 export class DBModel extends Model {
     static get databaseName() {
@@ -17,14 +19,20 @@ export class DBModel extends Model {
     static get database() {
         if (this.__db) {
             return this.__db;
-        } else if (this.databaseName) {
+        }
+        try {
             this.__db = new PouchDB(this.databaseName, this.databaseOptions);
             return this.__db;
+        } catch (ex) {
+            this.databaseError = new DBOpeningErrorException(ex);
         }
         return null;
     }
 
     static query(query, options) {
+        if (!this.database) {
+            return Promise.reject(this.databaseError);
+        }
         return this.database.query(query, options).then((res) => {
             res = res.rows.map((row) => {
                 let model = new this();
@@ -35,7 +43,10 @@ export class DBModel extends Model {
         });
     }
 
-    static sync(options) {
+    static sync(options = {}) {
+        if (!this.database) {
+            return Promise.reject(this.databaseError);
+        }
         let opt = {};
         for (let k in this.databaseSyncOptions) {
             if (this.databaseSyncOptions.hasOwnProperty(k)) {
@@ -51,9 +62,11 @@ export class DBModel extends Model {
             return this.database.sync(
                 opt.url,
                 opt
+            ).catch((err) => Promise.reject(
+                new DBSyncFailedException(this.database, err))
             );
         }
-        return Promise.reject();
+        return new DBSyncFailedException(this.database, 'Missing database remote url.');
     }
 
     get fetchOptions() {
@@ -70,6 +83,9 @@ export class DBModel extends Model {
 
     fetch(...args) {
         let Ctr = this.constructor;
+        if (!Ctr.database) {
+            return Promise.reject(Ctr.databaseError);
+        }
         return this.beforeFetch(...args).then(() =>
             Ctr.database.get(this[Ctr.databaseKey]).then((data) =>
                 this.afterFetch(data).then(() => {
@@ -87,6 +103,9 @@ export class DBModel extends Model {
 
     save(sync, syncOptions) {
         let Ctr = this.constructor;
+        if (!Ctr.database) {
+            return Promise.reject(Ctr.databaseError);
+        }
         return Promise.resolve().then(() => {
             if (this[Ctr.databaseKey]) {
                 return Ctr.database.put(this.toJSON(), this[Ctr.databaseKey]);

@@ -3,7 +3,6 @@ export * from './controller.js';
 export * from './model.js';
 export * from './view.js';
 export * from './exceptions.js';
-
 // helpers
 export * from './helpers/cache.js';
 export * from './helpers/css.js';
