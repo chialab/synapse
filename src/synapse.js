@@ -5,6 +5,7 @@ export * from './view.js';
 export * from './exceptions.js';
 // helpers
 export * from './helpers/cache.js';
+export * from './helpers/configure.js';
 export * from './helpers/css.js';
 export * from './helpers/flags.js';
 export * from './helpers/i18n.js';
