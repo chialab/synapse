@@ -3,6 +3,25 @@ import { Model } from '../model.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
 import { DBSyncFailedException } from '../exceptions/db-sync-failed.js';
 
+function prepareOptions(defaults = {}, options = {}) {
+    let opt = {};
+    if (typeof defaults === 'object') {
+        for (let k in defaults) {
+            if (defaults.hasOwnProperty(k)) {
+                opt[k] = defaults[k];
+            }
+        }
+    }
+    if (typeof options === 'object') {
+        for (let k in options) {
+            if (options.hasOwnProperty(k)) {
+                opt[k] = options[k];
+            }
+        }
+    }
+    return opt;
+}
+
 export class DBModel extends Model {
     static get databaseName() {
         return '';
@@ -47,17 +66,7 @@ export class DBModel extends Model {
         if (!this.database) {
             return Promise.reject(this.databaseError);
         }
-        let opt = {};
-        for (let k in this.databaseSyncOptions) {
-            if (this.databaseSyncOptions.hasOwnProperty(k)) {
-                opt[k] = this.databaseSyncOptions[k];
-            }
-        }
-        for (let k in options) {
-            if (options.hasOwnProperty(k)) {
-                opt[k] = options[k];
-            }
-        }
+        let opt = prepareOptions(this.databaseSyncOptions, options);
         if (opt.url) {
             return this.database.sync(
                 opt.url,
@@ -65,6 +74,43 @@ export class DBModel extends Model {
             ).catch((err) => Promise.reject(
                 new DBSyncFailedException(this.database, err))
             );
+        }
+        return new DBSyncFailedException(this.database, 'Missing database remote url.');
+    }
+
+    static push(options = {}) {
+        if (!this.database) {
+            return Promise.reject(this.databaseError);
+        }
+        let opt = prepareOptions(this.databaseSyncOptions, options);
+        if (opt.url) {
+            return this.database.replicate(
+                opt.url,
+                opt
+            ).catch((err) => {
+                Promise.reject(
+                    new DBSyncFailedException(this.database, err)
+                );
+            });
+        }
+        return new DBSyncFailedException(this.database, 'Missing database remote url.');
+    }
+
+    static pull(options = {}) {
+        if (!this.database) {
+            return Promise.reject(this.databaseError);
+        }
+        let opt = prepareOptions(this.databaseSyncOptions, options);
+        if (opt.url) {
+            let remote = new PouchDB(opt.url);
+            return remote.replicate(
+                this.database,
+                opt
+            ).catch((err) => {
+                Promise.reject(
+                    new DBSyncFailedException(this.database, err)
+                );
+            });
         }
         return new DBSyncFailedException(this.database, 'Missing database remote url.');
     }
@@ -101,7 +147,7 @@ export class DBModel extends Model {
         this.set(Ctr.databaseKey, val);
     }
 
-    save(sync, syncOptions) {
+    save(syncOptions) {
         let Ctr = this.constructor;
         if (!Ctr.database) {
             return Promise.reject(Ctr.databaseError);
@@ -115,8 +161,8 @@ export class DBModel extends Model {
                 return Promise.resolve();
             });
         }).then(() => {
-            if (sync) {
-                return this.sync(syncOptions);
+            if (syncOptions) {
+                return this.push(syncOptions);
             }
             return Promise.resolve();
         });
@@ -125,5 +171,15 @@ export class DBModel extends Model {
     sync(options = {}) {
         let Ctr = this.constructor;
         return Ctr.sync(options);
+    }
+
+    pull(options = {}) {
+        let Ctr = this.constructor;
+        return Ctr.pull(options);
+    }
+
+    push(options = {}) {
+        let Ctr = this.constructor;
+        return Ctr.push(options);
     }
 }
