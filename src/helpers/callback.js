@@ -5,20 +5,23 @@ let managers = new WeakMap();
 export class CallbackHelper {
     static define(obj) {
         managers.set(obj, new CallbackManager());
-        if (!obj.prototype.CALLBACK__HELPER__DEFINED) {
-            obj.prototype.on = function(...args) {
+        let proto = obj.constructor &&
+            obj.constructor.prototype ||
+            Object.getPrototypeOf(obj);
+        if (!proto.CALLBACK__HELPER__DEFINED) {
+            proto.on = function(...args) {
                 let manager = managers.get(this);
                 return manager.on(this, ...args);
             };
-            obj.prototype.off = function(...args) {
+            proto.off = function(...args) {
                 let manager = managers.get(this);
                 return manager.on(this, ...args);
             };
-            obj.prototype.trigger = function(...args) {
+            proto.trigger = function(...args) {
                 let manager = managers.get(this);
                 return manager.trigger(this, ...args);
             };
-            obj.prototype.CALLBACK__HELPER__DEFINED = true;
+            proto.CALLBACK__HELPER__DEFINED = true;
         }
     }
 }
