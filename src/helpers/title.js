@@ -15,11 +15,14 @@ export class TitleHelper {
     }
 
     reset() {
-        this.states = [];
+        this.states = [this.defaultTitle];
         this.update();
     }
 
     build() {
+        if (this.options.direction === 'inverse') {
+            return this.states.slice(0).reverse().join(' - ');
+        }
         return this.states.join(' - ');
     }
 
