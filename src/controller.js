@@ -1,12 +1,11 @@
-import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
-
-const manager = new CallbackManager();
+import { CallbackHelper } from './helpers/callback.js';
 
 export class Controller {
     constructor(appInstance) {
         let Ctr = this.constructor;
         this.App = appInstance;
         this.ready = Ctr.ready;
+        CallbackHelper.define(this);
     }
 
     promise(callback) {
@@ -43,5 +42,3 @@ export class Controller {
 }
 
 Controller.ready = Promise.resolve();
-
-manager.attachToPrototype(Controller.prototype);

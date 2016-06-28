@@ -1,6 +1,12 @@
+import { CallbackHelper } from './helpers/callback.js';
+
 export class Model {
     static get properties() {
         return [];
+    }
+
+    constructor() {
+        CallbackHelper.define(this);
     }
 
     set(data, value) {
