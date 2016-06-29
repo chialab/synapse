@@ -55,7 +55,11 @@ export class DBModel extends Model {
         return this.database.query(query, options).then((res) => {
             res = res.rows.map((row) => {
                 let model = new this();
-                model.set(row.key);
+                model.set(row.value);
+                model.setDatabaseInfo({
+                    id: row.value._id,
+                    rev: row.value._rev,
+                });
                 return model;
             });
             return Promise.resolve(res);
@@ -133,18 +137,30 @@ export class DBModel extends Model {
             return Promise.reject(Ctr.databaseError);
         }
         return this.beforeFetch(...args).then(() =>
-            Ctr.database.get(this[Ctr.databaseKey]).then((data) =>
+            Ctr.database.get(this.getDatabaseId()).then((data) =>
                 this.afterFetch(data).then(() => {
                     this.set(data);
+                    this.setDatabaseInfo({
+                        id: data._id,
+                        rev: data._rev,
+                    });
                     return Promise.resolve(data);
                 })
             )
         );
     }
 
-    setDatabaseId(val) {
-        let Ctr = this.constructor;
-        this.set(Ctr.databaseKey, val);
+    setDatabaseInfo(info) {
+        this.__dbId = info.id;
+        this.__dbRev = info.rev;
+    }
+
+    getDatabaseId() {
+        return this.__dbId;
+    }
+
+    getDatabaseRev() {
+        return this.__dbRev;
     }
 
     save(syncOptions) {
@@ -153,18 +169,21 @@ export class DBModel extends Model {
             return Promise.reject(Ctr.databaseError);
         }
         return Promise.resolve().then(() => {
-            if (this[Ctr.databaseKey]) {
-                return Ctr.database.put(this.toJSON(), this[Ctr.databaseKey]);
+            if (this.getDatabaseId()) {
+                return Ctr.database.put(this.toJSON(), this.getDatabaseId(), this.getDatabaseRev());
             }
             return Ctr.database.post(this.toJSON()).then((res) => {
-                this[Ctr.databaseKey] = res.id;
-                return Promise.resolve();
+                this.setDatabaseInfo({
+                    id: res.id,
+                    rev: res.rev,
+                });
+                return Promise.resolve(this);
             });
-        }).then(() => {
+        }).then((model) => {
             if (syncOptions) {
                 return this.push(syncOptions);
             }
-            return Promise.resolve();
+            return Promise.resolve(model);
         });
     }
 

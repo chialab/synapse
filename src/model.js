@@ -14,11 +14,16 @@ export class Model {
         if (typeof data === 'object') {
             for (let k in data) {
                 if (data.hasOwnProperty(k) && Ctr.properties.indexOf(k) !== -1) {
-                    this[k] = data[k];
+                    let desc = Object.getOwnPropertyDescriptor(Ctr.prototype, k);
+                    if (!desc || typeof desc.get !== 'function' || typeof desc.set === 'function') {
+                        this[k] = data[k];
+                    }
                 }
             }
         } else if (typeof data === 'string') {
-            this[data] = value;
+            let s = {};
+            s[data] = value;
+            this.set(s);
         }
     }
 
