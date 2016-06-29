@@ -75,9 +75,10 @@ export class App {
 
     get routeRoules() {
         return {
-            '/*/*/..': 'route',
-            '/*/*': 'route',
-            '..': 'route',
+            '/:controller/:action/*': 'route',
+            '/:controller/:action': 'route',
+            '/:controller': 'route',
+            '*': 'notFoundException',
         };
     }
 
@@ -124,8 +125,12 @@ export class App {
                 });
             }
         }
-        this.throwException(new EXCEPTIONS.ContentNotFoundException());
+        this.notFoundException();
         return Promise.reject();
+    }
+
+    notFoundException() {
+        this.throwException(new EXCEPTIONS.ContentNotFoundException());
     }
 
     dispatchView(controller, controllerResponse) {
