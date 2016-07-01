@@ -1,15 +1,18 @@
 export class View {
     constructor(controller, options = {}) {
-        let content = document.createElement('div');
+        this.content = document.createElement('div');
+        this.update(options);
+        if (controller) {
+            this.content.controller = controller;
+        }
+    }
+
+    update(options = {}) {
         for (let k in options) {
             if (options.hasOwnProperty(k)) {
-                content[k] = options[k];
+                this.content[k] = options[k];
             }
         }
-        if (controller) {
-            content.controller = controller;
-        }
-        this.content = content;
     }
 
     getContent() {

@@ -26,6 +26,10 @@ export class Controller {
         });
     }
 
+    update(vars = {}) {
+        this.trigger('update', vars);
+    }
+
     fail(err) {
         this._reject(err);
     }
@@ -38,6 +42,10 @@ export class Controller {
 
     redirect(path) {
         this.App.navigate(path);
+    }
+
+    destroy() {
+        return Promise.resolve();
     }
 }
 

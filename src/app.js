@@ -106,22 +106,34 @@ export class App {
             let Controller = this.routeMap[controller];
             if (typeof Controller !== 'undefined') {
                 let ctr = new Controller(this);
-                return ctr.ready.then(() => {
-                    let promise;
-                    if (action && typeof ctr[action] === 'function') {
-                        promise = ctr[action].call(ctr, ...paths);
-                    } else {
-                        promise = ctr.exec(action, ...paths);
-                    }
-                    promise.then((ctrRes) =>
-                        this.dispatchView(ctr, ctrRes)
-                    , (err) => {
-                        if (err instanceof Error) {
-                            throw err;
+                let destroyCtr = Promise.resolve();
+                if (this.currentController) {
+                    this.currentController.off('update');
+                    destroyCtr = this.currentController.destroy();
+                }
+                return destroyCtr.then(() => {
+                    this.currentController = ctr;
+                    return ctr.ready.then(() => {
+                        let promise;
+                        if (action && typeof ctr[action] === 'function') {
+                            promise = ctr[action].call(ctr, ...paths);
+                        } else {
+                            promise = ctr.exec(action, ...paths);
                         }
+                        promise.then((ctrRes) =>
+                            this.dispatchView(ctr, ctrRes).then(() => {
+                                ctr.on('update', (newCtrRes) => {
+                                    this.updateView(newCtrRes);
+                                });
+                            })
+                        , (err) => {
+                            if (err instanceof Error) {
+                                throw err;
+                            }
+                        });
+                    }, (err) => {
+                        this.throwException(new EXCEPTIONS.ContentErrorException(err));
                     });
-                }, (err) => {
-                    this.throwException(new EXCEPTIONS.ContentErrorException(err));
                 });
             }
         }
@@ -153,6 +165,13 @@ export class App {
                 });
             });
         });
+    }
+
+    updateView(controllerResponse) {
+        if (this.currentView) {
+            return this.currentView.update(controllerResponse);
+        }
+        return Promise.reject();
     }
 
     debounce(callback) {
