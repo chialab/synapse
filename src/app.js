@@ -27,10 +27,10 @@ export class App {
             });
         }
         this.router = new Router(this.routeOptions);
-        for (let k in this.routeRoules) {
-            if (this.routeRoules.hasOwnProperty(k)) {
-                if (typeof this[this.routeRoules[k]] === 'function') {
-                    this.router.on(k, this[this.routeRoules[k]].bind(this));
+        for (let k in this.routeRules) {
+            if (this.routeRules.hasOwnProperty(k)) {
+                if (typeof this[this.routeRules[k]] === 'function') {
+                    this.router.on(k, this[this.routeRules[k]].bind(this));
                 }
             }
         }
@@ -73,7 +73,7 @@ export class App {
         return this.defaultRouteOptions;
     }
 
-    get routeRoules() {
+    get routeRules() {
         return {
             '/:controller/:action/*': 'route',
             '/:controller/:action': 'route',
