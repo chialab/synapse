@@ -1,4 +1,4 @@
-import { CallbackHelper } from './helpers/callback.js';
+import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
 
 export class Model {
     static get properties() {
@@ -6,7 +6,7 @@ export class Model {
     }
 
     constructor() {
-        CallbackHelper.define(this);
+        CallbackManager.define(this);
     }
 
     set(data, value) {

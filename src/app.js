@@ -1,6 +1,6 @@
 import { Router } from 'chialab/router/src/router.js';
 import { RegisterHelper } from 'chialab/sw-helpers/src/browser/register-helper.js';
-import { CallbackHelper } from './helpers/callback.js';
+import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
 import { View } from './view.js';
 import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
@@ -14,7 +14,7 @@ export class App {
         if (element) {
             this.bindTo(element);
         }
-        CallbackHelper.define(this);
+        CallbackManager.define(this);
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
         if (this.serviceWorkerUrl) {
