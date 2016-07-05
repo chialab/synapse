@@ -130,8 +130,8 @@ export class App {
         this.throwException(new EXCEPTIONS.ContentNotFoundException());
     }
 
-    dispatchController(Controller) {
-        let ctr = new Controller(this);
+    dispatchController(Controller, ...args) {
+        let ctr = new Controller(this, ...args);
         let destroyCtr = Promise.resolve();
         if (this.currentController) {
             this.currentController.off('update');
