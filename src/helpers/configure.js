@@ -1,8 +1,8 @@
-import { objectPath } from 'object-path';
+import objectPath from 'object-path';
 
 export class ConfigureHelper {
     constructor() {
-        this.__confs = {};
+        this.__conf = {};
     }
 
     write(path, value) {
