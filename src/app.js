@@ -105,7 +105,7 @@ export class App {
         if (controller) {
             let Controller = this.routeMap[controller];
             if (typeof Controller !== 'undefined') {
-                this.dispatchController(Controller).then((ctr) => {
+                return this.dispatchController(Controller).then((ctr) => {
                     let promise;
                     if (action && typeof ctr[action] === 'function') {
                         promise = ctr[action].call(ctr, ...paths);
@@ -157,12 +157,14 @@ export class App {
                 this.debounce(() => {
                     destroyPromise.then(() => {
                         this.currentPage.show(!oldPage);
-                        if (controller && controller.dispatchResolved) {
-                            controller.dispatchResolved();
+                        if (controller) {
+                            if (controller.dispatchResolved) {
+                                controller.dispatchResolved();
+                            }
+                            controller.on('update', (newCtrRes) => {
+                                this.updateView(newCtrRes);
+                            });
                         }
-                        controller.on('update', (newCtrRes) => {
-                            this.updateView(newCtrRes);
-                        });
                         resolve();
                     });
                 });
