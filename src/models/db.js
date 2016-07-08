@@ -169,10 +169,15 @@ export class DBModel extends Model {
             return Promise.reject(Ctr.databaseError);
         }
         return Promise.resolve().then(() => {
+            let savePromise;
             if (this.getDatabaseId()) {
-                return Ctr.database.put(this.toJSON(), this.getDatabaseId(), this.getDatabaseRev());
+                savePromise = Ctr.database.put(
+                    this.toJSON(), this.getDatabaseId(), this.getDatabaseRev()
+                );
+            } else {
+                savePromise = Ctr.database.post(this.toJSON());
             }
-            return Ctr.database.post(this.toJSON()).then((res) => {
+            return savePromise.then((res) => {
                 this.setDatabaseInfo({
                     id: res.id,
                     rev: res.rev,
