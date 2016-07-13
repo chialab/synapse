@@ -185,8 +185,12 @@ export class App {
         }, 0);
     }
 
-    navigate(url) {
-        return this.router.navigate(url);
+    navigate(...args) {
+        return this.router.navigate(...args);
+    }
+
+    refresh() {
+        return this.router.refresh();
     }
 
     throwException(err) {
