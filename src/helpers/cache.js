@@ -1,3 +1,3 @@
-import { CacheHelper as swCacheHelper } from 'chialab/sw-helpers/src/browser/cache-helper.js';
+import { Cache as swCacheHelper } from 'chialab/sw-helpers/dist/sw-helpers.js';
 
 export class CacheHelper extends swCacheHelper {}
