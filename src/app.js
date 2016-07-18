@@ -1,5 +1,5 @@
 import { Router } from 'chialab/router/src/router.js';
-import { RegisterHelper } from 'chialab/sw-helpers/src/browser/register-helper.js';
+import { Register as RegisterHelper } from 'chialab/sw-helpers/dist/sw-helpers.js';
 import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
 import { View } from './view.js';
 import { PagesHelper } from './helpers/pages.js';
