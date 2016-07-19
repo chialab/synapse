@@ -11,6 +11,7 @@ import * as EXCEPTIONS from './exceptions.js';
 
 export class App {
     constructor(element) {
+        let readyPromises = [];
         if (element) {
             this.bindTo(element);
         }
@@ -22,9 +23,10 @@ export class App {
                 this.serviceWorkerUrl,
                 this.serviceWorkerOptions
             );
-            this.sw.register().then(() => {
+            let swPromises = this.sw.register().then(() => {
                 this.cache = new this.constructor.CacheHelper(this.sw);
             });
+            readyPromises.push(swPromises);
         }
         this.router = new Router(this.routeOptions);
         for (let k in this.routeRules) {
@@ -34,9 +36,16 @@ export class App {
                 }
             }
         }
-        this.debounce(() => {
-            this.router.start();
-        });
+        Promise.all(readyPromises)
+            .then(() => {
+                this.debounce(() => {
+                    this.router.start();
+                });
+            })
+            .catch(() => {
+                // eslint-disable-next-line
+                alert('Error occurred on application initialize.');
+            });
     }
 
     static get View() {
