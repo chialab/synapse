@@ -37,7 +37,7 @@
     "es6-workflow": "latest"
   },
   "dependencies": {
-    "chialab-ajax": "^1.1.1",
+    "chialab-ajax": "^1.3.0",
     "chialab-callback-manager": "^1.2.0",
     "chialab-i18n": "^1.1.1",
     "chialab-router": "^0.4.0",
