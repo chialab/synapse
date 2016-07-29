@@ -55,7 +55,7 @@ export class DBModel extends Model {
         return this.database.query(query, options).then((res) => {
             res = res.rows.map((row) => {
                 let model = new this();
-                model.set(row.value);
+                model.set(row.value, true);
                 model.setDatabaseInfo({
                     id: row.value._id,
                     rev: row.value._rev,
@@ -139,7 +139,7 @@ export class DBModel extends Model {
         return this.beforeFetch(...args).then(() =>
             Ctr.database.get(this.getDatabaseId()).then((data) =>
                 this.afterFetch(data).then(() => {
-                    this.set(data);
+                    this.set(data, true);
                     this.setDatabaseInfo({
                         id: data._id,
                         rev: data._rev,
@@ -171,9 +171,7 @@ export class DBModel extends Model {
         return Promise.resolve().then(() => {
             let savePromise;
             if (this.getDatabaseId()) {
-                savePromise = Ctr.database.put(
-                    this.toJSON(), this.getDatabaseId(), this.getDatabaseRev()
-                );
+                savePromise = Ctr.database.put(this.toDBData());
             } else {
                 savePromise = Ctr.database.post(this.toJSON());
             }
@@ -189,7 +187,17 @@ export class DBModel extends Model {
                 return this.push(syncOptions);
             }
             return Promise.resolve(model);
+        }).then((model) => {
+            this.resetChanges();
+            return Promise.resolve(model);
         });
+    }
+
+    toDBData() {
+        let data = this.toJSON();
+        data._id = this.getDatabaseId();
+        data._rev = this.getDatabaseRev();
+        return data;
     }
 
     sync(options = {}) {
