@@ -8,16 +8,21 @@ export class ScriptHelper {
             } else if (content) {
                 script.innerText = content;
             }
-            script.addEventListener('load', () => {
-                resolve(script);
-            });
-            script.addEventListener('error', () => {
-                reject(script);
-            });
-            script.addEventListener('abort', () => {
-                reject(script);
-            });
-            document.body.appendChild(script);
+            if (url) {
+                script.addEventListener('load', () => {
+                    resolve(script);
+                });
+                script.addEventListener('error', () => {
+                    reject(script);
+                });
+                script.addEventListener('abort', () => {
+                    reject(script);
+                });
+                document.body.appendChild(script);
+            } else {
+                document.body.appendChild(script);
+                resolve();
+            }
         });
     }
 
