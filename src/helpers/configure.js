@@ -17,6 +17,18 @@ export class ConfigureHelper {
         return !!objectPath.set(this.__conf, path, value);
     }
 
+    defaults(path, value) {
+        if (typeof path === 'object') {
+            for (let k in path) {
+                if (path.hasOwnProperty(k)) {
+                    this.defaults(k, path[k]);
+                }
+            }
+            return true;
+        }
+        return !!objectPath.ensureExists(this.__conf, path, value);
+    }
+
     read(path) {
         return objectPath.get(this.__conf, path, undefined);
     }
