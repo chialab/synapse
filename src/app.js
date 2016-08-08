@@ -158,11 +158,11 @@ export class App {
         const AppView = this.constructor.View;
         return new Promise((resolve) => {
             let view = new AppView(controller, controllerResponse);
-            let oldPage = this.currentPage;
             this.currentView = view;
             this.pagesDispatcher.add(view, false).then((page) => {
-                this.currentPage = page;
+                let oldPage = this.currentPage;
                 let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
+                this.currentPage = page;
                 this.debounce(() => {
                     destroyPromise.then(() => {
                         this.currentPage.show(!oldPage);
