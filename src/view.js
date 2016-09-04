@@ -1,10 +1,16 @@
-export class View {
+import { BaseObject } from './base.js';
+
+export class View extends BaseObject {
     constructor(controller, options = {}) {
+        super();
+        this.setOwner(controller.getOwner());
         this.content = document.createElement('div');
-        this.update(options);
-        if (controller) {
-            this.content.controller = controller;
-        }
+        options.controller = controller;
+        this.readyPromise = this.update(options);
+    }
+
+    ready() {
+        return this.readyPromise;
     }
 
     update(options = {}) {
@@ -13,13 +19,15 @@ export class View {
                 this.content[k] = options[k];
             }
         }
+        return Promise.resolve();
     }
 
     getContent() {
         return Promise.resolve(this.content);
     }
 
-    destroy() {
+    destroy(...args) {
+        super.destroy(...args);
         if (this.content && this.content.parentNode) {
             this.content.parentNode.removeChild(this.content);
         }

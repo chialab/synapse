@@ -11,6 +11,7 @@
             'chialab/*': 'node_modules/chialab-*',
             'object-path': 'node_modules/object-path/index.js',
             'pouchdb/pouchdb': 'node_modules/pouchdb/dist/pouchdb.js',
+            'mixwith': 'node_modules/mixwith/src/mixwith.js',
         },
     });
 }());

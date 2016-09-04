@@ -3,6 +3,9 @@ export * from './controller.js';
 export * from './model.js';
 export * from './view.js';
 export * from './exceptions.js';
+// mixins
+export * from './mixins/callback.js';
+export * from './mixins/routable.js';
 // helpers
 export * from './helpers/cache.js';
 export * from './helpers/configure.js';

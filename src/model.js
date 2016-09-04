@@ -1,12 +1,8 @@
-import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
+import { BaseObject } from './base.js';
 
-export class Model {
+export class Model extends BaseObject {
     static get properties() {
         return [];
-    }
-
-    constructor() {
-        CallbackManager.define(this);
     }
 
     set(data, value, skipChanges = false) {

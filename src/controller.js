@@ -1,11 +1,11 @@
-import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
+import { BaseObject } from './base.js';
 
-export class Controller {
+export class Controller extends BaseObject {
     constructor(appInstance) {
+        super();
         let Ctr = this.constructor;
-        this.App = appInstance;
+        this.setOwner(appInstance);
         this.ready = Ctr.ready;
-        CallbackManager.define(this);
     }
 
     promise(callback) {
@@ -27,7 +27,7 @@ export class Controller {
     }
 
     update(vars = {}) {
-        this.trigger('update', vars);
+        return this.trigger('update', vars);
     }
 
     fail(err) {
@@ -41,10 +41,11 @@ export class Controller {
     }
 
     redirect(path) {
-        this.App.navigate(path);
+        this.getOwner().navigate(path);
     }
 
-    destroy() {
+    destroy(...args) {
+        super.destroy(...args);
         return Promise.resolve();
     }
 }

@@ -1,6 +1,7 @@
-import { Router } from 'chialab/router/src/router.js';
+import { mix } from 'mixwith';
+import { BaseObject } from './base.js';
+import { RoutableMixin } from './mixins/routable.js';
 import { Register as RegisterHelper } from 'chialab/sw-helpers/dist/sw-helpers.js';
-import { CallbackManager } from 'chialab/callback-manager/src/callback-manager.js';
 import { View } from './view.js';
 import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
@@ -9,45 +10,7 @@ import { CacheHelper } from './helpers/cache.js';
 import { CssHelper } from './helpers/css.js';
 import * as EXCEPTIONS from './exceptions.js';
 
-export class App {
-    constructor(element) {
-        let readyPromises = [];
-        if (element) {
-            this.bindTo(element);
-        }
-        CallbackManager.define(this);
-        this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
-        this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
-        if (this.serviceWorkerUrl) {
-            this.sw = new RegisterHelper(
-                this.serviceWorkerUrl,
-                this.serviceWorkerOptions
-            );
-            let swPromises = this.sw.register().then(() => {
-                this.cache = new this.constructor.CacheHelper(this.sw);
-            });
-            readyPromises.push(swPromises);
-        }
-        this.router = new Router(this.routeOptions);
-        for (let k in this.routeRules) {
-            if (this.routeRules.hasOwnProperty(k)) {
-                if (typeof this[this.routeRules[k]] === 'function') {
-                    this.router.on(k, this[this.routeRules[k]].bind(this));
-                }
-            }
-        }
-        Promise.all(readyPromises)
-            .then(() => {
-                this.debounce(() => {
-                    this.router.start();
-                });
-            })
-            .catch(() => {
-                // eslint-disable-next-line
-                alert('Error occurred on application initialize.');
-            });
-    }
-
+export class App extends mix(BaseObject).with(RoutableMixin) {
     static get View() {
         return View;
     }
@@ -70,6 +33,36 @@ export class App {
 
     static addStyle(css) {
         CssHelper.add(css);
+    }
+
+    constructor(element) {
+        super();
+        let readyPromises = [];
+        if (element) {
+            this.bindTo(element);
+        }
+        this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
+        this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
+        if (this.serviceWorkerUrl) {
+            this.sw = new RegisterHelper(
+                this.serviceWorkerUrl,
+                this.serviceWorkerOptions
+            );
+            let swPromises = this.sw.register().then(() => {
+                this.cache = new this.constructor.CacheHelper(this.sw);
+            });
+            readyPromises.push(swPromises);
+        }
+        Promise.all(readyPromises)
+            .then(() => {
+                this.debounce(() => {
+                    this.router.start();
+                });
+            })
+            .catch(() => {
+                // eslint-disable-next-line
+                alert('Error occurred on application initialize.');
+            });
     }
 
     get defaultRouteOptions() {
@@ -170,9 +163,9 @@ export class App {
                             if (controller.dispatchResolved) {
                                 controller.dispatchResolved();
                             }
-                            controller.on('update', (newCtrRes) => {
-                                this.updateView(newCtrRes);
-                            });
+                            controller.on('update', (newCtrRes) =>
+                                this.updateView(newCtrRes)
+                            );
                         }
                         resolve();
                     });
