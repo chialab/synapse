@@ -1,12 +1,10 @@
 import { mix } from 'mixwith';
 import { BaseObject } from './base.js';
 import { RoutableMixin } from './mixins/routable.js';
-import { Register as RegisterHelper } from 'chialab/sw-helpers/dist/sw-helpers.js';
 import { View } from './view.js';
 import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
-import { CacheHelper } from './helpers/cache.js';
 import { CssHelper } from './helpers/css.js';
 import * as EXCEPTIONS from './exceptions.js';
 
@@ -27,33 +25,43 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
         return I18NHelper;
     }
 
-    static get CacheHelper() {
-        return CacheHelper;
-    }
-
     static addStyle(css) {
         CssHelper.add(css);
     }
 
-    constructor(element) {
+    static get defaultRouteOptions() {
+        return {
+            dispatch: true,
+        };
+    }
+
+    static get routeOptions() {
+        return this.defaultRouteOptions;
+    }
+
+    static get routeRules() {
+        return {
+            '/:controller/:action/*': 'route',
+            '/:controller/:action': 'route',
+            '/:controller': 'route',
+            '*': 'notFoundException',
+        };
+    }
+
+    static get routeMap() {
+        return {};
+    }
+
+    constructor(element, ...args) {
         super();
-        let readyPromises = [];
+        this.readyPromises = [];
         if (element) {
             this.bindTo(element);
         }
+        this.onInit(element, ...args);
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
-        if (this.serviceWorkerUrl) {
-            this.sw = new RegisterHelper(
-                this.serviceWorkerUrl,
-                this.serviceWorkerOptions
-            );
-            let swPromises = this.sw.register().then(() => {
-                this.cache = new this.constructor.CacheHelper(this.sw);
-            });
-            readyPromises.push(swPromises);
-        }
-        Promise.all(readyPromises)
+        Promise.all(this.readyPromises)
             .then(() => {
                 this.debounce(() => {
                     this.router.start();
@@ -65,27 +73,8 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
             });
     }
 
-    get defaultRouteOptions() {
-        return {
-            dispatch: true,
-        };
-    }
-
-    get routeOptions() {
-        return this.defaultRouteOptions;
-    }
-
-    get routeRules() {
-        return {
-            '/:controller/:action/*': 'route',
-            '/:controller/:action': 'route',
-            '/:controller': 'route',
-            '*': 'notFoundException',
-        };
-    }
-
-    get routeMap() {
-        return {};
+    onInit(...args) {
+        super.onInit(...args);
     }
 
     get i18nOptions() {
@@ -95,7 +84,7 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
     }
 
     ready() {
-        return Promise.resolve();
+        return Promise.all(this.readyPromises);
     }
 
     bindTo(element) {
@@ -135,9 +124,10 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
     dispatchController(Controller, ...args) {
         let ctr = new Controller(this, ...args);
         let destroyCtr = Promise.resolve();
-        if (this.currentController) {
-            this.currentController.off('update');
-            destroyCtr = this.currentController.destroy();
+        let previousCtr = this.currentController;
+        if (previousCtr) {
+            previousCtr.off('update');
+            destroyCtr = previousCtr.destroy();
         }
         return destroyCtr.then(() => {
             this.currentController = ctr;
@@ -218,10 +208,12 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
 
     notFound() {
         // NOT FOUND
+        return Promise.resolve();
     }
 
     error() {
         // ERROR
+        return Promise.resolve();
     }
 
     backState() {

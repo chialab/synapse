@@ -1,26 +1,81 @@
 import { Router } from 'chialab/router/src/router.js';
+import { Controller } from '../controller.js';
 
 export const RoutableMixin = (superClass) => class extends superClass {
-    get defaultRouteOptions() {
+    static get defaultRouteOptions() {
         return {};
     }
 
-    get routeOptions() {
+    static get routeOptions() {
         return this.defaultRouteOptions;
     }
 
-    get routeRules() {
+    static get routeRules() {
+        return {};
+    }
+
+    static get routeMap() {
         return {};
     }
 
     constructor() {
         super();
-        this.router = new Router(this.routeOptions);
-        for (let k in this.routeRules) {
-            if (this.routeRules.hasOwnProperty(k)) {
-                if (typeof this[this.routeRules[k]] === 'function') {
-                    this.router.on(k, this[this.routeRules[k]].bind(this));
+        const Ctr = this.constructor;
+        this.router = new Router(Ctr.routeOptions);
+    }
+
+    onInit(...args) {
+        super.onInit(...args);
+        const Ctr = this.constructor;
+        this.registerRoutes(Ctr.routeRules);
+        this.registerRouteMap(Ctr.routeMap);
+    }
+
+    registerRoutes(routeRules) {
+        for (let k in routeRules) {
+            if (routeRules.hasOwnProperty(k)) {
+                let ruleMatch = routeRules[k];
+                if (typeof ruleMatch === 'string') {
+                    if (typeof this[ruleMatch] === 'function') {
+                        this.router.on(k, (...args) =>
+                            this.beforeRoute(...args).then((args2) =>
+                                this[ruleMatch].call(this, ...args2)
+                                    .then(() => this.afterRoute())
+                            )
+                        );
+                    }
+                } else if (ruleMatch.prototype instanceof Controller) {
+                    this.router.on(k, (...args) =>
+                        this.beforeRoute(...args).then(() =>
+                            this.dispatchController(ruleMatch)
+                                .then((ctr) =>
+                                    ctr.exec(...args).then((ctrRes) =>
+                                        this.dispatchView(ctr, ctrRes)
+                                    ).catch((err) =>
+                                        this.throwException(err)
+                                    )
+                                )
+                                .then(() => this.afterRoute())
+                        )
+                    );
                 }
+            }
+        }
+    }
+
+    beforeRoute(...args) {
+        return Promise.resolve(args || []);
+    }
+
+    afterRoute() {
+        return Promise.resolve();
+    }
+
+    registerRouteMap(routeMap) {
+        for (let k in routeMap) {
+            if (routeMap.hasOwnProperty(k)) {
+                this.routeMap = this.routeMap || {};
+                this.routeMap[k] = routeMap[k];
             }
         }
     }

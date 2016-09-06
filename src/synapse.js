@@ -1,3 +1,4 @@
+export { mix } from 'mixwith';
 // base
 export * from './controller.js';
 export * from './model.js';
@@ -7,7 +8,6 @@ export * from './exceptions.js';
 export * from './mixins/callback.js';
 export * from './mixins/routable.js';
 // helpers
-export * from './helpers/cache.js';
 export * from './helpers/configure.js';
 export * from './helpers/css.js';
 export * from './helpers/flags.js';

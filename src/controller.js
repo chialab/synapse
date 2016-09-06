@@ -3,6 +3,7 @@ import { BaseObject } from './base.js';
 export class Controller extends BaseObject {
     constructor(appInstance) {
         super();
+        this.onInit();
         let Ctr = this.constructor;
         this.setOwner(appInstance);
         this.ready = Ctr.ready;

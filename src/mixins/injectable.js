@@ -14,25 +14,30 @@ export const InjectableMixin = (superClass) => class extends mix(superClass).wit
         } else if (typeof inject === 'object') {
             for (let name in inject) {
                 if (inject.hasOwnProperty(name)) {
-                    this.injected = this.injected || {};
-                    this.injected[name] = inject[name];
+                    this.inject(name, inject[name]);
                 }
             }
         }
     }
 
-    inject(name) {
-        let owner = this.getOwner();
+    inject(name, fn) {
+        this.injected = this.injected || {};
         if (typeof name === 'string') {
-            let obj = owner.getFactory(name);
-            if (obj) {
-                this.injected = this.injected || {};
-                this.injected[name] = obj;
+            if (typeof fn !== 'undefined') {
+                this.injected[name] = fn;
+            } else if (!this.injected[name]) {
+                let obj = this.getFactory(name);
+                if (obj) {
+                    this.injected[name] = obj;
+                }
             }
+            return this.injected[name];
         }
+        return null;
     }
 
     getFactory(name) {
-        return this.injected && this.injected[name];
+        let owner = this.getOwner();
+        return owner.injected && owner.injected[name];
     }
 };

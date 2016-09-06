@@ -10,6 +10,7 @@ const mixins = [
 ];
 
 export class BaseObject extends mix(class {}).with(...mixins) {
+    onInit() {}
     destroy() {
         this.off();
     }
