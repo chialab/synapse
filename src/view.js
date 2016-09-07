@@ -1,9 +1,8 @@
-import { BaseObject } from './base.js';
+import { AppObject } from './base.js';
 
-export class View extends BaseObject {
-    constructor(controller, options = {}) {
-        super();
-        this.setOwner(controller.getOwner());
+export class View extends AppObject {
+    onInit(controller, options = {}) {
+        super.onInit(controller);
         this.content = document.createElement('div');
         options.controller = controller;
         this.readyPromise = this.update(options);

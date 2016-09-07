@@ -1,11 +1,9 @@
-import { BaseObject } from './base.js';
+import { AppObject } from './base.js';
 
-export class Controller extends BaseObject {
+export class Controller extends AppObject {
     constructor(appInstance) {
-        super();
-        this.onInit();
+        super(appInstance);
         let Ctr = this.constructor;
-        this.setOwner(appInstance);
         this.ready = Ctr.ready;
     }
 

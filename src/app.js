@@ -52,13 +52,9 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
         return {};
     }
 
-    constructor(element, ...args) {
-        super();
-        this.readyPromises = [];
-        if (element) {
-            this.bindTo(element);
-        }
-        this.onInit(element, ...args);
+    onInit(element) {
+        super.onInit(element);
+        this.element = element;
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
         Promise.all(this.readyPromises)
@@ -67,14 +63,11 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
                     this.router.start();
                 });
             })
-            .catch(() => {
+            .catch((ex) => {
+                console.error(ex);
                 // eslint-disable-next-line
                 alert('Error occurred on application initialize.');
             });
-    }
-
-    onInit(...args) {
-        super.onInit(...args);
     }
 
     get i18nOptions() {
@@ -85,10 +78,6 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
 
     ready() {
         return Promise.all(this.readyPromises);
-    }
-
-    bindTo(element) {
-        this.element = element;
     }
 
     route(controller, action, paths = '') {
@@ -214,13 +203,5 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
     error() {
         // ERROR
         return Promise.resolve();
-    }
-
-    backState() {
-        return this.router.back();
-    }
-
-    forwardState() {
-        return this.router.forward();
     }
 }

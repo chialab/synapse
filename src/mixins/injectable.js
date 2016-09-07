@@ -1,13 +1,10 @@
-import { mix } from 'mixwith';
-import { OwnableMixin } from './ownable.js';
-
-export const InjectableMixin = (superClass) => class extends mix(superClass).with(OwnableMixin) {
+export const InjectableMixin = (superClass) => class extends superClass {
     static get inject() {
         return [];
     }
 
-    constructor(...args) {
-        super(...args);
+    onInit(...args) {
+        super.onInit(...args);
         let inject = this.constructor.inject;
         if (Array.isArray(inject)) {
             inject.forEach((name) => this.inject(name));
@@ -20,24 +17,22 @@ export const InjectableMixin = (superClass) => class extends mix(superClass).wit
         }
     }
 
-    inject(name, fn) {
-        this.injected = this.injected || {};
-        if (typeof name === 'string') {
-            if (typeof fn !== 'undefined') {
-                this.injected[name] = fn;
-            } else if (!this.injected[name]) {
-                let obj = this.getFactory(name);
-                if (obj) {
-                    this.injected[name] = obj;
-                }
-            }
-            return this.injected[name];
+    inject(name, Fn) {
+        let owner = this;
+        if (typeof this.getOwner === 'function') {
+            owner = this.getOwner();
         }
-        return null;
+        this.injected = this.injected || {};
+        if (typeof Fn === 'undefined') {
+            this.injected[name] = owner.factory(name);
+        } else if (owner !== this) {
+            owner.inject(name, Fn);
+        } else {
+            owner.injected[name] = new Fn(owner);
+        }
     }
 
-    getFactory(name) {
-        let owner = this.getOwner();
-        return owner.injected && owner.injected[name];
+    factory(name) {
+        return this.injected && this.injected[name];
     }
 };
