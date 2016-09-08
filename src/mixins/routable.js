@@ -18,12 +18,12 @@ export const RoutableMixin = (superClass) => class extends superClass {
         return {};
     }
 
-    onInit(...args) {
+    initialize(...args) {
         const Ctr = this.constructor;
         this.router = new Router(Ctr.routeOptions);
         this.registerRoutes(Ctr.routeRules);
         this.registerRouteMap(Ctr.routeMap);
-        super.onInit(...args);
+        super.initialize(...args);
     }
 
     registerRoutes(routeRules) {

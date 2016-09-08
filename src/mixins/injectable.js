@@ -3,8 +3,8 @@ export const InjectableMixin = (superClass) => class extends superClass {
         return [];
     }
 
-    onInit(...args) {
-        super.onInit(...args);
+    initialize(...args) {
+        super.initialize(...args);
         let inject = this.constructor.inject;
         if (Array.isArray(inject)) {
             inject.forEach((name) => this.inject(name));
@@ -12,6 +12,7 @@ export const InjectableMixin = (superClass) => class extends superClass {
             for (let name in inject) {
                 if (inject.hasOwnProperty(name)) {
                     this.inject(name, inject[name]);
+                    this.inject(name);
                 }
             }
         }

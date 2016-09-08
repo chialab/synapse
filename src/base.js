@@ -7,7 +7,7 @@ import { CallbackMixin } from './mixins/callback.js';
 export class BaseObject extends mix(class {
     constructor(...args) {
         this.readyPromises = [];
-        this.onInit(...args);
+        this.initialize(...args);
     }
 }).with(
     BaseMixin,

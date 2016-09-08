@@ -1,4 +1,4 @@
 export const BaseMixin = (superClass) => class extends superClass {
-    onInit() {}
+    initialize() {}
     destroy() {}
 };

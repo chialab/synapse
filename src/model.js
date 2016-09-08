@@ -7,7 +7,7 @@ export class Model extends BaseObject {
 
     constructor() {
         super();
-        this.onInit();
+        this.initialize();
     }
 
     set(data, value, skipChanges = false) {

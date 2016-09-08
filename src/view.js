@@ -1,8 +1,8 @@
 import { AppObject } from './base.js';
 
 export class View extends AppObject {
-    onInit(controller, options = {}) {
-        super.onInit(controller);
+    initialize(controller, options = {}) {
+        super.initialize(controller);
         this.content = document.createElement('div');
         options.controller = controller;
         this.readyPromise = this.update(options);

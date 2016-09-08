@@ -52,8 +52,8 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
         return {};
     }
 
-    onInit(element) {
-        super.onInit(element);
+    initialize(element) {
+        super.initialize(element);
         this.element = element;
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
