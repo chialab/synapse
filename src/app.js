@@ -131,7 +131,7 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
         return new Promise((resolve) => {
             let view = new AppView(controller, controllerResponse);
             this.currentView = view;
-            this.pagesDispatcher.add(view, false).then((page) => {
+            this.pagesDispatcher.add(view).then((page) => {
                 let oldPage = this.currentPage;
                 let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
                 this.currentPage = page;
