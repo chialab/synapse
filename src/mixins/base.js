@@ -1,4 +1,9 @@
 export const BaseMixin = (superClass) => class extends superClass {
-    initialize() {}
+    initialize() {
+        this.readyPromises = [];
+    }
+    ready() {
+        return Promise.all(this.readyPromises);
+    }
     destroy() {}
 };

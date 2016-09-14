@@ -76,10 +76,6 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
         };
     }
 
-    ready() {
-        return Promise.all(this.readyPromises);
-    }
-
     route(controller, action, paths = '') {
         paths = paths.split('/');
         if (controller) {
