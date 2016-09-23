@@ -1,9 +1,22 @@
+import { internal } from '../helpers/internal.js';
+
 export const BaseMixin = (superClass) => class extends superClass {
+    constructor(...args) {
+        super(...args);
+        this.initialize(...args);
+    }
     initialize() {
-        this.readyPromises = [];
+        internal(this).readyPromises = [];
     }
     ready() {
-        return Promise.all(this.readyPromises);
+        return Promise.all(
+            internal(this).readyPromises
+        );
     }
-    destroy() {}
+    addReadyPromise(promise) {
+        internal(this).readyPromises.push(promise);
+    }
+    destroy() {
+        internal.destroy(this);
+    }
 };

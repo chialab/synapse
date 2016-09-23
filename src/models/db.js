@@ -1,5 +1,5 @@
 import PouchDB from 'pouchdb/pouchdb';
-import { Model } from '../model.js';
+import { FetchModel } from './fetch.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
 import { DBSyncFailedException } from '../exceptions/db-sync-failed.js';
 
@@ -22,7 +22,7 @@ function prepareOptions(defaults = {}, options = {}) {
     return opt;
 }
 
-export class DBModel extends Model {
+export class DBModel extends FetchModel {
     static get databaseName() {
         return '';
     }
@@ -119,10 +119,6 @@ export class DBModel extends Model {
         return new DBSyncFailedException(this.database, 'Missing database remote url.');
     }
 
-    get fetchOptions() {
-        return {};
-    }
-
     beforeFetch() {
         return Promise.resolve();
     }
@@ -137,8 +133,9 @@ export class DBModel extends Model {
             return Promise.reject(Ctr.databaseError);
         }
         return this.beforeFetch(...args).then(() =>
-            Ctr.database.get(this.getDatabaseId()).then((data) =>
-                this.afterFetch(data).then(() => {
+            Ctr.database.get(this.getDatabaseId()).then((data) => {
+                this.setResponse(data);
+                return this.afterFetch(data).then(() => {
                     this.set(data, true);
                     this.setDatabaseInfo({
                         id: data._id,
@@ -146,21 +143,21 @@ export class DBModel extends Model {
                     });
                     return Promise.resolve(data);
                 })
-            )
+            })
         );
     }
 
     setDatabaseInfo(info) {
-        this.__dbId = info.id;
-        this.__dbRev = info.rev;
+        internal(this).dbId = info.id;
+        internal(this).dbRev = info.rev;
     }
 
     getDatabaseId() {
-        return this.__dbId;
+        return internal(this).dbId;
     }
 
     getDatabaseRev() {
-        return this.__dbRev;
+        return internal(this).dbRev;
     }
 
     save(syncOptions) {

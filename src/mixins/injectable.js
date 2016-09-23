@@ -1,3 +1,5 @@
+import { internal } from '../helpers/internal.js';
+
 export const InjectableMixin = (superClass) => class extends superClass {
     static get inject() {
         return [];
@@ -27,8 +29,8 @@ export const InjectableMixin = (superClass) => class extends superClass {
             if (typeof this.getOwner === 'function') {
                 owner = this.getOwner();
             }
-            owner.injected = owner.injected || {};
-            owner.injected[inject] = new Fn(owner);
+            internal(owner).injected = internal(owner).injected || {};
+            internal(owner).injected[inject] = new Fn(owner);
         }
     }
 
@@ -46,12 +48,12 @@ export const InjectableMixin = (superClass) => class extends superClass {
             if (typeof this.getOwner === 'function') {
                 owner = this.getOwner();
             }
-            this.injected = this.injected || {};
-            this.injected[inject] = owner.factory(inject);
+            internal(this).injected = internal(this).injected || {};
+            internal(this).injected[inject] = owner.factory(inject);
         }
     }
 
     factory(name) {
-        return this.injected && this.injected[name];
+        return internal(this).injected && internal(this).injected[name];
     }
 };

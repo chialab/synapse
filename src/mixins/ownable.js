@@ -1,3 +1,5 @@
+import { internal } from '../helpers/internal.js';
+
 export const OwnableMixin = (superClass) => class extends superClass {
     initialize(owner, ...args) {
         if (owner) {
@@ -10,10 +12,10 @@ export const OwnableMixin = (superClass) => class extends superClass {
     }
 
     setOwner(owner) {
-        this.owner = owner;
+        internal(this).owner = owner;
     }
 
     getOwner() {
-        return this.owner;
+        return internal(this).owner;
     }
 };

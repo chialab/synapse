@@ -4,11 +4,7 @@ import { OwnableMixin } from './mixins/ownable.js';
 import { InjectableMixin } from './mixins/injectable.js';
 import { CallbackMixin } from './mixins/callback.js';
 
-export class BaseObject extends mix(class {
-    constructor(...args) {
-        this.initialize(...args);
-    }
-}).with(
+export class BaseObject extends mix(class {}).with(
     BaseMixin,
     CallbackMixin,
     InjectableMixin

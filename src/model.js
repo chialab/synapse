@@ -5,11 +5,6 @@ export class Model extends BaseObject {
         return [];
     }
 
-    constructor() {
-        super();
-        this.initialize();
-    }
-
     set(data, value, skipChanges = false) {
         let Ctr = this.constructor;
         if (typeof data === 'object') {
