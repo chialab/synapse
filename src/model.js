@@ -1,4 +1,5 @@
 import { BaseObject } from './base.js';
+import { internal } from './helpers/internal.js';
 
 export class Model extends BaseObject {
     static get properties() {
@@ -30,19 +31,19 @@ export class Model extends BaseObject {
     }
 
     resetChanges() {
-        this.__changes = {};
+        internal(this).changes = {};
     }
 
     setChanges(key, oldValue, newValue) {
-        this.__changes = this.__changes || {};
-        this.__changes[key] = {
+        internal(this).changes = internal(this).changes || {};
+        internal(this).changes[key] = {
             oldValue,
             newValue,
         };
     }
 
     getChanges() {
-        return this.__changes || {};
+        return internal(this).changes || {};
     }
 
     changed() {

@@ -1,4 +1,5 @@
 import PouchDB from 'pouchdb/pouchdb';
+import { internal } from '../helpers/internal.js';
 import { FetchModel } from './fetch.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
 import { DBSyncFailedException } from '../exceptions/db-sync-failed.js';
@@ -142,7 +143,7 @@ export class DBModel extends FetchModel {
                         rev: data._rev,
                     });
                     return Promise.resolve(data);
-                })
+                });
             })
         );
     }
