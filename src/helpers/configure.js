@@ -1,8 +1,15 @@
 import objectPath from 'object-path';
+import { internal } from './internal.js';
+
+function isObject(value) {
+    return typeof value !== 'undefined' &&
+        value !== null &&
+        value.constructor === Object;
+}
 
 export class ConfigureHelper {
     constructor() {
-        this.__conf = {};
+        internal(this).conf = {};
     }
 
     write(path, value) {
@@ -14,7 +21,16 @@ export class ConfigureHelper {
             }
             return true;
         }
-        return !!objectPath.set(this.__conf, path, value);
+        if (isObject(value)) {
+            for (let k in value) {
+                if (value.hasOwnProperty(k)) {
+                    this.write(`${path}.${k}`, value[k]);
+                }
+            };
+            return true;
+        }
+        objectPath.set(internal(this).conf, path, value);
+        return true;
     }
 
     defaults(path, value) {
@@ -26,14 +42,25 @@ export class ConfigureHelper {
             }
             return true;
         }
-        return !!objectPath.ensureExists(this.__conf, path, value);
+        if (isObject(value)) {
+            for (let k in value) {
+                if (value.hasOwnProperty(k)) {
+                    this.defaults(`${path}.${k}`, value[k]);
+                }
+            };
+            return true;
+        }
+        if (typeof this.read(path) === 'undefined') {
+            return this.write(path, value);
+        }
+        return true;
     }
 
     read(path) {
-        return objectPath.get(this.__conf, path, undefined);
+        return objectPath.get(internal(this).conf, path, undefined);
     }
 
     delete(path) {
-        return objectPath.del(this.__conf, path);
+        return objectPath.del(internal(this).conf, path);
     }
 }
