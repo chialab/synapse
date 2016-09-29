@@ -1,15 +1,11 @@
-import { AppObject } from './base.js';
+import { Factory } from './factory.js';
 
-export class View extends AppObject {
+export class View extends Factory {
     initialize(controller, options = {}) {
         super.initialize(controller);
         this.content = document.createElement('div');
         options.controller = controller;
-        this.readyPromise = this.update(options);
-    }
-
-    ready() {
-        return this.readyPromise;
+        this.addReadyPromise(this.update(options));
     }
 
     update(options = {}) {

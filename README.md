@@ -1,4 +1,4 @@
-# Synapse
+![Logo](docs/logo.png)
 > Just another micro MVC framework for Web Apps.
 
 ## Install

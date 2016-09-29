@@ -1,9 +1,8 @@
-import { mix } from 'mixwith';
 import { Router } from 'chialab/router/src/router.js';
+import { internal } from './helpers/internal.js';
 import { BaseObject } from './base.js';
 import { Controller } from './controller.js';
 import { View } from './view.js';
-import { internal } from './helpers/internal.js';
 import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
@@ -67,6 +66,16 @@ export class App extends BaseObject {
         this.element = element;
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         internal(this).pagesDispatcher = new this.constructor.PagesHelper(this.element);
+        this.element.addEventListener('click', (ev) => {
+            let elem = ev.target;
+            if (elem.tagName !== 'A') {
+                elem = elem.closest('A');
+            }
+            if (elem && elem.tagName === 'A') {
+                return this.handleLink(ev, elem, this);
+            }
+            return true;
+        });
         this.ready()
             .then(() => {
                 this.debounce(() => {
@@ -74,6 +83,7 @@ export class App extends BaseObject {
                 });
             })
             .catch((ex) => {
+                // eslint-disable-next-line
                 console.error(ex);
                 // eslint-disable-next-line
                 alert('Error occurred on application initialize.');
@@ -129,12 +139,16 @@ export class App extends BaseObject {
         return this.router.forward();
     }
 
+    handleLink() {
+        return true;
+    }
+
     route(controller, action, paths = '') {
         paths = paths.split('/');
         if (controller) {
-            let Controller = this.routeMap[controller];
-            if (typeof Controller !== 'undefined') {
-                return this.dispatchController(Controller).then((ctr) => {
+            let RequestedController = this.routeMap[controller];
+            if (typeof RequestedController !== 'undefined') {
+                return this.dispatchController(RequestedController).then((ctr) => {
                     let promise;
                     if (action && typeof ctr[action] === 'function') {
                         promise = ctr[action].call(ctr, ...paths);
@@ -159,8 +173,8 @@ export class App extends BaseObject {
         this.throwException(new EXCEPTIONS.ContentNotFoundException());
     }
 
-    dispatchController(Controller, ...args) {
-        let ctr = new Controller(this, ...args);
+    dispatchController(RequestedController, ...args) {
+        let ctr = new RequestedController(this, ...args);
         let destroyCtr = Promise.resolve();
         let previousCtr = internal(this).currentController;
         if (previousCtr) {

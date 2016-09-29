@@ -11,4 +11,4 @@ internal.destroy = function(object) {
     if (MAP.has(object)) {
         MAP.delete(object);
     }
-}
+};
