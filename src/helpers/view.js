@@ -3,10 +3,6 @@ export class ViewHelper {
         this.App = appInstance;
     }
 
-    if(condition, template) {
-        return condition ? template() : '';
-    }
-
     forEach(scope, callback) {
         return Array.prototype.map.call(scope, callback).join('');
     }

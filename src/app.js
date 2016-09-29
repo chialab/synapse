@@ -1,4 +1,5 @@
 import { mix } from 'mixwith';
+import { internal } from './helpers/internal.js';
 import { BaseObject } from './base.js';
 import { RoutableMixin } from './mixins/routable.js';
 import { View } from './view.js';
@@ -56,7 +57,17 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
         super.initialize(element);
         this.element = element;
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
-        this.pagesDispatcher = new this.constructor.PagesHelper(this.element);
+        internal(this).pagesDispatcher = new this.constructor.PagesHelper(this.element);
+        this.element.addEventListener('click', (ev) => {
+            let elem = ev.target;
+            if (elem.tagName !== 'A') {
+                elem = elem.closest('A');
+            }
+            if (elem && elem.tagName === 'A') {
+                return this.handleLink(ev, elem, this);
+            }
+            return true;
+        });
         this.ready()
             .then(() => {
                 this.debounce(() => {
@@ -64,10 +75,15 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
                 });
             })
             .catch((ex) => {
+                // eslint-disable-next-line
                 console.error(ex);
                 // eslint-disable-next-line
                 alert('Error occurred on application initialize.');
             });
+    }
+
+    handleLink() {
+        return true;
     }
 
     get i18nOptions() {
@@ -127,7 +143,7 @@ export class App extends mix(BaseObject).with(RoutableMixin) {
         return new Promise((resolve) => {
             let view = new AppView(controller, controllerResponse);
             this.currentView = view;
-            this.pagesDispatcher.add(view).then((page) => {
+            internal(this).pagesDispatcher.add(view).then((page) => {
                 let oldPage = this.currentPage;
                 let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
                 this.currentPage = page;

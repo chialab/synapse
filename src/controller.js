@@ -1,6 +1,6 @@
-import { AppObject } from './base.js';
+import { Factory } from './factory.js';
 
-export class Controller extends AppObject {
+export class Controller extends Factory {
     constructor(appInstance) {
         super(appInstance);
         let Ctr = this.constructor;

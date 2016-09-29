@@ -1,4 +1,3 @@
-import { Ajax } from 'chialab/ajax/src/ajax.js';
 import { FetchModel } from './fetch.js';
 
 export class AjaxModel extends FetchModel {
@@ -15,17 +14,8 @@ export class AjaxModel extends FetchModel {
     }
 
     execFetch() {
-        return Ajax.get(`${this.endpoint}`, this.constructor.fetchOptions).then((data) =>
-            Promise.resolve(data)
-        , (xhr) => {
-            // cordova status 0
-            if (xhr && xhr.status === 0 &&
-                typeof xhr.response !== 'undefined' &&
-                xhr.response !== null) {
-                return Promise.resolve(xhr.response);
-            }
-            return Promise.reject(xhr);
-        });
+        return fetch(`${this.endpoint}`, this.constructor.fetchOptions)
+            .then((response) => response.json());
     }
 
     fetch(...args) {
@@ -38,7 +28,7 @@ export class AjaxModel extends FetchModel {
                         this.afterFetch(data).then((props) => {
                             this.set(props);
                             return Promise.resolve(props);
-                        })
+                        });
                     });
                 }
                 return Promise.reject();
