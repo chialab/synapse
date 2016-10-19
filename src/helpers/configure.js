@@ -26,7 +26,7 @@ export class ConfigureHelper {
                 if (value.hasOwnProperty(k)) {
                     this.write(`${path}.${k}`, value[k]);
                 }
-            };
+            }
             return true;
         }
         objectPath.set(internal(this).conf, path, value);
@@ -47,7 +47,7 @@ export class ConfigureHelper {
                 if (value.hasOwnProperty(k)) {
                     this.defaults(`${path}.${k}`, value[k]);
                 }
-            };
+            }
             return true;
         }
         if (typeof this.read(path) === 'undefined') {
