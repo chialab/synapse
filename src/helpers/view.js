@@ -3,6 +3,22 @@ export class ViewHelper {
         this.App = appInstance;
     }
 
+    if(condition, callback, error) {
+        if (condition) {
+            if (typeof callback === 'function') {
+                return callback();
+            }
+            return callback;
+        }
+        if (typeof error === 'undefined') {
+            return '';
+        }
+        if (typeof error === 'function') {
+            return error();
+        }
+        return error;
+    }
+
     forEach(scope, callback) {
         return Array.prototype.map.call(scope, callback).join('');
     }

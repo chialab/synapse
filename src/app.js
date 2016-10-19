@@ -45,7 +45,7 @@ export class App extends BaseObject {
             '/:controller/:action/*': 'route',
             '/:controller/:action': 'route',
             '/:controller': 'route',
-            '*': 'notFoundException',
+            '*': 'notFound',
         };
     }
 
@@ -155,13 +155,13 @@ export class App extends BaseObject {
                     } else {
                         promise = ctr.exec(action, ...paths);
                     }
-                    promise.then((ctrRes) =>
-                        this.dispatchView(ctr, ctrRes)
-                    , (err) => {
-                        if (err instanceof Error) {
-                            throw err;
-                        }
-                    });
+                    return promise
+                        .then((ctrRes) =>
+                            this.dispatchView(ctr, ctrRes)
+                        )
+                        .catch((err) =>
+                            this.throwException(err)
+                        );
                 });
             }
         }
