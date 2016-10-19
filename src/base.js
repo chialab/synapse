@@ -1,4 +1,4 @@
-import { mix } from 'mixwith';
+import { mix } from './helpers/mixin.js';
 import { BaseMixin } from './mixins/base.js';
 import { InjectableMixin } from './mixins/injectable.js';
 import { CallbackMixin } from './mixins/callback.js';

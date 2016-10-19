@@ -1,4 +1,4 @@
-import { mix } from 'mixwith';
+import { mix } from './helpers/mixin.js';
 import { BaseObject } from './base.js';
 import { OwnableMixin } from './mixins/ownable.js';
 
