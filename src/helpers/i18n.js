@@ -1,4 +1,4 @@
-import { I18N } from 'chialab/i18n/src/i18n.js';
+import { I18N } from 'chialab-i18n/src/i18n.js';
 
 export class I18NHelper {
     constructor(options = {}) {

@@ -1,4 +1,4 @@
-import { Router } from 'chialab/router/src/router.js';
+import { Router } from 'chialab-router/src/router.js';
 import { internal } from './helpers/internal.js';
 import { BaseObject } from './base.js';
 import { Controller } from './controller.js';

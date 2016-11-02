@@ -1,4 +1,4 @@
-import PouchDB from 'pouchdb/pouchdb';
+import PouchDB from 'pouchdb';
 import { internal } from '../helpers/internal.js';
 import { FetchModel } from './fetch.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';

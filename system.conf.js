@@ -8,9 +8,9 @@
         },
         paths: {
             'loader/text': 'node_modules/systemjs-plugin-text/text.js',
-            'chialab/*': 'node_modules/chialab-*',
+            'chialab-*': 'node_modules/chialab-*',
             'object-path': 'node_modules/object-path/index.js',
-            'pouchdb/pouchdb': 'node_modules/pouchdb/dist/pouchdb.js'
+            'pouchdb': 'node_modules/pouchdb/dist/pouchdb.js'
         },
     });
 }());
