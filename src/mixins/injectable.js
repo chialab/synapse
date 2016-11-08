@@ -48,8 +48,10 @@ export const InjectableMixin = (superClass) => class extends superClass {
             if (typeof this.getOwner === 'function') {
                 owner = this.getOwner();
             }
-            internal(this).injected = internal(this).injected || {};
-            internal(this).injected[inject] = owner.factory(inject);
+            if (owner) {
+                internal(this).injected = internal(this).injected || {};
+                internal(this).injected[inject] = owner.factory(inject);
+            }
         }
     }
 
