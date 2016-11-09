@@ -21,8 +21,8 @@ export const CallbackMixin =
         }
 
         destroy() {
-            super.destroy();
             this.unlisten();
             this.off();
+            super.destroy();
         }
     };
