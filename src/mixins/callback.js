@@ -4,8 +4,8 @@ import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.j
 
 export const CallbackMixin =
     (superClass) => class extends mix(superClass).with(CallbackManager.mixin) {
-        constructor(...args) {
-            super(...args);
+        initialize(...args) {
+            super.initialize(...args);
             internal(this).listeners = [];
         }
 
