@@ -1,33 +1,42 @@
-export class PageView {
-    constructor(view) {
-        let element = document.createElement('section');
-        element.className = 'page-view';
-        Object.defineProperty(element, 'destroy', {
-            value: () =>
-                view.destroy().then(() => {
-                    element.hide().then(() => {
-                        if (element && element.parentNode) {
-                            element.parentNode.removeChild(element);
-                        }
-                    });
-                    return Promise.resolve();
-                })
-            ,
+import { prop, define, BaseComponent, DOM } from '@dnajs/idom';
+
+export class PageViewComponent extends BaseComponent {
+    get properties() {
+        return {
+            content: prop.ANY.observe('onContentChanged'),
+        };
+    }
+
+    onContentChanged() {
+        DOM.appendChild(this, this.content);
+    }
+
+    hide() {
+        return new Promise((resolve) => {
+            DOM.setAttribute(this, 'hidden', '');
+            resolve();
         });
-        Object.defineProperty(element, 'hide', {
-            value: () =>
-                new Promise((resolve) => {
-                    element.setAttribute('hidden', '');
-                    resolve();
-                }),
+    }
+
+    show() {
+        return new Promise((resolve) => {
+            DOM.removeAttribute(this, 'hidden');
+            resolve();
         });
-        Object.defineProperty(element, 'show', {
-            value: () =>
-                new Promise((resolve) => {
-                    element.removeAttribute('hidden');
-                    resolve();
-                }),
+    }
+
+    destroy() {
+        this.hide().then(() => {
+            if (this && this.parentNode) {
+                DOM.removeChild(this.parentNode, this);
+            }
         });
-        return element;
+        return Promise.resolve();
     }
 }
+
+define('page-view', PageViewComponent, {
+    extends: 'section',
+});
+
+export const PageView = () => new PageViewComponent();

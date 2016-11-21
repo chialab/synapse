@@ -1,3 +1,4 @@
+import { render } from '@dnajs/idom';
 import { PageView } from '../views/page.js';
 
 export class PagesHelper {
@@ -10,19 +11,14 @@ export class PagesHelper {
     }
 
     add(view, immediate = true) {
-        let page = new this.PageComponent(view);
         return view.getContent().then((content) => {
-            if (content instanceof Node) {
-                page.appendChild(content);
-            } else if (typeof content === 'string') {
-                page.innerHTML = content;
-            }
+            let page = render(this.wrapper, this.PageComponent);
+            page.content = content;
             if (!immediate) {
                 page.hide(true);
             } else {
                 page.show(true);
             }
-            this.wrapper.appendChild(page);
             return Promise.resolve(page);
         });
     }

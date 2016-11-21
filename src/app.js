@@ -8,6 +8,7 @@ import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CssHelper } from './helpers/css.js';
 import * as EXCEPTIONS from './exceptions.js';
+import '@dnajs/idom/observer.js';
 
 export class App extends BaseObject {
     static get View() {
