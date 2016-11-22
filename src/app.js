@@ -4,7 +4,6 @@ import { BaseObject } from './base.js';
 import { Controller } from './controller.js';
 import { View } from './view.js';
 import { PagesHelper } from './helpers/pages.js';
-import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CssHelper } from './helpers/css.js';
 import { debounce } from './helpers/debounce.js';
@@ -14,10 +13,6 @@ import '@dnajs/idom/observer.js';
 export class App extends BaseObject {
     static get View() {
         return View;
-    }
-
-    static get ViewHelper() {
-        return ViewHelper;
     }
 
     static get PagesHelper() {
