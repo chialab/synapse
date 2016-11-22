@@ -1,10 +1,16 @@
-import { prop, define, BaseComponent, DOM } from '@dnajs/idom';
+import { prop, define, DOM } from '@dnajs/idom';
+import { Component } from '../component.js';
+import { debounce } from '../helpers/debounce.js';
 
-export class PageViewComponent extends BaseComponent {
+export class PageViewComponent extends Component {
     get properties() {
         return {
             content: prop.ANY.observe('onContentChanged'),
         };
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
     }
 
     onContentChanged() {
@@ -12,17 +18,41 @@ export class PageViewComponent extends BaseComponent {
     }
 
     hide() {
-        return new Promise((resolve) => {
-            DOM.setAttribute(this, 'hidden', '');
-            resolve();
-        });
+        return debounce(() =>
+            new Promise((resolve) => {
+                let animationName = window.getComputedStyle(this).animationName;
+                if (animationName !== 'none') {
+                    this.setAttribute('animating', animationName);
+                    let onAnimationEnd = () => {
+                        this.removeEventListener('animationend', onAnimationEnd);
+                        this.removeAttribute('animating');
+                        resolve();
+                    };
+                    this.addEventListener('animationend', onAnimationEnd);
+                } else {
+                    resolve();
+                }
+            })
+        );
     }
 
     show() {
-        return new Promise((resolve) => {
-            DOM.removeAttribute(this, 'hidden');
-            resolve();
-        });
+        return debounce(() =>
+            new Promise((resolve) => {
+                let animationName = window.getComputedStyle(this).animationName;
+                if (animationName !== 'none') {
+                    this.setAttribute('animating', animationName);
+                    let onAnimationEnd = () => {
+                        this.removeEventListener('animationend', onAnimationEnd);
+                        this.removeAttribute('animating');
+                        resolve();
+                    };
+                    this.addEventListener('animationend', onAnimationEnd);
+                } else {
+                    resolve();
+                }
+            })
+        );
     }
 
     destroy() {

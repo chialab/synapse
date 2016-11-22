@@ -7,6 +7,7 @@ import { PagesHelper } from './helpers/pages.js';
 import { ViewHelper } from './helpers/view.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CssHelper } from './helpers/css.js';
+import { debounce } from './helpers/debounce.js';
 import * as EXCEPTIONS from './exceptions.js';
 import '@dnajs/idom/observer.js';
 
@@ -201,7 +202,7 @@ export class App extends BaseObject {
                 this.currentPage = page;
                 this.debounce(() => {
                     destroyPromise.then(() => {
-                        this.currentPage.show(!oldPage);
+                        let shown = this.currentPage.show(!oldPage);
                         if (controller) {
                             if (controller.dispatchResolved) {
                                 controller.dispatchResolved();
@@ -210,7 +211,7 @@ export class App extends BaseObject {
                                 this.updateView(newCtrRes)
                             );
                         }
-                        resolve();
+                        shown.then(() => resolve());
                     });
                 });
             });
@@ -226,9 +227,7 @@ export class App extends BaseObject {
     }
 
     debounce(callback) {
-        setTimeout(() => {
-            callback();
-        }, 0);
+        return debounce(callback);
     }
 
     navigate(...args) {

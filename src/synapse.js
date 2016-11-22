@@ -6,6 +6,7 @@ export * from './factory.js';
 export * from './model.js';
 export * from './view.js';
 export * from './exceptions.js';
+export * from './component.js';
 // mixins
 export * from './mixins/base.js';
 export * from './mixins/callback.js';

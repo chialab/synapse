@@ -1,5 +1,6 @@
-import { render } from '@dnajs/idom';
+import { DOM } from '@dnajs/idom';
 import { PageView } from '../views/page.js';
+import { debounce } from '../helpers/debounce.js';
 
 export class PagesHelper {
     constructor(element) {
@@ -12,14 +13,12 @@ export class PagesHelper {
 
     add(view, immediate = true) {
         return view.getContent().then((content) => {
-            let page = render(this.wrapper, this.PageComponent);
-            page.content = content;
-            if (!immediate) {
-                page.hide(true);
-            } else {
-                page.show(true);
-            }
-            return Promise.resolve(page);
+            let page = new this.PageComponent();
+            return debounce(() => {
+                DOM.appendChild(this.wrapper, page);
+                page.content = content;
+                return Promise.resolve(page);
+            });
         });
     }
 
