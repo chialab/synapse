@@ -1,10 +1,10 @@
 import { mix } from './helpers/mixin.js';
 import { ComponentMixin } from './mixins/component.js';
-import { BaseComponent } from '@dnajs/idom';
+import { COMPONENT_SYMBOL, BaseComponent } from '@dnajs/idom';
 
 export class Component extends mix(BaseComponent).with(ComponentMixin) {
     connectedCallback() {
-        if (!this.getOwner()) {
+        if (!super.getOwner()) {
             let parent = this.getParentView();
             if (parent) {
                 this.initialize(parent);
@@ -22,10 +22,11 @@ export class Component extends mix(BaseComponent).with(ComponentMixin) {
     }
 
     getParentView() {
-        let parent = this.parentNode;
+        let parent = this.node.parentNode;
         while (parent) {
-            if (typeof parent.getOwner === 'function') {
-                return parent.getOwner();
+            let component = parent[COMPONENT_SYMBOL];
+            if (component && typeof component.getOwner === 'function') {
+                return component.getOwner();
             }
             parent = parent.parentNode;
         }

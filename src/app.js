@@ -191,23 +191,21 @@ export class App extends BaseObject {
         return new Promise((resolve) => {
             let view = new AppView(controller, controllerResponse);
             internal(this).currentView = view;
-            internal(this).pagesDispatcher.add(view).then((page) => {
-                let oldPage = this.currentPage;
-                let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
-                this.currentPage = page;
-                this.debounce(() => {
-                    destroyPromise.then(() => {
-                        let shown = this.currentPage.show(!oldPage);
-                        if (controller) {
-                            if (controller.dispatchResolved) {
-                                controller.dispatchResolved();
-                            }
-                            controller.on('update', (newCtrRes) =>
-                                this.updateView(newCtrRes)
-                            );
+            let oldPage = this.currentPage;
+            let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
+            destroyPromise.then(() => {
+                internal(this).pagesDispatcher.add(view).then((page) => {
+                    this.currentPage = page;
+                    let shown = this.currentPage.show(!oldPage);
+                    if (controller) {
+                        if (controller.dispatchResolved) {
+                            controller.dispatchResolved();
                         }
-                        shown.then(() => resolve());
-                    });
+                        controller.on('update', (newCtrRes) =>
+                            this.updateView(newCtrRes)
+                        );
+                    }
+                    shown.then(() => resolve());
                 });
             });
         });

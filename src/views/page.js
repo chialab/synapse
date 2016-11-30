@@ -18,47 +18,46 @@ export class PageViewComponent extends Component {
     }
 
     hide() {
-        return debounce(() =>
-            new Promise((resolve) => {
-                let animationName = window.getComputedStyle(this).animationName;
-                if (animationName !== 'none') {
-                    this.setAttribute('animating', animationName);
-                    let onAnimationEnd = () => {
-                        this.removeEventListener('animationend', onAnimationEnd);
-                        this.removeAttribute('animating');
-                        resolve();
-                    };
-                    this.addEventListener('animationend', onAnimationEnd);
-                } else {
+        this.node.classList.remove('navigation--show');
+        this.node.classList.add('navigation--hide');
+        return new Promise((resolve) => {
+            let animationName = window.getComputedStyle(this.node).animationName;
+            if (animationName !== 'none') {
+                let onAnimationEnd = () => {
+                    this.node.classList.remove('navigation--hide');
+                    this.node.removeEventListener('animationend', onAnimationEnd);
                     resolve();
-                }
-            })
-        );
+                };
+                this.node.addEventListener('animationend', onAnimationEnd);
+            } else {
+                this.node.classList.remove('navigation--hide');
+                resolve();
+            }
+        });
     }
 
     show() {
-        return debounce(() =>
-            new Promise((resolve) => {
-                let animationName = window.getComputedStyle(this).animationName;
-                if (animationName !== 'none') {
-                    this.setAttribute('animating', animationName);
-                    let onAnimationEnd = () => {
-                        this.removeEventListener('animationend', onAnimationEnd);
-                        this.removeAttribute('animating');
-                        resolve();
-                    };
-                    this.addEventListener('animationend', onAnimationEnd);
-                } else {
+        this.node.classList.add('navigation--show');
+        return new Promise((resolve) => {
+            let animationName = window.getComputedStyle(this.node).animationName;
+            if (animationName !== 'none') {
+                let onAnimationEnd = () => {
+                    this.node.classList.remove('navigation--show');
+                    this.node.removeEventListener('animationend', onAnimationEnd);
                     resolve();
-                }
-            })
-        );
+                };
+                this.node.addEventListener('animationend', onAnimationEnd);
+            } else {
+                this.node.classList.remove('navigation--show');
+                resolve();
+            }
+        });
     }
 
     destroy() {
         this.hide().then(() => {
-            if (this && this.parentNode) {
-                DOM.removeChild(this.parentNode, this);
+            if (this && this.node.parentNode) {
+                DOM.removeChild(this.node.parentNode, this);
             }
         });
         return Promise.resolve();
