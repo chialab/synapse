@@ -195,6 +195,7 @@ export class App extends BaseObject {
             let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
             destroyPromise.then(() => {
                 internal(this).pagesDispatcher.add(view).then((page) => {
+                    page.setOwner(this);
                     this.currentPage = page;
                     let shown = this.currentPage.show(!oldPage);
                     if (controller) {

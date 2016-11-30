@@ -1,16 +1,11 @@
 import { prop, define, DOM } from '@dnajs/idom';
 import { Component } from '../component.js';
-import { debounce } from '../helpers/debounce.js';
 
 export class PageViewComponent extends Component {
     get properties() {
         return {
             content: prop.ANY.observe('onContentChanged'),
         };
-    }
-
-    connectedCallback() {
-        super.connectedCallback();
     }
 
     onContentChanged() {

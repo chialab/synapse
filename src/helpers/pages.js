@@ -1,5 +1,5 @@
 import { DOM } from '@dnajs/idom';
-import { PageView } from '../views/page.js';
+import { PageView } from '../components/page.js';
 import { debounce } from '../helpers/debounce.js';
 
 export class PagesHelper {

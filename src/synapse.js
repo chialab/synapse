@@ -30,7 +30,7 @@ export * from './models/ajax.js';
 export * from './models/db.js';
 export * from './models/sync.js';
 // views
-export * from './views/page.js';
+export * from './components/page.js';
 
 // dispatcher
 export * from './app.js';
