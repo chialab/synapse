@@ -1,22 +1,19 @@
 import { Router } from 'chialab-router/src/router.js';
+import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
 import { BaseObject } from './base.js';
 import { Controller } from './controller.js';
-import { View } from './view.js';
-import { PagesHelper } from './helpers/pages.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CssHelper } from './helpers/css.js';
 import { debounce } from './helpers/debounce.js';
+import { RenderFactory } from './factories/render.js';
 import * as EXCEPTIONS from './exceptions.js';
+import { DOM } from '@dnajs/idom';
 import '@dnajs/idom/observer.js';
 
 export class App extends BaseObject {
     static get View() {
-        return View;
-    }
-
-    static get PagesHelper() {
-        return PagesHelper;
+        return PageViewComponent;
     }
 
     static get I18NHelper() {
@@ -24,7 +21,7 @@ export class App extends BaseObject {
     }
 
     static addStyle(css) {
-        CssHelper.add(css);
+        return CssHelper.add(css);
     }
 
     get defaultRouteOptions() {
@@ -58,11 +55,11 @@ export class App extends BaseObject {
 
     initialize(element) {
         super.initialize(element);
+        this.registerInject('render', RenderFactory);
         this.router = new Router(this.routeOptions);
         this.registerRoutes();
         this.element = element;
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
-        internal(this).pagesDispatcher = new this.constructor.PagesHelper(this.element);
         this.element.addEventListener('click', (ev) => {
             let elem = ev.target;
             if (elem.tagName !== 'A') {
@@ -175,7 +172,6 @@ export class App extends BaseObject {
         let destroyCtr = Promise.resolve();
         let previousCtr = internal(this).currentController;
         if (previousCtr) {
-            previousCtr.off('update');
             destroyCtr = previousCtr.destroy();
         }
         return destroyCtr.then(() => {
@@ -186,38 +182,34 @@ export class App extends BaseObject {
         });
     }
 
-    dispatchView(controller, controllerResponse) {
-        const AppView = this.constructor.View;
+    dispatchView(controller, response) {
+        const render = this.factory('render');
         return new Promise((resolve) => {
-            let view = new AppView(controller, controllerResponse);
-            internal(this).currentView = view;
             let oldPage = this.currentPage;
             let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
             destroyPromise.then(() => {
-                internal(this).pagesDispatcher.add(view).then((page) => {
-                    page.setOwner(this);
-                    this.currentPage = page;
-                    let shown = this.currentPage.show(!oldPage);
-                    if (controller) {
-                        if (controller.dispatchResolved) {
-                            controller.dispatchResolved();
-                        }
-                        controller.on('update', (newCtrRes) =>
-                            this.updateView(newCtrRes)
-                        );
+                let page = new this.constructor.View(this);
+                page.setOwner(this);
+                this.currentPage = page;
+                DOM.appendChild(this.element, page);
+                controller.pipe((updatedResponse) => {
+                    render.renderTo(page.node, controller.render(updatedResponse));
+                });
+                render.renderTo(page.node, controller.render(response));
+                let shown = this.currentPage.show(!oldPage);
+                if (controller) {
+                    if (controller.dispatchResolved) {
+                        controller.dispatchResolved();
                     }
-                    shown.then(() => resolve());
+                }
+                shown.then(() => {
+                    if (oldPage) {
+                        DOM.removeChild(this.element, oldPage);
+                    }
+                    resolve();
                 });
             });
         });
-    }
-
-    updateView(controllerResponse) {
-        if (internal(this).currentView) {
-            return internal(this).currentView
-                .update(controllerResponse);
-        }
-        return Promise.reject();
     }
 
     debounce(callback) {

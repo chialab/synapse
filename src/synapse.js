@@ -4,7 +4,6 @@ export * from './base.js';
 export * from './controller.js';
 export * from './factory.js';
 export * from './model.js';
-export * from './view.js';
 export * from './exceptions.js';
 export * from './component.js';
 // mixins
@@ -20,7 +19,6 @@ export * from './helpers/debounce.js';
 export * from './helpers/flags.js';
 export * from './helpers/i18n.js';
 export * from './helpers/internal.js';
-export * from './helpers/pages.js';
 export * from './helpers/script.js';
 export * from './helpers/title.js';
 export * from './helpers/url.js';

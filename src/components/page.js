@@ -1,17 +1,7 @@
-import { prop, define, DOM } from '@dnajs/idom';
+import { define } from '@dnajs/idom';
 import { Component } from '../component.js';
 
 export class PageViewComponent extends Component {
-    get properties() {
-        return {
-            content: prop.ANY.observe('onContentChanged'),
-        };
-    }
-
-    onContentChanged() {
-        DOM.appendChild(this, this.content);
-    }
-
     hide() {
         this.node.classList.remove('navigation--show');
         this.node.classList.add('navigation--hide');
@@ -50,11 +40,7 @@ export class PageViewComponent extends Component {
     }
 
     destroy() {
-        this.hide().then(() => {
-            if (this && this.node.parentNode) {
-                DOM.removeChild(this.node.parentNode, this);
-            }
-        });
+        this.hide();
         return Promise.resolve();
     }
 }
@@ -62,5 +48,3 @@ export class PageViewComponent extends Component {
 define('page-view', PageViewComponent, {
     extends: 'section',
 });
-
-export const PageView = () => new PageViewComponent();

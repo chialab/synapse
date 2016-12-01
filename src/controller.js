@@ -1,4 +1,5 @@
 import { Factory } from './factory.js';
+import { IDOM } from '@dnajs/idom';
 
 export class Controller extends Factory {
     constructor(appInstance) {
@@ -19,14 +20,25 @@ export class Controller extends Factory {
         return new Promise((resolve) => {
             this.dispatchResolved = resolve;
             this._resolve(vars);
+            this.stream(vars);
         }).then(() => {
             delete this.dispatchResolved;
             return Promise.resolve();
         });
     }
 
-    update(vars = {}) {
-        return this.trigger('update', vars);
+    render(res) {
+        return () => {
+            return IDOM.h('div', null, res);
+        };
+    }
+
+    stream(vars) {
+        this.trigger('stream', vars);
+    }
+
+    pipe(callback) {
+        this.on('stream', (vars) => callback(vars));
     }
 
     fail(err) {
