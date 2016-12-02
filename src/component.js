@@ -1,14 +1,7 @@
 import { mix } from './helpers/mixin.js';
-import { ComponentMixin } from './mixins/component.js';
-import { COMPONENT_SYMBOL, BaseComponent } from '@dnajs/idom';
-import { RENDER_SYMBOL } from './factories/render.js';
+import { BaseMixin } from './mixins/base.js';
+import { OwnableMixin } from './mixins/ownable.js';
+import { InjectableMixin } from './mixins/injectable.js';
+import { BaseComponent } from '@dnajs/idom';
 
-export class Component extends mix(BaseComponent).with(ComponentMixin) {
-    constructor() {
-        super();
-        if (self[RENDER_SYMBOL]) {
-            this.setOwner(self[RENDER_SYMBOL]);
-            this.initialize();
-        }
-    }
-}
+export class Component extends mix(BaseComponent).with(BaseMixin, OwnableMixin, InjectableMixin) {}

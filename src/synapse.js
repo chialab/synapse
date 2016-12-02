@@ -9,7 +9,6 @@ export * from './component.js';
 // mixins
 export * from './mixins/base.js';
 export * from './mixins/callback.js';
-export * from './mixins/component.js';
 export * from './mixins/injectable.js';
 export * from './mixins/ownable.js';
 // helpers

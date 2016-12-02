@@ -6,9 +6,9 @@ import { Controller } from './controller.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CssHelper } from './helpers/css.js';
 import { debounce } from './helpers/debounce.js';
-import { RenderFactory } from './factories/render.js';
+import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
-import { DOM } from '@dnajs/idom';
+import { notifications, IDOM, DOM } from '@dnajs/idom';
 import '@dnajs/idom/observer.js';
 
 export class App extends BaseObject {
@@ -55,7 +55,6 @@ export class App extends BaseObject {
 
     initialize(element) {
         super.initialize(element);
-        this.registerInject('render', RenderFactory);
         this.router = new Router(this.routeOptions);
         this.registerRoutes();
         this.element = element;
@@ -69,6 +68,11 @@ export class App extends BaseObject {
                 return this.handleLink(ev, elem, this);
             }
             return true;
+        });
+        notifications.on('created', (elem) => {
+            if (this.rendering && elem instanceof Component) {
+                elem.setOwner(this);
+            }
         });
         this.ready()
             .then(() => {
@@ -183,7 +187,6 @@ export class App extends BaseObject {
     }
 
     dispatchView(controller, response) {
-        const render = this.factory('render');
         return new Promise((resolve) => {
             let oldPage = this.currentPage;
             let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
@@ -193,9 +196,13 @@ export class App extends BaseObject {
                 this.currentPage = page;
                 DOM.appendChild(this.element, page);
                 controller.pipe((updatedResponse) => {
-                    render.renderTo(page.node, controller.render(updatedResponse));
+                    this.rendering = true;
+                    IDOM.patch(page.node, controller.render(updatedResponse));
+                    this.rendering = false;
                 });
-                render.renderTo(page.node, controller.render(response));
+                this.rendering = true;
+                IDOM.patch(page.node, controller.render(response));
+                this.rendering = false;
                 let shown = this.currentPage.show(!oldPage);
                 if (controller) {
                     if (controller.dispatchResolved) {
