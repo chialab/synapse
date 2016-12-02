@@ -1,3 +1,4 @@
+import '@dnajs/idom/observer.js';
 import { Router } from 'chialab-router/src/router.js';
 import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
@@ -9,7 +10,6 @@ import { debounce } from './helpers/debounce.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { notifications, IDOM, DOM } from '@dnajs/idom';
-import '@dnajs/idom/observer.js';
 
 export class App extends BaseObject {
     static get View() {
@@ -55,25 +55,12 @@ export class App extends BaseObject {
 
     initialize(element) {
         super.initialize(element);
+        this.element = element;
         this.router = new Router(this.routeOptions);
         this.registerRoutes();
-        this.element = element;
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
-        this.element.addEventListener('click', (ev) => {
-            let elem = ev.target;
-            if (elem.tagName !== 'A') {
-                elem = elem.closest('A');
-            }
-            if (elem && elem.tagName === 'A') {
-                return this.handleLink(ev, elem, this);
-            }
-            return true;
-        });
-        notifications.on('created', (elem) => {
-            if (this.rendering && elem instanceof Component) {
-                elem.setOwner(this);
-            }
-        });
+        this.handleNavigation();
+        this.handleComponents();
         this.ready()
             .then(() => {
                 this.debounce(() => {
@@ -137,6 +124,19 @@ export class App extends BaseObject {
         return this.router.forward();
     }
 
+    handleNavigation() {
+        this.element.addEventListener('click', (ev) => {
+            let elem = ev.target;
+            while (elem && elem.tagName !== 'A') {
+                elem = elem.parentNode;
+            }
+            if (elem && elem.tagName === 'A') {
+                return this.handleLink(ev, elem, this);
+            }
+            return true;
+        });
+    }
+
     handleLink() {
         return true;
     }
@@ -169,6 +169,20 @@ export class App extends BaseObject {
 
     notFoundException() {
         this.throwException(new EXCEPTIONS.ContentNotFoundException());
+    }
+
+    handleComponents() {
+        let lastComponent;
+        notifications.on('created', (elem) => {
+            if (elem instanceof Component) {
+                let scope = this.rendering ? this : (lastComponent && lastComponent.getOwner());
+                if (scope === this) {
+                    elem.setOwner(scope);
+                    elem.initialize();
+                }
+                lastComponent = elem;
+            }
+        });
     }
 
     dispatchController(RequestedController, ...args) {
