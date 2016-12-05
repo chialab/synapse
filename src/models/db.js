@@ -160,7 +160,7 @@ export class DBModel extends FetchModel {
             return Promise.reject(Ctr.databaseError);
         }
         return this.beforeFetch(...args).then(() =>
-            Ctr.database.get(this.getDatabaseId()).then((data) => {
+            Ctr.database.get(this[Ctr.databaseKey]).then((data) => {
                 this.setResponse(data);
                 return this.afterFetch(data).then(() => {
                     this.set(data, true);
@@ -197,7 +197,13 @@ export class DBModel extends FetchModel {
             if (this.getDatabaseId()) {
                 savePromise = Ctr.database.put(this.toDBData());
             } else {
-                savePromise = Ctr.database.post(this.toJSON());
+                let data = this.toJSON();
+                if (Ctr.databaseKey && data[Ctr.databaseKey]) {
+                    data._id = data[Ctr.databaseKey];
+                    savePromise = Ctr.database.put(data);
+                } else {
+                    savePromise = Ctr.database.post(data);
+                }
             }
             return savePromise.then((res) => {
                 this.setDatabaseInfo({
