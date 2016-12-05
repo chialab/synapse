@@ -1,3 +1,4 @@
+import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom';
 
@@ -28,12 +29,18 @@ export class Controller extends Factory {
     }
 
     render(res) {
-        return () => {
-            return IDOM.h('div', null, res);
-        };
+        return () =>
+            IDOM.h('div', null, res);
     }
 
     stream(vars) {
+        let previous = internal(this).streams || {};
+        for (let k in previous) {
+            if (!vars.hasOwnProperty(k)) {
+                vars[k] = previous[k];
+            }
+        }
+        internal(this).streams = vars;
         this.trigger('stream', vars);
     }
 
