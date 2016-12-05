@@ -37,16 +37,42 @@ export class DBModel extends FetchModel {
     }
 
     static get database() {
-        if (this.__db) {
-            return this.__db;
+        if (internal(this).db) {
+            return internal(this).db;
         }
         try {
-            this.__db = new PouchDB(this.databaseName, this.databaseOptions);
-            return this.__db;
+            internal(this).db = new PouchDB(this.databaseName, this.databaseOptions);
+            return internal(this).db;
         } catch (ex) {
             this.databaseError = new DBOpeningErrorException(ex);
         }
         return null;
+    }
+
+    static destroy() {
+        return this.database.destroy()
+            .then(() => {
+                delete internal(this).db;
+                return Promise.resolve();
+            });
+    }
+
+    static empty() {
+        return this.database.allDocs()
+            .then((response) => {
+                if (response && response.rows) {
+                    return Promise.all(
+                        response.rows
+                            .filter((row) =>
+                                !row.id.match(/^_design/)
+                            )
+                            .map((row) =>
+                                this.database.remove(row.id, row.value.rev)
+                            )
+                    );
+                }
+                return Promise.resolve();
+            });
     }
 
     static query(query, options) {
