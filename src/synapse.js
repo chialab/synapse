@@ -1,4 +1,3 @@
-export * from './helpers/mixin.js';
 // base
 export * from './base.js';
 export * from './controller.js';
@@ -14,10 +13,12 @@ export * from './mixins/ownable.js';
 // helpers
 export * from './helpers/configure.js';
 export * from './helpers/css.js';
+export * from './helpers/db.js';
 export * from './helpers/debounce.js';
 export * from './helpers/flags.js';
 export * from './helpers/i18n.js';
 export * from './helpers/internal.js';
+export * from './helpers/mixin.js';
 export * from './helpers/script.js';
 export * from './helpers/title.js';
 export * from './helpers/url.js';
@@ -28,6 +29,5 @@ export * from './models/db.js';
 export * from './models/sync.js';
 // views
 export * from './components/page.js';
-
 // dispatcher
 export * from './app.js';

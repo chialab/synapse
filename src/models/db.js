@@ -1,4 +1,4 @@
-import PouchDB from 'pouchdb/dist/pouchdb.js';
+import DB from '../helpers/db.js';
 import { internal } from '../helpers/internal.js';
 import { FetchModel } from './fetch.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
@@ -41,7 +41,7 @@ export class DBModel extends FetchModel {
             return internal(this).db;
         }
         try {
-            internal(this).db = new PouchDB(this.databaseName, this.databaseOptions);
+            internal(this).db = new DB(this.databaseName, this.databaseOptions);
             return internal(this).db;
         } catch (ex) {
             this.databaseError = new DBOpeningErrorException(ex);
@@ -133,7 +133,7 @@ export class DBModel extends FetchModel {
         }
         let opt = prepareOptions(this.databaseSyncOptions, options);
         if (opt.url) {
-            let remote = new PouchDB(opt.url);
+            let remote = new DB(opt.url);
             return remote.replicate(
                 this.database,
                 opt
