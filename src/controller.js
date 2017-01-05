@@ -3,12 +3,6 @@ import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom';
 
 export class Controller extends Factory {
-    constructor(appInstance) {
-        super(appInstance);
-        let Ctr = this.constructor;
-        this.ready = Ctr.ready;
-    }
-
     promise(callback) {
         return new Promise((resolve, reject) => {
             this._resolve = resolve;

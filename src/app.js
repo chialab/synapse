@@ -194,7 +194,7 @@ export class App extends BaseObject {
         }
         return destroyCtr.then(() => {
             internal(this).currentController = ctr;
-            return ctr.ready
+            return ctr.ready()
                 .then(() => Promise.resolve(ctr))
                 .catch(() => Promise.reject(ctr));
         });
