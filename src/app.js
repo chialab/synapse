@@ -9,7 +9,7 @@ import { CssHelper } from './helpers/css.js';
 import { debounce } from './helpers/debounce.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
-import { notifications, IDOM, DOM } from '@dnajs/idom';
+import { IDOM, DOM } from '@dnajs/idom';
 
 export class App extends BaseObject {
     static get View() {
@@ -173,12 +173,11 @@ export class App extends BaseObject {
 
     handleComponents() {
         let lastComponent;
-        notifications.on('created', (elem) => {
+        Component.notifications.on('created', (elem) => {
             if (elem instanceof Component) {
                 let scope = this.rendering ? this : (lastComponent && lastComponent.getOwner());
-                if (scope === this) {
-                    elem.setOwner(scope);
-                    elem.initialize();
+                if (scope) {
+                    elem.initialize(scope);
                 }
                 lastComponent = elem;
             }
@@ -205,8 +204,8 @@ export class App extends BaseObject {
             let oldPage = this.currentPage;
             let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
             destroyPromise.then(() => {
-                let page = new this.constructor.View(this);
-                page.setOwner(this);
+                let page = new this.constructor.View();
+                page.initialize(this);
                 this.currentPage = page;
                 DOM.appendChild(this.element, page);
                 controller.pipe((updatedResponse) => {
