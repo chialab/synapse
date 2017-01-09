@@ -37,7 +37,7 @@
     "es6-workflow": "latest"
   },
   "dependencies": {
-    "@dnajs/idom": "^2.0.0",
+    "@dnajs/idom": "^2.4.4",
     "chialab-callback-manager": "^2.0.0",
     "chialab-i18n": "^2.0.0",
     "chialab-router": "^0.5.3",
