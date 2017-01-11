@@ -175,9 +175,11 @@ export class App extends BaseObject {
         let lastComponent;
         Component.notifications.on('created', (elem) => {
             if (elem instanceof Component) {
-                let scope = this.rendering ? this : (lastComponent && lastComponent.getOwner());
-                if (scope) {
-                    elem.initialize(scope);
+                let scope = internal(this).rendering ? this :
+                    (lastComponent && lastComponent.getOwner());
+                if (scope === this) {
+                    elem.setOwner(scope);
+                    elem.initialize();
                 }
                 lastComponent = elem;
             }
@@ -204,18 +206,20 @@ export class App extends BaseObject {
             let oldPage = this.currentPage;
             let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
             destroyPromise.then(() => {
-                let page = new this.constructor.View();
-                page.initialize(this);
+                let page = new this.constructor.View(this);
+                page.setOwner(this);
                 this.currentPage = page;
                 DOM.appendChild(this.element, page);
-                controller.pipe((updatedResponse) => {
-                    this.rendering = true;
-                    IDOM.patch(page.node, controller.render(updatedResponse));
-                    this.rendering = false;
-                });
-                this.rendering = true;
-                IDOM.patch(page.node, controller.render(response));
-                this.rendering = false;
+                if (controller) {
+                    controller.pipe((updatedResponse) => {
+                        internal(this).rendering = true;
+                        IDOM.patch(page.node, controller.render(updatedResponse));
+                        internal(this).rendering = false;
+                    });
+                    internal(this).rendering = true;
+                    IDOM.patch(page.node, controller.render(response));
+                    internal(this).rendering = false;
+                }
                 let shown = this.currentPage.show(!oldPage);
                 if (controller) {
                     if (controller.dispatchResolved) {

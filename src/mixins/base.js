@@ -3,7 +3,9 @@ import { internal } from '../helpers/internal.js';
 export const BaseMixin = (superClass) => class extends superClass {
     constructor(...args) {
         super(...args);
-        this.initialize(...args);
+        if (!this.preventInitialization) {
+            this.initialize(...args);
+        }
     }
 
     initialize() {
