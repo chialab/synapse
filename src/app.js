@@ -206,7 +206,7 @@ export class App extends BaseObject {
             let oldPage = this.currentPage;
             let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
             destroyPromise.then(() => {
-                let page = new this.constructor.View(this);
+                let page = new this.constructor.View();
                 page.setOwner(this);
                 this.currentPage = page;
                 DOM.appendChild(this.element, page);

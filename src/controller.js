@@ -5,8 +5,8 @@ import { IDOM } from '@dnajs/idom';
 export class Controller extends Factory {
     promise(callback) {
         return new Promise((resolve, reject) => {
-            this._resolve = resolve;
-            this._reject = reject;
+            internal(this).resolve = resolve;
+            internal(this).reject = reject;
             callback();
         });
     }
@@ -14,7 +14,7 @@ export class Controller extends Factory {
     resolve(vars = {}) {
         return new Promise((resolve) => {
             this.dispatchResolved = resolve;
-            this._resolve(vars);
+            internal(this).resolve(vars);
             this.stream(vars);
         }).then(() => {
             delete this.dispatchResolved;
@@ -43,7 +43,7 @@ export class Controller extends Factory {
     }
 
     fail(err) {
-        this._reject(err);
+        internal(this).reject(err);
     }
 
     exec() {
