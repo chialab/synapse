@@ -7,11 +7,15 @@ export const InjectableMixin = (superClass) => class extends superClass {
 
     initialize(...args) {
         super.initialize(...args);
-        if (this.constructor.injectors) {
-            this.registerInject(this.constructor.injectors);
-        }
-        if (this.constructor.inject) {
-            this.inject(this.constructor.inject);
+        let Super = this.constructor;
+        while (Super) {
+            if (Super.injectors) {
+                this.registerInject(Super.injectors);
+            }
+            if (Super.inject) {
+                this.inject(Super.inject);
+            }
+            Super = Object.getPrototypeOf(Super);
         }
     }
 
