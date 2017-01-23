@@ -11,6 +11,6 @@ export class I18NHelper {
     }
 
     translate(...args) {
-        internal(this).i18n.translate(...args);
+        return internal(this).i18n.translate(...args);
     }
 }
