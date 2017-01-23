@@ -1,5 +1,6 @@
 const PROTOCOL_REGEX = new RegExp('^(?:[a-z]+:)?//', 'i');
 const DOMAIN_REGEX = new RegExp('^(?:[a-z]+:)?//[^/]*', 'i');
+const DATA_REGEX = /^data:/;
 
 export class UrlHelper {
     static join(...paths) {
@@ -21,11 +22,15 @@ export class UrlHelper {
         return PROTOCOL_REGEX.test(url);
     }
 
+    static isDataUrl(url) {
+        return DATA_REGEX.test(url);
+    }
+
     static resolve(base, relative) {
-        if (!this.isAbsoluteUrl(base)) {
-            throw new Error('base url is not an absolute url');
-        }
         if (relative[0] === '/') {
+            if (!this.isAbsoluteUrl(base)) {
+                throw new Error('base url is not an absolute url');
+            }
             base = `${base.match(DOMAIN_REGEX)[0]}/`;
         }
         let stack = base.split('/');
