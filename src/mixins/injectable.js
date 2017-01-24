@@ -34,8 +34,10 @@ export const InjectableMixin = (superClass) => class extends superClass {
                 owner = this.getOwner();
             }
             internal(owner).injected = internal(owner).injected || {};
-            let fn = internal(owner).injected[inject] = new Fn(owner);
-            owner.addReadyPromise(fn.ready());
+            if (!internal(owner).injected.hasOwnProperty(inject)) {
+                let fn = internal(owner).injected[inject] = new Fn(owner);
+                owner.addReadyPromise(fn.ready());
+            }
         }
     }
 
