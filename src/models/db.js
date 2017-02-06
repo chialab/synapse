@@ -36,6 +36,10 @@ export class DBModel extends FetchModel {
         return 'id';
     }
 
+    static get queries() {
+        return {};
+    }
+
     static get database() {
         if (internal(this).db) {
             return internal(this).db;
@@ -144,6 +148,75 @@ export class DBModel extends FetchModel {
             });
         }
         return new DBSyncFailedException(this.database, 'Missing database remote url.');
+    }
+
+    static _id(id) {
+        return id;
+    }
+
+    static getById(id) {
+        id = this._id(id);
+        let model = new this();
+        model.set('id', id);
+        return model.fetch()
+            .then(() => Promise.resolve(model));
+    }
+
+    static find(query, ...args) {
+        if (query && this.queries && this.queries[query]) {
+            return this.database.query({
+                map: this.queries[query].call(this, ...args),
+            }).then((res) => {
+                if (res && res.rows) {
+                    return Promise.all(
+                        res.rows.map((row) => {
+                            let model = new this();
+                            model.set({ id: row.id });
+                            return model.fetch().then(() => Promise.resolve(model));
+                        })
+                    );
+                }
+                return Promise.resolve([]);
+            });
+        }
+        return this.database
+            .allDocs()
+            .then((data) => {
+                if (data && data.rows) {
+                    return Promise.all(
+                        data.rows
+                            .filter((entry) => !entry.id.match(/^_design/))
+                            .map((entry) => {
+                                let model = new this();
+                                model.set('id', entry.id);
+                                return model.fetch()
+                                    .then(() => Promise.resolve(model));
+                            })
+                    );
+                }
+                return Promise.reject();
+            });
+    }
+
+    static getOrCreate(id) {
+        return this.getById(id)
+            .catch(() => {
+                let m = new this();
+                m.set('id', id);
+                return Promise.resolve(m);
+            });
+    }
+
+    get id() {
+        return internal(this).id;
+    }
+
+    set id(id) {
+        if (id) {
+            internal(this).id = this.constructor._id(id);
+        } else {
+            delete internal(this).id;
+        }
     }
 
     beforeFetch() {
