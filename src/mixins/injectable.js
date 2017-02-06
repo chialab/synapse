@@ -8,6 +8,7 @@ export const InjectableMixin = (superClass) => class extends superClass {
     initialize(...args) {
         super.initialize(...args);
         let Super = this.constructor;
+        internal(this).injectPromises = [];
         while (Super) {
             if (Super.injectors) {
                 this.registerInject(Super.injectors);
@@ -17,6 +18,7 @@ export const InjectableMixin = (superClass) => class extends superClass {
             }
             Super = Object.getPrototypeOf(Super);
         }
+        this.addReadyPromise(Promise.all(internal(this).injectPromises));
     }
 
     registerInject(inject, Fn) {
@@ -36,6 +38,7 @@ export const InjectableMixin = (superClass) => class extends superClass {
             internal(owner).injected = internal(owner).injected || {};
             if (!internal(owner).injected.hasOwnProperty(inject)) {
                 let fn = internal(owner).injected[inject] = new Fn(owner);
+                owner.trigger('injected', inject, fn);
                 owner.addReadyPromise(fn.ready());
             }
         }
@@ -57,7 +60,22 @@ export const InjectableMixin = (superClass) => class extends superClass {
             }
             if (owner) {
                 internal(this).injected = internal(this).injected || {};
-                internal(this).injected[inject] = owner.factory(inject);
+                let factory = owner.factory(inject);
+                if (factory) {
+                    internal(this).injected[inject] = factory;
+                } else {
+                    internal(this).injectPromises.push(
+                        new Promise((resolve) => {
+                            let clb = owner.on('injected', (name, injFactory) => {
+                                if (name === inject) {
+                                    internal(this).injected[inject] = injFactory;
+                                    clb();
+                                    resolve();
+                                }
+                            })
+                        })
+                    );
+                }
             }
         }
     }

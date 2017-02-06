@@ -1,7 +1,7 @@
-import { BaseObject } from './base.js';
+import { Factory } from './factory.js';
 import { internal } from './helpers/internal.js';
 
-export class Model extends BaseObject {
+export class Model extends Factory {
     static get properties() {
         return [];
     }

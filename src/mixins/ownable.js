@@ -18,4 +18,8 @@ export const OwnableMixin = (superClass) => class extends superClass {
     getOwner() {
         return internal(this).owner;
     }
+
+    initClass(Class, ...args) {
+        return new Class(this.getOwner(), ...args);
+    }
 };
