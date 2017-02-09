@@ -54,25 +54,30 @@ export class App extends BaseObject {
     }
 
     initialize(element) {
-        super.initialize(element);
-        this.element = element;
-        this.router = new Router(this.routeOptions);
-        this.registerRoutes();
-        this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
-        this.handleNavigation();
-        this.handleComponents();
-        this.ready()
+        return super.initialize(element)
             .then(() => {
-                this.debounce(() => {
-                    this.router.start();
-                });
-            })
-            .catch((ex) => {
-                // eslint-disable-next-line
-                console.error(ex);
-                // eslint-disable-next-line
-                alert('Error occurred on application initialize.');
+                this.element = element;
+                this.router = new Router(this.routeOptions);
+                this.registerRoutes();
+                this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
+                this.handleNavigation();
+                this.handleComponents();
+                this.ready()
+                    .then(() => {
+                        this.start();
+                    })
+                    .catch((ex) => {
+                        // eslint-disable-next-line
+                        console.error(ex);
+                        // eslint-disable-next-line
+                        alert('Error occurred on application initialize.');
+                    });
+                return Promise.resolve();
             });
+    }
+
+    start() {
+        this.router.start();
     }
 
     registerRoutes(routeRules) {

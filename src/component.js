@@ -13,6 +13,21 @@ export class Component extends mix(BaseComponent).with(BaseMixin, OwnableMixin, 
     constructor(...args) {
         super(...args);
         Component.notifications.trigger('created', this);
+        this.ready()
+            .then(() => {
+                this.isReady = true;
+                if (this.requestedRender) {
+                    this.render(...this.requestedRender);
+                }
+            })
+    }
+
+    render(...args) {
+        if (!this.isReady) {
+            this.requestedRender = args;
+            return;
+        }
+        return super.render(...args);
     }
 }
 

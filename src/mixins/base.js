@@ -3,29 +3,25 @@ import { internal } from '../helpers/internal.js';
 export const BaseMixin = (superClass) => class extends superClass {
     constructor(...args) {
         super(...args);
+        internal(this).readyPromises = [];
         if (!this.preventInitialization) {
-            this.initialize(...args);
+            this.addReadyPromise(this.initialize(...args));
         }
     }
 
     initialize() {
-        internal(this).readyPromises = [];
+        return Promise.resolve();
     }
 
     ready() {
-        let promises = internal(this).readyPromises;
-        internal(this).readyPromises = [];
-        return Promise.all(promises)
-            .then(() => {
-                if (internal(this).readyPromises.length) {
-                    return this.ready();
-                }
-                return Promise.resolve();
-            });
+        return Promise.all(
+            internal(this).readyPromises
+        );
     }
 
     addReadyPromise(promise) {
         internal(this).readyPromises.push(promise);
+        return promise;
     }
 
     destroy() {

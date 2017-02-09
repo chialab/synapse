@@ -6,19 +6,21 @@ export const InjectableMixin = (superClass) => class extends superClass {
     }
 
     initialize(...args) {
-        super.initialize(...args);
-        let Super = this.constructor;
-        internal(this).injectPromises = [];
-        while (Super) {
-            if (Super.injectors) {
-                this.registerInject(Super.injectors);
-            }
-            if (Super.inject) {
-                this.inject(Super.inject);
-            }
-            Super = Object.getPrototypeOf(Super);
-        }
-        this.addReadyPromise(Promise.all(internal(this).injectPromises));
+        return super.initialize(...args)
+            .then(() => {
+                let Super = this.constructor;
+                internal(this).injectPromises = [];
+                while (Super) {
+                    if (Super.injectors) {
+                        this.registerInject(Super.injectors);
+                    }
+                    if (Super.inject) {
+                        this.inject(Super.inject);
+                    }
+                    Super = Object.getPrototypeOf(Super);
+                }
+                return Promise.all(internal(this).injectPromises);
+            });
     }
 
     registerInject(inject, Fn) {
@@ -69,6 +71,7 @@ export const InjectableMixin = (superClass) => class extends superClass {
                             let clb = owner.on('injected', (name, injFactory) => {
                                 if (name === inject) {
                                     internal(this).injected[inject] = injFactory;
+                                    console.log('->', this.constructor.name, inject);
                                     clb();
                                     resolve();
                                 }

@@ -8,7 +8,7 @@ export const OwnableMixin = (superClass) => class extends superClass {
             }
             this.setOwner(owner);
         }
-        super.initialize(owner, ...args);
+        return super.initialize(owner, ...args);
     }
 
     setOwner(owner) {
