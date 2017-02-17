@@ -1,27 +1,44 @@
+import { internal } from '../helpers/internal.js';
 import { Plugin } from '../plugin.js';
 
 export const PluggableMixin = (SuperClass) => class extends SuperClass {
-    static get plugins() {
+    get plugins() {
         return [];
     }
 
     initialize(...args) {
         return super.initialize(...args)
-            .then(() => {
-                let plugins = this.constructor.plugins;
-                let pluginsPromise = Promise.resolve();
-                this.plugins = [];
-                if (Array.isArray(plugins)) {
-                    plugins
-                        .filter((PluginCtr) => !!PluginCtr)
-                        .forEach((PluginCtr) => {
-                            pluginsPromise = pluginsPromise.then(() =>
-                                this.registerPlugin(PluginCtr)
-                            );
-                        });
-                }
-                return pluginsPromise;
-            });
+            .then(() =>
+                this.beforePluginsInitialization()
+                    .then(() => {
+                        let plugins = this.plugins;
+                        let pluginsPromise = Promise.resolve();
+                        internal(this).plugins = [];
+                        if (Array.isArray(plugins)) {
+                            plugins
+                                .filter((PluginCtr) => !!PluginCtr)
+                                .forEach((PluginCtr) => {
+                                    pluginsPromise = pluginsPromise.then(() =>
+                                        this.registerPlugin(PluginCtr)
+                                    );
+                                });
+                        }
+                        return pluginsPromise;
+                    })
+                    .then(() => this.afterPluginsInitialization())
+            );
+    }
+
+    beforePluginsInitialization() {
+        return Promise.resolve();
+    }
+
+    afterPluginsInitialization() {
+        return Promise.resolve();
+    }
+
+    getPluginInstances() {
+        return internal(this).plugins;
     }
 
     registerPlugin(PluginCtr, conf = {}) {
@@ -29,7 +46,7 @@ export const PluggableMixin = (SuperClass) => class extends SuperClass {
             return this.registerPlugin(PluginCtr[0], PluginCtr[1]);
         }
         if (PluginCtr.prototype instanceof Plugin) {
-            const plugins = this.plugins;
+            const plugins = internal(this).plugins;
             for (let i = 0, len = plugins.length; i < len; i++) {
                 if (plugins[i] instanceof PluginCtr) {
                     return Promise.resolve();
@@ -42,18 +59,31 @@ export const PluggableMixin = (SuperClass) => class extends SuperClass {
                 });
             }
             return depsPromise
-                .then(() => {
-                    let plugin = new PluginCtr(this, conf);
-                    plugins.push(plugin);
-                    return plugin.ready()
-                        .then(() => {
-                            this.onPluginReady(plugin);
+                .then(() =>
+                    PluginCtr.supported()
+                        .catch(() => this.onPluginUnsupported(PluginCtr))
+                        .then((supported = true) => {
+                            if (supported) {
+                                let plugin = new PluginCtr(this, conf);
+                                plugins.push(plugin);
+                                return plugin.ready()
+                                    .then(() => {
+                                        this.onPluginReady(plugin);
+                                        return Promise.resolve();
+                                    });
+                            }
                             return Promise.resolve();
-                        });
-                });
+                        })
+                );
         }
         return Promise.resolve();
     }
 
     onPluginReady() {}
+
+    onPluginUnsupported(PluginCtr) {
+        // eslint-disable-next-line
+        console.warn('Unsupported plugin', PluginCtr);
+        return Promise.resolve(false);
+    }
 };

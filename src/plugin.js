@@ -1,19 +1,11 @@
-import { BaseObject } from './base.js';
+import { Factory } from './factory.js';
 
-export class Plugin extends BaseObject {
+export class Plugin extends Factory {
+    static supported() {
+        return Promise.resolve();
+    }
+
     static get dependencies() {
         return [];
-    }
-
-    initialize(owner, conf) {
-        return super.initialize(owner, conf)
-            .then(() => {
-                this.configure(conf);
-                return Promise.resolve();
-            });
-    }
-
-    configure() {
-        return true;
     }
 }

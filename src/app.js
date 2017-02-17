@@ -56,12 +56,12 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     }
 
     initialize(element) {
+        this.element = element;
         this.router = new Router(this.routeOptions);
+        this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         return super.initialize(element)
             .then(() => {
-                this.element = element;
                 this.registerRoutes();
-                this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
                 this.handleNavigation();
                 this.handleComponents();
                 this.ready()
@@ -89,9 +89,10 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     }
 
     registerRoutes(routeRules) {
+        const callbacks = this.router.callbacks;
         routeRules = routeRules || this.routeRules;
         for (let k in routeRules) {
-            if (routeRules.hasOwnProperty(k)) {
+            if (routeRules.hasOwnProperty(k) && !callbacks.hasOwnProperty(k)) {
                 let ruleMatch = routeRules[k];
                 if (typeof ruleMatch === 'string') {
                     if (typeof this[ruleMatch] === 'function') {
@@ -151,8 +152,9 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     }
 
     handleLink(ev, ...args) {
-        for (let i = 0, len = internal(this).plugins.length; i < len; i++) {
-            let plugin = internal(this).plugins[i];
+        const plugins = this.getPluginInstances();
+        for (let i = 0, len = plugins.length; i < len; i++) {
+            let plugin = plugins[i];
             if (typeof plugin.handleLink === 'function') {
                 if (!plugin.handleLink(ev, ...args)) {
                     return false;
