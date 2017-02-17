@@ -1,8 +1,10 @@
 import '@dnajs/idom/observer.js';
+import { mix } from './helpers/mixin.js';
 import { Router } from 'chialab-router/src/router.js';
 import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
 import { BaseObject } from './base.js';
+import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CssHelper } from './helpers/css.js';
@@ -11,7 +13,7 @@ import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { IDOM, DOM } from '@dnajs/idom';
 
-export class App extends BaseObject {
+export class App extends mix(BaseObject).with(PluggableMixin) {
     static get View() {
         return PageViewComponent;
     }
@@ -54,10 +56,10 @@ export class App extends BaseObject {
     }
 
     initialize(element) {
+        this.router = new Router(this.routeOptions);
         return super.initialize(element)
             .then(() => {
                 this.element = element;
-                this.router = new Router(this.routeOptions);
                 this.registerRoutes();
                 this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
                 this.handleNavigation();
@@ -74,6 +76,12 @@ export class App extends BaseObject {
                     });
                 return Promise.resolve();
             });
+    }
+
+    onPluginReady(plugin) {
+        if (plugin.routeRules) {
+            this.registerRoutes(plugin.routeRules);
+        }
     }
 
     start() {
@@ -142,7 +150,15 @@ export class App extends BaseObject {
         });
     }
 
-    handleLink() {
+    handleLink(ev, ...args) {
+        for (let i = 0, len = internal(this).plugins.length; i < len; i++) {
+            let plugin = internal(this).plugins[i];
+            if (typeof plugin.handleLink === 'function') {
+                if (!plugin.handleLink(ev, ...args)) {
+                    return false;
+                }
+            }
+        }
         return true;
     }
 

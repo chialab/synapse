@@ -5,11 +5,13 @@ export * from './factory.js';
 export * from './model.js';
 export * from './exceptions.js';
 export * from './component.js';
+export * from './plugin.js';
 // mixins
 export * from './mixins/base.js';
 export * from './mixins/callback.js';
 export * from './mixins/injectable.js';
 export * from './mixins/ownable.js';
+export * from './mixins/pluggable.js';
 // helpers
 export * from './helpers/configure.js';
 export * from './helpers/css.js';
