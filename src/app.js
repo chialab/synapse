@@ -7,8 +7,6 @@ import { BaseObject } from './base.js';
 import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
 import { I18NHelper } from './helpers/i18n.js';
-import { CssHelper } from './helpers/css.js';
-import { debounce } from './helpers/debounce.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
@@ -19,22 +17,18 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         return PageViewComponent;
     }
 
+    static get Router() {
+        return Router;
+    }
+
     static get I18NHelper() {
         return I18NHelper;
     }
 
-    static addStyle(css) {
-        return CssHelper.add(css);
-    }
-
-    get defaultRouteOptions() {
+    get routeOptions() {
         return {
             dispatch: true,
         };
-    }
-
-    get routeOptions() {
-        return this.defaultRouteOptions;
     }
 
     get routeRules() {
@@ -58,7 +52,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
 
     initialize(element) {
         this.element = element;
-        this.router = new Router(this.routeOptions);
+        this.router = new this.constructor.Router(this.routeOptions);
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         return super.initialize(element)
             .then(() => {
@@ -81,10 +75,10 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     }
 
     bootstrapRoot() {
-        this.setRendering();
+        this._setRendering();
         bootstrap(this.element);
-        this.unsetRendering();
-        return this.rendered();
+        this._unsetRendering();
+        return this._rendered();
     }
 
     onPluginReady(plugin) {
@@ -145,27 +139,6 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
 
     forwardState() {
         return this.router.forward();
-    }
-
-    setRendering() {
-        internal(this).rendering = true;
-        internal(this).renderingPromises = [];
-    }
-
-    unsetRendering() {
-        internal(this).rendering = false;
-    }
-
-    addRendering(rendering) {
-        internal(this).renderingPromises.push(rendering);
-    }
-
-    isRendering() {
-        return !!internal(this).rendering;
-    }
-
-    rendered() {
-        return Promise.all(internal(this).renderingPromises);
     }
 
     handleNavigation() {
@@ -239,11 +212,11 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         let lastComponent;
         Component.notifications.on('created', (elem) => {
             if (elem instanceof Component) {
-                let scope = this.isRendering() ? this :
+                let scope = this._isRendering() ? this :
                     (lastComponent && lastComponent.getOwner());
                 if (scope === this) {
                     elem.setOwner(scope);
-                    this.addRendering(
+                    this._addRendering(
                         elem.initialize()
                     );
                 }
@@ -285,14 +258,14 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                 let renderPromise = Promise.resolve();
                 if (controller) {
                     controller.pipe((updatedResponse) => {
-                        this.setRendering();
+                        this._setRendering();
                         IDOM.patch(page.node, controller.render(updatedResponse));
-                        this.unsetRendering();
+                        this._unsetRendering();
                     });
-                    this.setRendering();
+                    this._setRendering();
                     IDOM.patch(page.node, controller.render(response));
-                    this.unsetRendering();
-                    renderPromise = this.rendered();
+                    this._unsetRendering();
+                    renderPromise = this._rendered();
                 }
                 let shown = Promise.all([
                     renderPromise,
@@ -313,10 +286,6 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         });
     }
 
-    debounce(callback) {
-        return debounce(callback);
-    }
-
     navigate(...args) {
         return this.router.navigate(...args);
     }
@@ -327,11 +296,9 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
 
     throwException(err) {
         if (err && err instanceof EXCEPTIONS.AppException) {
-            this.debounce(() => {
-                if (!this.handleException(err)) {
-                    throw err;
-                }
-            });
+            if (!this.handleException(err)) {
+                throw err;
+            }
         }
     }
 
@@ -354,5 +321,26 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     error() {
         // ERROR
         return Promise.resolve();
+    }
+
+    _setRendering() {
+        internal(this).rendering = true;
+        internal(this).renderingPromises = [];
+    }
+
+    _unsetRendering() {
+        internal(this).rendering = false;
+    }
+
+    _addRendering(rendering) {
+        internal(this).renderingPromises.push(rendering);
+    }
+
+    _isRendering() {
+        return !!internal(this).rendering;
+    }
+
+    _rendered() {
+        return Promise.all(internal(this).renderingPromises);
     }
 }

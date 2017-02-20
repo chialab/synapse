@@ -47,4 +47,24 @@ export class UrlHelper {
         }
         return stack.join('/');
     }
+
+    constructor(url) {
+        this.url = url;
+    }
+
+    isAbsoluteUrl() {
+        return UrlHelper.isAbsoluteUrl(this.url);
+    }
+
+    isDataUrl() {
+        return UrlHelper.isDataUrl(this.url);
+    }
+
+    resolve(path) {
+        return UrlHelper.resolve(this.url, path);
+    }
+
+    join(...paths) {
+        return UrlHelper.join(this.url, ...paths);
+    }
 }

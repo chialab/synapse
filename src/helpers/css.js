@@ -1,15 +1,40 @@
+const DOC = document;
+
 export class CssHelper {
-    static add(css) {
-        return new Promise((resolve) => {
-            let style = document.createElement('style');
+    static add(css, url, id) {
+        let style;
+        let loadPromise = Promise.resolve();
+        id = id || url;
+        if (url) {
+            style = DOC.createElement('link');
+            style.rel = 'stylesheet';
+            style.setAttribute('href', url);
+            loadPromise = new Promise((resolve, reject) => {
+                style.addEventListener('load', () => {
+                    resolve();
+                });
+                style.addEventListener('error', () => {
+                    reject();
+                });
+            });
+        } else {
+            style = DOC.createElement('style');
             style.type = 'text/css';
-            if (style.styleSheet) {
-                style.styleSheet.cssText = css;
-            } else {
-                style.appendChild(document.createTextNode(css));
-            }
-            document.head.appendChild(style);
-            resolve(style);
-        });
+            style.textContent = css;
+        }
+        if (id) {
+            style.id = id;
+        }
+        DOC.head.appendChild(style);
+        loadPromise
+            .then(() => Promise.resolve(style));
+    }
+
+    static addByContent(content, id) {
+        return this.add(content, null, id);
+    }
+
+    static addByUrl(url, id) {
+        return this.add(null, url, id);
     }
 }

@@ -16,7 +16,6 @@ export * from './mixins/pluggable.js';
 export * from './helpers/configure.js';
 export * from './helpers/css.js';
 export * from './helpers/db.js';
-export * from './helpers/debounce.js';
 export * from './helpers/flags.js';
 export * from './helpers/i18n.js';
 export * from './helpers/internal.js';

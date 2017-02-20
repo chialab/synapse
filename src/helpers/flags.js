@@ -1,6 +1,6 @@
 export class FlagsHelper {
     constructor(prefix) {
-        this.prefix = prefix || 'app.flags.';
+        this.prefix = prefix || 'app.flags';
     }
 
     key(key) {

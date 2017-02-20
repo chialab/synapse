@@ -261,7 +261,7 @@ export class DBModel extends FetchModel {
     }
 
     save(syncOptions) {
-        let Ctr = this.constructor;
+        const Ctr = this.constructor;
         if (!Ctr.database) {
             return Promise.reject(Ctr.databaseError);
         }

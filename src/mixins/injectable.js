@@ -71,11 +71,10 @@ export const InjectableMixin = (superClass) => class extends superClass {
                             let clb = owner.on('injected', (name, injFactory) => {
                                 if (name === inject) {
                                     internal(this).injected[inject] = injFactory;
-                                    console.log('->', this.constructor.name, inject);
                                     clb();
                                     resolve();
                                 }
-                            })
+                            });
                         })
                     );
                 }
