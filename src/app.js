@@ -62,26 +62,29 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         return super.initialize(element)
             .then(() => {
-                bootstrap(this.element.parentNode);
-                let component = DOM.getNodeComponent(this.element);
-                let componentReady = component ? component.ready() : Promise.resolve();
-                return componentReady.then(() => {
-                    this.registerRoutes();
-                    this.handleNavigation();
-                    this.handleComponents();
-                    this.ready()
-                        .then(() =>
-                            this.start()
-                        )
-                        .catch((ex) => {
-                            // eslint-disable-next-line
-                            console.error(ex);
-                            // eslint-disable-next-line
-                            alert('Error occurred on application initialize.');
-                        });
-                    return Promise.resolve();
-                });
+                this.registerRoutes();
+                this.handleNavigation();
+                this.handleComponents();
+                this.ready()
+                    .then(() => this.bootstrapRoot())
+                    .then(() =>
+                        this.start()
+                    )
+                    .catch((ex) => {
+                        // eslint-disable-next-line
+                        console.error(ex);
+                        // eslint-disable-next-line
+                        alert('Error occurred on application initialize.');
+                    });
+                return Promise.resolve();
             });
+    }
+
+    bootstrapRoot() {
+        this.setRendering();
+        bootstrap(this.element);
+        this.unsetRendering();
+        return this.rendered();
     }
 
     onPluginReady(plugin) {
@@ -144,6 +147,27 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         return this.router.forward();
     }
 
+    setRendering() {
+        internal(this).rendering = true;
+        internal(this).renderingPromises = [];
+    }
+
+    unsetRendering() {
+        internal(this).rendering = false;
+    }
+
+    addRendering(rendering) {
+        internal(this).renderingPromises.push(rendering);
+    }
+
+    isRendering() {
+        return !!internal(this).rendering;
+    }
+
+    rendered() {
+        return Promise.all(internal(this).renderingPromises);
+    }
+
     handleNavigation() {
         this.element.addEventListener('click', (ev) => {
             let elem = ev.target;
@@ -172,7 +196,9 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         if (link) {
             let href = link.getAttribute('href');
             let target = link.getAttribute('target');
-            if ((!target || target === '_self') && !UrlHelper.isAbsolute(href)) {
+            if ((!target || target === '_self') && !UrlHelper.isAbsoluteUrl(href)) {
+                ev.preventDefault();
+                ev.stopPropagation();
                 this.navigate(href);
             }
         }
@@ -213,11 +239,13 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         let lastComponent;
         Component.notifications.on('created', (elem) => {
             if (elem instanceof Component) {
-                let scope = internal(this).rendering ? this :
+                let scope = this.isRendering() ? this :
                     (lastComponent && lastComponent.getOwner());
                 if (scope === this) {
                     elem.setOwner(scope);
-                    elem.initialize();
+                    this.addRendering(
+                        elem.initialize()
+                    );
                 }
                 lastComponent = elem;
             }
@@ -254,17 +282,22 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                 page.setOwner(this);
                 this.currentPage = page;
                 DOM.appendChild(this.element, page);
+                let renderPromise = Promise.resolve();
                 if (controller) {
                     controller.pipe((updatedResponse) => {
-                        internal(this).rendering = true;
+                        this.setRendering();
                         IDOM.patch(page.node, controller.render(updatedResponse));
-                        internal(this).rendering = false;
+                        this.unsetRendering();
                     });
-                    internal(this).rendering = true;
+                    this.setRendering();
                     IDOM.patch(page.node, controller.render(response));
-                    internal(this).rendering = false;
+                    this.unsetRendering();
+                    renderPromise = this.rendered();
                 }
-                let shown = this.currentPage.show(!oldPage);
+                let shown = Promise.all([
+                    renderPromise,
+                    this.currentPage.show(!oldPage),
+                ]);
                 if (controller) {
                     if (controller.dispatchResolved) {
                         controller.dispatchResolved();
