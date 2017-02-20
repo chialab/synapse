@@ -54,31 +54,24 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         this.element = element;
         this.router = new this.constructor.Router(this.routeOptions);
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
-        return super.initialize(element)
-            .then(() => {
-                this.registerRoutes();
-                this.handleNavigation();
-                this.handleComponents();
-                this.ready()
-                    .then(() => this.bootstrapRoot())
-                    .then(() =>
-                        this.start()
-                    )
-                    .catch((ex) => {
-                        // eslint-disable-next-line
-                        console.error(ex);
-                        // eslint-disable-next-line
-                        alert('Error occurred on application initialize.');
-                    });
-                return Promise.resolve();
-            });
-    }
-
-    bootstrapRoot() {
-        this._setRendering();
-        bootstrap(this.element);
-        this._unsetRendering();
-        return this._rendered();
+        return Promise.all([
+            this.handleComponents(),
+            this.handleNavigation(),
+            super.initialize(element),
+        ]).then(() => {
+            this.registerRoutes();
+            this.ready()
+                .then(() =>
+                    this.start()
+                )
+                .catch((ex) => {
+                    // eslint-disable-next-line
+                    console.error(ex);
+                    // eslint-disable-next-line
+                    alert('Error occurred on application initialize.');
+                });
+            return Promise.resolve();
+        });
     }
 
     onPluginReady(plugin) {
@@ -152,6 +145,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
             }
             return true;
         });
+        return Promise.resolve();
     }
 
     handleLink(ev, ...args) {
@@ -223,6 +217,10 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                 lastComponent = elem;
             }
         });
+        this._setRendering();
+        bootstrap(this.element);
+        this._unsetRendering();
+        return this._rendered();
     }
 
     dispatchController(RequestedController, ...args) {
