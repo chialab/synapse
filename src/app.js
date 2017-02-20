@@ -9,6 +9,7 @@ import { Controller } from './controller.js';
 import { I18NHelper } from './helpers/i18n.js';
 import { CssHelper } from './helpers/css.js';
 import { debounce } from './helpers/debounce.js';
+import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { IDOM, DOM } from '@dnajs/idom';
@@ -159,6 +160,15 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                 if (!plugin.handleLink(ev, ...args)) {
                     return false;
                 }
+            }
+        }
+        let node = ev.target;
+        let link = node.tagName === 'A' ? node : node.closest('a');
+        if (link) {
+            let href = link.getAttribute('href');
+            let target = link.getAttribute('target');
+            if ((!target || target === '_self') && !UrlHelper.isAbsolute(href)) {
+                this.navigate(href);
             }
         }
         return true;
