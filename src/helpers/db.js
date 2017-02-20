@@ -1,3 +1,3 @@
-import '../vendors/pouchdb.js';
+import PouchDB from '../vendors/pouchdb.js';
 
-export default self.PouchDB;
+export default PouchDB;
