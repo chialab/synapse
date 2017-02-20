@@ -26,7 +26,7 @@ export class CssHelper {
             style.id = id;
         }
         DOC.head.appendChild(style);
-        loadPromise
+        return loadPromise
             .then(() => Promise.resolve(style));
     }
 
