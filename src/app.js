@@ -70,9 +70,9 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                     this.handleNavigation();
                     this.handleComponents();
                     this.ready()
-                        .then(() => {
-                            this.start();
-                        })
+                        .then(() =>
+                            this.start()
+                        )
                         .catch((ex) => {
                             // eslint-disable-next-line
                             console.error(ex);
@@ -91,7 +91,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     }
 
     start() {
-        this.router.start();
+        return this.router.start();
     }
 
     registerRoutes(routeRules) {
