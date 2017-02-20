@@ -225,18 +225,24 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     }
 
     dispatchController(RequestedController, ...args) {
+        let lastControllerRequest = internal(this).lastControllerRequest
+            || Promise.resolve();
         let ctr = new RequestedController(this, ...args);
         let destroyCtr = Promise.resolve();
         let previousCtr = internal(this).currentController;
         if (previousCtr) {
             destroyCtr = previousCtr.destroy();
         }
-        return destroyCtr.then(() => {
-            internal(this).currentController = ctr;
-            return ctr.ready()
-                .then(() => Promise.resolve(ctr))
-                .catch(() => Promise.reject(ctr));
-        });
+        lastControllerRequest = lastControllerRequest.then(() =>
+            destroyCtr.then(() => {
+                internal(this).currentController = ctr;
+                return ctr.ready()
+                    .then(() => Promise.resolve(ctr))
+                    .catch(() => Promise.reject(ctr));
+            })
+        );
+        internal(this).lastControllerRequest = lastControllerRequest;
+        return lastControllerRequest;
     }
 
     dispatchView(controller, response) {

@@ -53,7 +53,7 @@ export class Controller extends Factory {
     }
 
     redirect(path) {
-        this.getOwner().navigate(path);
+        return this.getOwner().navigate(path);
     }
 
     destroy(...args) {
