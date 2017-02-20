@@ -12,7 +12,7 @@ import { debounce } from './helpers/debounce.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
-import { IDOM, DOM } from '@dnajs/idom';
+import { bootstrap, IDOM, DOM } from '@dnajs/idom';
 
 export class App extends mix(BaseObject).with(PluggableMixin) {
     static get View() {
@@ -62,20 +62,25 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
         return super.initialize(element)
             .then(() => {
-                this.registerRoutes();
-                this.handleNavigation();
-                this.handleComponents();
-                this.ready()
-                    .then(() => {
-                        this.start();
-                    })
-                    .catch((ex) => {
-                        // eslint-disable-next-line
-                        console.error(ex);
-                        // eslint-disable-next-line
-                        alert('Error occurred on application initialize.');
-                    });
-                return Promise.resolve();
+                bootstrap(this.element.parentNode);
+                let component = DOM.getNodeComponent(this.element);
+                let componentReady = component ? component.ready() : Promise.resolve();
+                return componentReady.then(() => {
+                    this.registerRoutes();
+                    this.handleNavigation();
+                    this.handleComponents();
+                    this.ready()
+                        .then(() => {
+                            this.start();
+                        })
+                        .catch((ex) => {
+                            // eslint-disable-next-line
+                            console.error(ex);
+                            // eslint-disable-next-line
+                            alert('Error occurred on application initialize.');
+                        });
+                    return Promise.resolve();
+                });
             });
     }
 
