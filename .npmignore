@@ -1,7 +1,10 @@
+npm-debug.log
 /node_modules
 /bower_components
 /coverage
 .eslint*
 .editorconfig
 .git*
-npm-debug.log
+.babelrc
+gulpfile.js
+rollup.config.js
