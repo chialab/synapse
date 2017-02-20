@@ -16,8 +16,10 @@ export const CallbackMixin =
         }
 
         unlisten() {
-            internal(this).listeners.forEach((destroy) => destroy());
-            internal(this).listeners = [];
+            if (internal(this).listeners) {
+                internal(this).listeners.forEach((destroy) => destroy());
+                internal(this).listeners = [];
+            }
         }
 
         destroy() {
