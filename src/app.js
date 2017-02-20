@@ -163,7 +163,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         if (link) {
             let href = link.getAttribute('href');
             let target = link.getAttribute('target');
-            if ((!target || target === '_self') && !UrlHelper.isAbsoluteUrl(href)) {
+            if (href && (!target || target === '_self') && !UrlHelper.isAbsoluteUrl(href)) {
                 ev.preventDefault();
                 ev.stopPropagation();
                 this.navigate(href);
