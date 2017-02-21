@@ -13,18 +13,34 @@ import * as EXCEPTIONS from './exceptions.js';
 import { bootstrap, IDOM, DOM } from '@dnajs/idom';
 
 export class App extends mix(BaseObject).with(PluggableMixin) {
+    /**
+     * The component to use as page view.
+     * @type {Component}
+     */
     static get View() {
         return PageViewComponent;
     }
-
+    /**
+     * The constructor to use for app navigation.
+     * It should replicate the same interface of chialab-router.
+     * @type {class}
+     */
     static get Router() {
         return Router;
     }
-
-    static get I18NHelper() {
+    /**
+     * The constructor to use for app localization.
+     * It should replicate the same interface of chialab-i18n.
+     * @type {class}
+     */
+    static get I18N() {
         return I18NHelper;
     }
-
+    /**
+     * Default router options.
+     * @see chialab-router options.
+     * @type {Object}
+     */
     get routeOptions() {
         return {
             dispatch: true,
@@ -43,17 +59,26 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     get routeMap() {
         return {};
     }
-
+    /**
+     * Default localization options.
+     * @see chialab-i18n options.
+     * @type {Object}
+     */
     get i18nOptions() {
         return {
             languages: [],
         };
     }
-
+    /**
+     * Set up the application.
+     *
+     * @param {Element} element The element to use for application root.
+     * @return {Promise} The initialization promise.
+     */
     initialize(element) {
         this.element = element;
         this.router = new this.constructor.Router(this.routeOptions);
-        this.i18n = new this.constructor.I18NHelper(this.i18nOptions);
+        this.i18n = new this.constructor.I18N(this.i18nOptions);
         return Promise.all([
             this.handleComponents(),
             this.handleNavigation(),
@@ -73,15 +98,37 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
             return Promise.resolve();
         });
     }
-
+    /**
+     * Callback for plugins ready.
+     * Handle plugins' routes and locales.
+     *
+     * @param {Plugin} plugin The plugin instance.
+     */
     onPluginReady(plugin) {
         if (plugin.routeRules) {
             this.registerRoutes(plugin.routeRules);
         }
+        let Super = this.constructor;
+        let ctrs = [];
+        while (Super) {
+            if (Super.locales && ctrs.indexOf(Super.locales) === -1) {
+                ctrs.unshift(Super.locales);
+            }
+            Super = Object.getPrototypeOf(Super);
+        }
+        ctrs.forEach((locales) => {
+            this.registerLocales(locales);
+        });
     }
 
     start() {
         return this.router.start();
+    }
+
+    registerLocales(locales) {
+        for (let k in locales) {
+            this.i18n.addResources(locales[k], k);
+        }
     }
 
     registerRoutes(routeRules) {
@@ -110,7 +157,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                                         this.throwException(err)
                                     )
                                 )
-                                .then(() => this.afterRoute())
+                                .then(() => this.afterRoute(...args))
                         )
                     );
                 }
@@ -119,11 +166,11 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     }
 
     beforeRoute(...args) {
-        return Promise.resolve(args || []);
+        return Promise.resolve(args);
     }
 
-    afterRoute() {
-        return Promise.resolve();
+    afterRoute(...args) {
+        return Promise.resolve(args);
     }
 
     backState() {
@@ -320,24 +367,45 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         // ERROR
         return Promise.resolve();
     }
-
+    /**
+     * Set the application in rendering mode.
+     * @private
+     */
     _setRendering() {
         internal(this).rendering = true;
         internal(this).renderingPromises = [];
     }
-
+    /**
+     * Unset the application from rendering mode.
+     * @private
+     */
     _unsetRendering() {
         internal(this).rendering = false;
     }
-
+    /**
+     * Add a rendering promise.
+     * @private
+     *
+     * @param {Promise} rendering The promise to add to rendering queue.
+     */
     _addRendering(rendering) {
         internal(this).renderingPromises.push(rendering);
     }
-
+    /**
+     * Check if app is in rendering mode.
+     * @private
+     *
+     * @return {Boolean}
+     */
     _isRendering() {
         return !!internal(this).rendering;
     }
-
+    /**
+     * Return the rendering resolution queue.
+     * @private
+     *
+     * @return {Promise} Resolves when all rendering promieses are resolved.
+     */
     _rendered() {
         return Promise.all(internal(this).renderingPromises);
     }
