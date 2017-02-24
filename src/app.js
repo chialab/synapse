@@ -49,15 +49,8 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
 
     get routeRules() {
         return {
-            '/:controller/:action/*': 'route',
-            '/:controller/:action': 'route',
-            '/:controller': 'route',
             '*': 'notFound',
         };
-    }
-
-    get routeMap() {
-        return {};
     }
     /**
      * Default localization options.
@@ -120,11 +113,20 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
             this.registerLocales(locales);
         });
     }
-
+    /**
+     * Start up the app.
+     * Start the routing navigation.
+     *
+     * @return {Promise} The start up promise.
+     */
     start() {
         return this.router.start();
     }
-
+    /**
+     * Add resources to localization helper.
+     *
+     * @param {Object} locales A list of localization rules.
+     */
     registerLocales(locales) {
         for (let k in locales) {
             this.i18n.addResources(locales[k], k);
@@ -146,20 +148,40 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                             )
                         );
                     }
-                } else if (ruleMatch.prototype instanceof Controller) {
-                    this.router.on(k, (...args) =>
-                        this.beforeRoute(...args).then(() =>
-                            this.dispatchController(ruleMatch)
-                                .then((ctr) =>
-                                    ctr.exec(...args).then((ctrRes) =>
-                                        this.dispatchView(ctr, ctrRes)
-                                    ).catch((err) =>
-                                        this.throwException(err)
-                                    )
-                                )
-                                .then(() => this.afterRoute(...args))
-                        )
-                    );
+                } else {
+                    let action;
+                    if (Array.isArray(ruleMatch)) {
+                        action = ruleMatch[1];
+                        ruleMatch = ruleMatch[0];
+                    }
+                    if (ruleMatch.prototype instanceof Controller) {
+                        this.router.on(k, (...args) =>
+                            this.beforeRoute(...args).then(() =>
+                                this.dispatchController(ruleMatch)
+                                    .then((ctr) => {
+                                        let promise;
+                                        if (action && typeof ctr[action] === 'function') {
+                                            promise = ctr[action].call(...args);
+                                        } else {
+                                            promise = ctr.exec(...args);
+                                        }
+                                        return promise
+                                            .then((ctrRes) => this.dispatchView(ctr, ctrRes));
+                                    })
+                                    .then(() => this.afterRoute(...args))
+                                    .catch((err) => {
+                                        try {
+                                            if (!this.throwException(err)) {
+                                                return Promise.reject(err);
+                                            }
+                                        } catch (ex) {
+                                            return Promise.reject(ex);
+                                        }
+                                        return Promise.resolve();
+                                    })
+                            )
+                        );
+                    }
                 }
             }
         }
@@ -217,36 +239,6 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
             }
         }
         return true;
-    }
-
-    route(controller, action, paths = '') {
-        paths = paths.split('/');
-        if (controller) {
-            let RequestedController = this.routeMap[controller];
-            if (typeof RequestedController !== 'undefined') {
-                return this.dispatchController(RequestedController).then((ctr) => {
-                    let promise;
-                    if (action && typeof ctr[action] === 'function') {
-                        promise = ctr[action].call(ctr, ...paths);
-                    } else {
-                        promise = ctr.exec(action, ...paths);
-                    }
-                    return promise
-                        .then((ctrRes) =>
-                            this.dispatchView(ctr, ctrRes)
-                        )
-                        .catch((err) =>
-                            this.throwException(err)
-                        );
-                });
-            }
-        }
-        this.notFoundException();
-        return Promise.reject();
-    }
-
-    notFoundException() {
-        this.throwException(new EXCEPTIONS.ContentNotFoundException());
     }
 
     handleComponents() {
