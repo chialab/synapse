@@ -295,24 +295,14 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                 let renderPromise = Promise.resolve();
                 if (controller) {
                     controller.pipe((updatedResponse) => {
-                        this._setRendering();
-                        IDOM.patch(page.node, controller.render(updatedResponse));
-                        this._unsetRendering();
+                        this.render(controller.render(updatedResponse))
                     });
-                    this._setRendering();
-                    IDOM.patch(page.node, controller.render(response));
-                    this._unsetRendering();
-                    renderPromise = this._rendered();
+                    renderPromise = this.render(controller.render(response));
                 }
                 let shown = Promise.all([
                     renderPromise,
                     this.currentPage.show(!oldPage),
                 ]);
-                if (controller) {
-                    if (controller.dispatchResolved) {
-                        controller.dispatchResolved();
-                    }
-                }
                 shown.then(() => {
                     if (oldPage) {
                         DOM.removeChild(this.element, oldPage);
@@ -321,6 +311,13 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                 });
             });
         });
+    }
+
+    render(renderFn) {
+        this._setRendering();
+        IDOM.patch(this.currentPage.node, renderFn);
+        this._unsetRendering();
+        return this._rendered();
     }
 
     navigate(...args) {
@@ -336,7 +333,9 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
             if (!this.handleException(err)) {
                 throw err;
             }
+            return true;
         }
+        return false;
     }
 
     handleException(err) {

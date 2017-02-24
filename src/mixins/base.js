@@ -26,5 +26,6 @@ export const BaseMixin = (superClass) => class extends superClass {
 
     destroy() {
         internal.destroy(this);
+        return Promise.resolve();
     }
 };
