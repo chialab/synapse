@@ -83,13 +83,16 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                     this.start()
                 )
                 .catch((ex) => {
-                    // eslint-disable-next-line
-                    console.error(ex);
-                    // eslint-disable-next-line
-                    alert('Error occurred on application initialize.');
+                    this.onInitializeError(ex);
                 });
             return Promise.resolve();
         });
+    }
+    onInitializeError(ex) {
+        // eslint-disable-next-line
+        console.error(ex);
+        // eslint-disable-next-line
+        alert('Error occurred on application initialize.');
     }
     /**
      * Callback for plugins ready.
@@ -295,7 +298,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                 let renderPromise = Promise.resolve();
                 if (controller) {
                     controller.pipe((updatedResponse) => {
-                        this.render(controller.render(updatedResponse))
+                        this.render(controller.render(updatedResponse));
                     });
                     renderPromise = this.render(controller.render(response));
                 }
