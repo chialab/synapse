@@ -3,19 +3,28 @@ import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom';
 
 export class Controller extends Factory {
-    render(res) {
+    render() {
+        let res = internal(this).streams;
         return () =>
             IDOM.h('div', null, res);
     }
 
+    getResponse() {
+        return internal(this).streams;
+    }
+
+    setResponse(res) {
+        internal(this).streams = res;
+    }
+
     stream(vars = {}) {
-        let previous = internal(this).streams || {};
+        let previous = this.getResponse() || {};
         for (let k in previous) {
             if (!vars.hasOwnProperty(k)) {
                 vars[k] = previous[k];
             }
         }
-        internal(this).streams = vars;
+        this.setResponse(vars);
         return this.trigger('stream', vars);
     }
 

@@ -48,9 +48,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     }
 
     get routeRules() {
-        return {
-            '*': 'notFound',
-        };
+        return {};
     }
     /**
      * Default localization options.
@@ -123,6 +121,9 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
      * @return {Promise} The start up promise.
      */
     start() {
+        this.router.on('*', () => {
+            this.notFound();
+        });
         return this.router.start();
     }
     /**
@@ -162,14 +163,14 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                             this.beforeRoute(...args).then(() =>
                                 this.dispatchController(ruleMatch)
                                     .then((ctr) => {
-                                        let promise;
+                                        let promise = ctr.ready();
                                         if (action && typeof ctr[action] === 'function') {
-                                            promise = ctr[action].call(...args);
+                                            promise = promise.then(() => ctr[action].call(...args));
                                         } else {
-                                            promise = ctr.exec(...args);
+                                            promise = promise.then(() => ctr.exec(...args));
                                         }
                                         return promise
-                                            .then((ctrRes) => this.dispatchView(ctr, ctrRes));
+                                            .then(() => this.dispatchView(ctr));
                                     })
                                     .then(() => this.afterRoute(...args))
                                     .catch((err) => {
@@ -286,7 +287,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         return lastControllerRequest;
     }
 
-    dispatchView(controller, response) {
+    dispatchView(controller) {
         return new Promise((resolve) => {
             let oldPage = this.currentPage;
             let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
@@ -300,7 +301,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                     controller.pipe((updatedResponse) => {
                         this.render(controller.render(updatedResponse));
                     });
-                    renderPromise = this.render(controller.render(response));
+                    renderPromise = this.render(controller.render(controller.getResponse()));
                 }
                 let shown = Promise.all([
                     renderPromise,
