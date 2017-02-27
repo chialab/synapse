@@ -165,7 +165,7 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                                     .then((ctr) => {
                                         let promise = ctr.ready();
                                         if (action && typeof ctr[action] === 'function') {
-                                            promise = promise.then(() => ctr[action].call(...args));
+                                            promise = promise.then(() => ctr[action].call(ctr, ...args));
                                         } else {
                                             promise = promise.then(() => ctr.exec(...args));
                                         }
