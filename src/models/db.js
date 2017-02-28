@@ -233,7 +233,7 @@ export class DBModel extends FetchModel {
             return Promise.reject(Ctr.databaseError);
         }
         return this.beforeFetch(...args).then(() =>
-            Ctr.database.get(this[Ctr.databaseKey]).then((data) => {
+            Ctr.database.get(this.getDatabaseId() || this[Ctr.databaseKey]).then((data) => {
                 this.setResponse(data);
                 return this.afterFetch(data).then(() => {
                     this.set(data, true);
