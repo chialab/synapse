@@ -1,6 +1,5 @@
 /* eslint-env node */
 
-const path = require('path');
 const env = process.env;
 
 const nodeResolve = require('rollup-plugin-node-resolve');
@@ -23,6 +22,7 @@ module.exports = {
             include: [
                 'node_modules/mixwith/**',
                 'node_modules/object-path/**',
+                'src/vendors/**',
             ],
         }),
         babel({
