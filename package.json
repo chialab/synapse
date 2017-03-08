@@ -15,14 +15,14 @@
     "MVC",
     "framework"
   ],
-  "author": "Chialab <dev@chialab.io> (http://chialab.io)",
+  "author": "Chialab <dev@chialab.io> (http://www.chialab.it)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Chialab/synapse/issues"
   },
   "homepage": "https://github.com/Chialab/synapse#readme",
   "dependencies": {
-    "@dnajs/idom": "^2.5.0",
+    "@dnajs/idom": "^2.6.0",
     "chialab-callback-manager": "^2.0.0",
     "chialab-i18n": "^2.0.0",
     "chialab-router": "^0.6.0",

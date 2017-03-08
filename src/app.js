@@ -1,4 +1,3 @@
-import '@dnajs/idom/observer.js';
 import { mix } from './helpers/mixin.js';
 import { Router } from 'chialab-router/src/router.js';
 import { PageViewComponent } from './components/page.js';
@@ -10,7 +9,7 @@ import { I18NHelper } from './helpers/i18n.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
-import { bootstrap, IDOM, DOM } from '@dnajs/idom';
+import { bootstrap, IDOM, DOM } from '@dnajs/idom/index.observer.js';
 
 export class App extends mix(BaseObject).with(PluggableMixin) {
     /**

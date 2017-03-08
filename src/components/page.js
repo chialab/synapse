@@ -1,4 +1,4 @@
-import { define } from '@dnajs/idom';
+import { define } from '@dnajs/idom/index.observer.js';
 import { Component } from '../component.js';
 
 export class PageViewComponent extends Component {
