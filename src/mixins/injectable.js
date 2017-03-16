@@ -39,7 +39,7 @@ export const InjectableMixin = (superClass) => class extends superClass {
             }
             internal(owner).injected = internal(owner).injected || {};
             if (!internal(owner).injected.hasOwnProperty(inject)) {
-                let fn = internal(owner).injected[inject] = new Fn(owner);
+                let fn = internal(owner).injected[inject] = this.initClass(Fn);
                 owner.trigger('injected', inject, fn);
                 owner.addReadyPromise(fn.ready());
             }
