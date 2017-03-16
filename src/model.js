@@ -1,32 +1,43 @@
-import { Factory } from './factory.js';
+import { mix } from './helpers/mixin.js';
+import SchemaModel from '@chialab/schema-model';
 import { internal } from './helpers/internal.js';
 
-export class Model extends Factory {
+import { BaseMixin } from './mixins/base.js';
+import { InjectableMixin } from './mixins/injectable.js';
+import { CallbackMixin } from './mixins/callback.js';
+import { OwnableMixin } from './mixins/ownable.js';
+
+export class Model extends mix(SchemaModel).with(
+    BaseMixin,
+    CallbackMixin,
+    InjectableMixin,
+    OwnableMixin
+) {
     static get properties() {
         return [];
     }
 
-    set(data, value, skipChanges = false) {
-        let Ctr = this.constructor;
+    set(data, value, options = false) {
+        if (typeof options === 'boolean') {
+            options = {
+                skipChanges: options,
+            };
+        }
         if (typeof data === 'object') {
-            skipChanges = value || false;
-            for (let k in data) {
-                if (data.hasOwnProperty(k) && Ctr.properties.indexOf(k) !== -1) {
-                    let desc = Object.getOwnPropertyDescriptor(Ctr.prototype, k);
-                    if (!desc || typeof desc.get !== 'function' || typeof desc.set === 'function') {
-                        if (this[k] !== data[k]) {
-                            if (!skipChanges) {
-                                this.setChanges(k, this[k], data[k]);
-                            }
-                            this[k] = data[k];
-                        }
+            options = value;
+            if (!options.skipChanges) {
+                let data = this.toJSON();
+                for (let k in data) {
+                    if (this[k] !== data[k]) {
+                        this.setChanges(k, this[k], data[k]);
                     }
                 }
             }
+            return super.set(data, options);
         } else if (typeof data === 'string') {
             let s = {};
             s[data] = value;
-            this.set(s, skipChanges);
+            this.set(s, options);
         }
     }
 
@@ -56,6 +67,9 @@ export class Model extends Factory {
 
     toJSON() {
         let Ctr = this.constructor;
+        if (Ctr.schema) {
+            return super.toJSON();
+        }
         let res = {};
         (Ctr.properties || []).forEach((key) => {
             res[key] = this[key];

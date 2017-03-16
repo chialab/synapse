@@ -22,6 +22,7 @@ module.exports = {
             include: [
                 'node_modules/mixwith/**',
                 'node_modules/object-path/**',
+                'node_modules/tv4/tv4.js',
                 'src/vendors/**',
             ],
         }),
