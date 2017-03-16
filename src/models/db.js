@@ -1,27 +1,6 @@
-import DB from '../helpers/db.js';
+import { Database } from '../helpers/db.js';
 import { internal } from '../helpers/internal.js';
 import { FetchModel } from './fetch.js';
-import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
-import { DBSyncFailedException } from '../exceptions/db-sync-failed.js';
-
-function prepareOptions(defaults = {}, options = {}) {
-    let opt = {};
-    if (typeof defaults === 'object') {
-        for (let k in defaults) {
-            if (defaults.hasOwnProperty(k)) {
-                opt[k] = defaults[k];
-            }
-        }
-    }
-    if (typeof options === 'object') {
-        for (let k in options) {
-            if (options.hasOwnProperty(k)) {
-                opt[k] = options[k];
-            }
-        }
-    }
-    return opt;
-}
 
 export class DBModel extends FetchModel {
     static get databaseName() {
@@ -44,13 +23,8 @@ export class DBModel extends FetchModel {
         if (internal(this).db) {
             return internal(this).db;
         }
-        try {
-            internal(this).db = new DB(this.databaseName, this.databaseOptions);
-            return internal(this).db;
-        } catch (ex) {
-            this.databaseError = new DBOpeningErrorException(ex);
-        }
-        return null;
+        internal(this).db = new Database(this.databaseName, this.databaseOptions);
+        return internal(this).db;
     }
 
     static destroy() {
@@ -62,29 +36,12 @@ export class DBModel extends FetchModel {
     }
 
     static empty() {
-        return this.database.allDocs()
-            .then((response) => {
-                if (response && response.rows) {
-                    return Promise.all(
-                        response.rows
-                            .filter((row) =>
-                                !row.id.match(/^_design/)
-                            )
-                            .map((row) =>
-                                this.database.remove(row.id, row.value.rev)
-                            )
-                    );
-                }
-                return Promise.resolve();
-            });
+        return this.database.empty();
     }
 
     static query(query, options) {
-        if (!this.database) {
-            return Promise.reject(this.databaseError);
-        }
         return this.database.query(query, options).then((res) => {
-            res = res.rows.map((row) => {
+            res.map((row) => {
                 let model = new this();
                 model.set(row.value, true);
                 model.setDatabaseInfo({
@@ -98,60 +55,44 @@ export class DBModel extends FetchModel {
     }
 
     static sync(options = {}) {
-        if (!this.database) {
-            return Promise.reject(this.databaseError);
-        }
-        let opt = prepareOptions(this.databaseSyncOptions, options);
-        if (opt.url) {
-            return this.database.sync(
-                opt.url,
-                opt
-            ).catch((err) => Promise.reject(
-                new DBSyncFailedException(this.database, err))
-            );
-        }
-        return new DBSyncFailedException(this.database, 'Missing database remote url.');
+        return this.database.sync(options);
     }
 
     static push(options = {}) {
-        if (!this.database) {
-            return Promise.reject(this.databaseError);
-        }
-        let opt = prepareOptions(this.databaseSyncOptions, options);
-        if (opt.url) {
-            return this.database.replicate(
-                opt.url,
-                opt
-            ).catch((err) => {
-                Promise.reject(
-                    new DBSyncFailedException(this.database, err)
-                );
-            });
-        }
-        return new DBSyncFailedException(this.database, 'Missing database remote url.');
+        return this.database.push(options);
     }
 
     static pull(options = {}) {
-        if (!this.database) {
-            return Promise.reject(this.databaseError);
-        }
-        let opt = prepareOptions(this.databaseSyncOptions, options);
-        if (opt.url) {
-            let remote = new DB(opt.url);
-            return remote.replicate(
-                this.database,
-                opt
-            ).catch((err) => {
-                Promise.reject(
-                    new DBSyncFailedException(this.database, err)
-                );
-            });
-        }
-        return new DBSyncFailedException(this.database, 'Missing database remote url.');
+        return this.database.push(options);
     }
 
     static _id(id) {
         return id;
+    }
+
+    static find(query, ...args) {
+        if (query) {
+            return this.database.query(query, ...args).then((res) =>
+                Promise.all(
+                    res.rows.map((row) => {
+                        let model = new this();
+                        model.set({ id: row.id });
+                        return model.fetch().then(() => Promise.resolve(model));
+                    })
+                )
+            );
+        }
+        return this.database.findAll()
+            .then((data) =>
+                Promise.all(
+                    data.map((entry) => {
+                        let model = new this();
+                        model.set('id', entry.id);
+                        return model.fetch()
+                            .then(() => Promise.resolve(model));
+                    })
+                )
+            );
     }
 
     static getById(id) {
@@ -160,42 +101,6 @@ export class DBModel extends FetchModel {
         model.set('id', id);
         return model.fetch()
             .then(() => Promise.resolve(model));
-    }
-
-    static find(query, ...args) {
-        if (query && this.queries && this.queries[query]) {
-            return this.database.query({
-                map: this.queries[query].call(this, ...args),
-            }).then((res) => {
-                if (res && res.rows) {
-                    return Promise.all(
-                        res.rows.map((row) => {
-                            let model = new this();
-                            model.set({ id: row.id });
-                            return model.fetch().then(() => Promise.resolve(model));
-                        })
-                    );
-                }
-                return Promise.resolve([]);
-            });
-        }
-        return this.database
-            .allDocs()
-            .then((data) => {
-                if (data && data.rows) {
-                    return Promise.all(
-                        data.rows
-                            .filter((entry) => !entry.id.match(/^_design/))
-                            .map((entry) => {
-                                let model = new this();
-                                model.set('id', entry.id);
-                                return model.fetch()
-                                    .then(() => Promise.resolve(model));
-                            })
-                    );
-                }
-                return Promise.reject();
-            });
     }
 
     static getOrCreate(id) {
@@ -229,11 +134,8 @@ export class DBModel extends FetchModel {
 
     fetch(...args) {
         let Ctr = this.constructor;
-        if (!Ctr.database) {
-            return Promise.reject(Ctr.databaseError);
-        }
         return this.beforeFetch(...args).then(() =>
-            Ctr.database.get(this.getDatabaseId() || this[Ctr.databaseKey]).then((data) => {
+            Ctr.database.getById(this.getDatabaseId() || this[Ctr.databaseKey]).then((data) => {
                 this.setResponse(data);
                 return this.afterFetch(data).then(() => {
                     this.set(data, true);
@@ -268,14 +170,14 @@ export class DBModel extends FetchModel {
         return Promise.resolve().then(() => {
             let savePromise;
             if (this.getDatabaseId()) {
-                savePromise = Ctr.database.put(this.toDBData());
+                savePromise = this.put(this.toDBData());
             } else {
                 let data = this.toJSON();
                 if (Ctr.databaseKey && data[Ctr.databaseKey]) {
                     data._id = data[Ctr.databaseKey];
-                    savePromise = Ctr.database.put(data);
+                    savePromise = this.put(data);
                 } else {
-                    savePromise = Ctr.database.post(data);
+                    savePromise = this.post(data);
                 }
             }
             return savePromise.then((res) => {
