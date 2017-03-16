@@ -32,11 +32,9 @@ export class Database {
             this.syncOptions = options.sync || {};
             delete options.sync;
             internal(this).db = new PouchDB(name, options);
-            return internal(this).db;
         } catch (ex) {
             this.databaseError = new DBOpeningErrorException(ex);
         }
-        return null;
     }
 
     destroy() {
@@ -79,6 +77,14 @@ export class Database {
             );
         }
         return new DBSyncFailedException(internal(this).db, 'Missing database remote url.');
+    }
+
+    put(data) {
+        return internal(this).db.put(data);
+    }
+
+    post(data) {
+        return internal(this).db.post(data);
     }
 
     push(options = {}) {

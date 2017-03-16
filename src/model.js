@@ -13,6 +13,10 @@ export class Model extends mix(SchemaModel).with(
     InjectableMixin,
     OwnableMixin
 ) {
+    static get schema() {
+        return undefined;
+    }
+
     static get properties() {
         return [];
     }
@@ -24,16 +28,21 @@ export class Model extends mix(SchemaModel).with(
             };
         }
         if (typeof data === 'object') {
-            options = value;
+            options = value || {};
+            let changed = false;
             if (!options.skipChanges) {
                 let data = this.toJSON();
                 for (let k in data) {
                     if (this[k] !== data[k]) {
+                        changed = true;
                         this.setChanges(k, this[k], data[k]);
                     }
                 }
             }
-            return super.set(data, options);
+            super.set(data, options);
+            if (changed) {
+                this.trigger('change');
+            }
         } else if (typeof data === 'string') {
             let s = {};
             s[data] = value;
@@ -63,6 +72,14 @@ export class Model extends mix(SchemaModel).with(
 
     hasChanges() {
         return !!this.changed().length;
+    }
+
+    validate(...args) {
+        if (Ctr.schema) {
+            return super.validate(...args);
+        } else {
+            return { valid: true };
+        }
     }
 
     toJSON() {

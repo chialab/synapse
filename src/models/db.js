@@ -55,16 +55,24 @@ export class DBModel extends FetchModel {
         });
     }
 
-    static sync(options = {}) {
-        return this.database.sync(options);
+    static sync(data = {}) {
+        return this.database.sync(data);
     }
 
-    static push(options = {}) {
-        return this.database.push(options);
+    static push(data = {}) {
+        return this.database.push(data);
     }
 
-    static pull(options = {}) {
-        return this.database.push(options);
+    static post(data = {}) {
+        return this.database.post(data);
+    }
+
+    static put(data = {}) {
+        return this.database.put(data);
+    }
+
+    static pull(data = {}) {
+        return this.database.pull(data);
     }
 
     static _id(id) {
@@ -190,7 +198,7 @@ export class DBModel extends FetchModel {
             });
         }).then((model) => {
             if (syncOptions) {
-                return this.push(syncOptions);
+                return this.put(syncOptions);
             }
             return Promise.resolve(model);
         }).then((model) => {
@@ -206,18 +214,28 @@ export class DBModel extends FetchModel {
         return data;
     }
 
-    sync(options = {}) {
+    sync(data = {}) {
         let Ctr = this.constructor;
-        return Ctr.sync(options);
+        return Ctr.sync(data);
     }
 
-    pull(options = {}) {
+    pull(data = {}) {
         let Ctr = this.constructor;
-        return Ctr.pull(options);
+        return Ctr.pull(data);
     }
 
-    push(options = {}) {
+    push(data = {}) {
         let Ctr = this.constructor;
-        return Ctr.push(options);
+        return Ctr.push(data);
+    }
+
+    put(data = {}) {
+        let Ctr = this.constructor;
+        return Ctr.put(data);
+    }
+
+    post(data = {}) {
+        let Ctr = this.constructor;
+        return Ctr.post(data);
     }
 }
