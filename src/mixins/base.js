@@ -28,4 +28,8 @@ export const BaseMixin = (superClass) => class extends superClass {
         internal.destroy(this);
         return Promise.resolve();
     }
+
+    initClass(Class, ...args) {
+        return new Class(this, ...args);
+    }
 };
