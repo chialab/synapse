@@ -75,7 +75,7 @@ export class Model extends mix(SchemaModel).with(
     }
 
     validate(...args) {
-        if (Ctr.schema) {
+        if (this.constructor.schema) {
             return super.validate(...args);
         } else {
             return { valid: true };
