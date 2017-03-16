@@ -40,6 +40,7 @@ export class DBModel extends FetchModel {
     }
 
     static query(query, options) {
+        query = this.queries && this.queries[query];
         return this.database.query(query, options).then((res) => {
             res.map((row) => {
                 let model = new this();

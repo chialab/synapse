@@ -113,7 +113,9 @@ export class Database {
     }
 
     find(query, ...args) {
-        query = this.queries && this.queries[query];
+        if (typeof query === 'string') {
+            query = this.queries && this.queries[query];
+        }
         return internal(this).db.query({
             map: query.call(this, ...args),
         }).then((res) => {
