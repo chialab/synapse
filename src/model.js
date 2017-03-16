@@ -21,6 +21,10 @@ export class Model extends mix(SchemaModel).with(
         return [];
     }
 
+    constructor(owner, data) {
+        return super(data);
+    }
+
     set(data, value, options = false) {
         if (typeof options === 'boolean') {
             options = {
@@ -31,7 +35,6 @@ export class Model extends mix(SchemaModel).with(
             options = value || {};
             let changed = false;
             if (!options.skipChanges) {
-                let data = this.toJSON();
                 for (let k in data) {
                     if (this[k] !== data[k]) {
                         changed = true;
@@ -82,14 +85,17 @@ export class Model extends mix(SchemaModel).with(
         }
     }
 
-    toJSON() {
+    toJSON(stripUndefined) {
         let Ctr = this.constructor;
         if (Ctr.schema) {
-            return super.toJSON();
+            return super.toJSON(stripUndefined);
         }
         let res = {};
         (Ctr.properties || []).forEach((key) => {
-            res[key] = this[key];
+            let val = this.get(key);
+            if (!stripUndefined || val !== undefined) {
+                res[key] = val;
+            }
         });
         return res;
     }
