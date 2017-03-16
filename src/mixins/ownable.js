@@ -1,14 +1,17 @@
 import { internal } from '../helpers/internal.js';
+import { BaseObject } from '../base.js';
 
 export const OwnableMixin = (superClass) => class extends superClass {
-    initialize(owner, ...args) {
-        if (owner) {
+    constructor(owner, ...args) {
+        if (owner && owner instanceof BaseObject) {
             if (typeof owner.getOwner === 'function') {
                 owner = owner.getOwner();
             }
+            super(...args);
             this.setOwner(owner);
+        } else {
+            super(owner, ...args);
         }
-        return super.initialize(owner, ...args);
     }
 
     setOwner(owner) {

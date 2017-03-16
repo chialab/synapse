@@ -21,10 +21,6 @@ export class Model extends mix(SchemaModel).with(
         return [];
     }
 
-    constructor(owner, data) {
-        return super(data);
-    }
-
     set(data, value, options = false) {
         if (typeof options === 'boolean') {
             options = {
