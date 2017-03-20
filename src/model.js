@@ -30,7 +30,7 @@ export class Model extends mix(SchemaModel).with(
         if (typeof data === 'object') {
             options = value || {};
             let changed = false;
-            if (!options.skipChanges) {
+            if (!options.skipChanges && !options.internal) {
                 for (let k in data) {
                     if (this[k] !== data[k]) {
                         changed = true;

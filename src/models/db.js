@@ -127,7 +127,11 @@ export class DBModel extends FetchModel {
 
     set id(id) {
         if (id) {
-            internal(this).id = this.constructor._id(id);
+            id = this.constructor._id(id);
+            if (internal(this).id && internal(this).id !== id) {
+                throw 'Can not change a Model id. Create a new one instead.';
+            }
+            internal(this).id = id;
         } else {
             delete internal(this).id;
         }
