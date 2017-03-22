@@ -7,7 +7,7 @@ export class PageViewComponent extends Component {
         this.node.classList.add('navigation--hide');
         return new Promise((resolve) => {
             let animationName = window.getComputedStyle(this.node).animationName;
-            if (animationName !== 'none') {
+            if (animationName && animationName !== 'none') {
                 let onAnimationEnd = () => {
                     this.node.classList.remove('navigation--hide');
                     this.node.removeEventListener('animationend', onAnimationEnd);
@@ -25,7 +25,7 @@ export class PageViewComponent extends Component {
         this.node.classList.add('navigation--show');
         return new Promise((resolve) => {
             let animationName = window.getComputedStyle(this.node).animationName;
-            if (animationName !== 'none') {
+            if (animationName && animationName !== 'none') {
                 let onAnimationEnd = () => {
                     this.node.classList.remove('navigation--show');
                     this.node.removeEventListener('animationend', onAnimationEnd);
