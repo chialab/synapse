@@ -140,7 +140,6 @@ export class App extends mix(Factory).with(PluggableMixin) {
                                     })
                                     .then(() => this.afterRoute(...args))
                                     .catch((err) => {
-                                        console.error(err);
                                         try {
                                             if (!this.throwException(err)) {
                                                 return Promise.reject(err);

@@ -39,7 +39,7 @@ export const BaseMixin = (SuperClass) => class extends CallbackMixin(SuperClass)
     initClass(Class, ...args) {
         let obj = new Class(...args);
         obj.setContext(this.getContext());
-        return obj.initialize(...args)
-            .then(() => Promise.resolve(obj));
+        obj.addReadyPromise(obj.initialize(...args));
+        return obj.ready().then(() => Promise.resolve(obj));
     }
 };
