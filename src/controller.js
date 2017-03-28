@@ -37,7 +37,7 @@ export class Controller extends Factory {
     }
 
     redirect(path) {
-        return this.getOwner().navigate(path);
+        return this.getContext().navigate(path);
     }
 
     next() {

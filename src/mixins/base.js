@@ -1,15 +1,14 @@
 import { internal } from '../helpers/internal.js';
+import { CallbackMixin } from './callback.js';
 
-export const BaseMixin = (superClass) => class extends superClass {
+export const BaseMixin = (SuperClass) => class extends CallbackMixin(SuperClass) {
     constructor(...args) {
         super(...args);
         internal(this).readyPromises = [];
-        if (!this.preventInitialization) {
-            this.addReadyPromise(this.initialize(...args));
-        }
     }
 
     initialize() {
+        this.initialized = true;
         return Promise.resolve();
     }
 
@@ -29,7 +28,18 @@ export const BaseMixin = (superClass) => class extends superClass {
         return Promise.resolve();
     }
 
+    setContext(ctx) {
+        internal(this).ctx = ctx;
+    }
+
+    getContext() {
+        return internal(this).ctx || this;
+    }
+
     initClass(Class, ...args) {
-        return new Class(this, ...args);
+        let obj = new Class(...args);
+        obj.setContext(this.getContext());
+        return obj.initialize(...args)
+            .then(() => Promise.resolve(obj));
     }
 };

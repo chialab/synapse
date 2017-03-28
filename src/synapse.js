@@ -1,7 +1,6 @@
 // base
-export * from './base.js';
-export * from './controller.js';
 export * from './factory.js';
+export * from './controller.js';
 export * from './model.js';
 export * from './exceptions.js';
 export * from './component.js';
@@ -10,7 +9,6 @@ export * from './plugin.js';
 export * from './mixins/base.js';
 export * from './mixins/callback.js';
 export * from './mixins/injectable.js';
-export * from './mixins/ownable.js';
 export * from './mixins/pluggable.js';
 // helpers
 export * from './helpers/configure.js';

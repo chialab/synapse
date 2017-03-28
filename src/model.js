@@ -4,14 +4,10 @@ import { internal } from './helpers/internal.js';
 
 import { BaseMixin } from './mixins/base.js';
 import { InjectableMixin } from './mixins/injectable.js';
-import { CallbackMixin } from './mixins/callback.js';
-import { OwnableMixin } from './mixins/ownable.js';
 
 export class Model extends mix(SchemaModel).with(
     BaseMixin,
-    CallbackMixin,
-    InjectableMixin,
-    OwnableMixin
+    InjectableMixin
 ) {
     static get schema() {
         return undefined;

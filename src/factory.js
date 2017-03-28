@@ -1,7 +1,8 @@
 import { mix } from './helpers/mixin.js';
-import { BaseObject } from './base.js';
-import { OwnableMixin } from './mixins/ownable.js';
+import { BaseMixin } from './mixins/base.js';
+import { InjectableMixin } from './mixins/injectable.js';
 
-export class Factory extends mix(BaseObject).with(
-    OwnableMixin
+export class Factory extends mix(class {}).with(
+    BaseMixin,
+    InjectableMixin
 ) {}

@@ -64,13 +64,11 @@ export const PluggableMixin = (SuperClass) => class extends SuperClass {
                         .catch(() => this.onPluginUnsupported(PluginCtr))
                         .then((supported = true) => {
                             if (supported) {
-                                let plugin = this.initClass(PluginCtr, conf);
-                                plugins.push(plugin);
-                                return plugin.ready()
-                                    .then(() => {
-                                        this.onPluginReady(plugin);
-                                        return Promise.resolve();
-                                    });
+                                return this.initClass(PluginCtr, conf).then((plugin) => {
+                                    plugins.push(plugin);
+                                    this.onPluginReady(plugin);
+                                    return Promise.resolve(plugin);
+                                });
                             }
                             return Promise.resolve();
                         })

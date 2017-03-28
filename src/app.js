@@ -2,16 +2,15 @@ import { mix } from './helpers/mixin.js';
 import { Router } from 'chialab-router/src/router.js';
 import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
-import { BaseObject } from './base.js';
+import { Factory } from './factory.js';
 import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
-import { I18NHelper } from './helpers/i18n.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { bootstrap, IDOM, DOM } from '@dnajs/idom/index.observer.js';
 
-export class App extends mix(BaseObject).with(PluggableMixin) {
+export class App extends mix(Factory).with(PluggableMixin) {
     /**
      * The component to use as page view.
      * @type {Component}
@@ -28,14 +27,6 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         return Router;
     }
     /**
-     * The constructor to use for app localization.
-     * It should replicate the same interface of chialab-i18n.
-     * @type {class}
-     */
-    static get I18N() {
-        return I18NHelper;
-    }
-    /**
      * Default router options.
      * @see chialab-router options.
      * @type {Object}
@@ -49,15 +40,14 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     get routeRules() {
         return {};
     }
-    /**
-     * Default localization options.
-     * @see chialab-i18n options.
-     * @type {Object}
-     */
-    get i18nOptions() {
-        return {
-            languages: [],
-        };
+    constructor(element, ...args) {
+        super();
+        this.element = element;
+        this.addReadyPromise(
+            this.initialize(...args)
+        );
+        this.ready()
+            .then(() => this.start());
     }
     /**
      * Set up the application.
@@ -65,26 +55,24 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
      * @param {Element} element The element to use for application root.
      * @return {Promise} The initialization promise.
      */
-    initialize(element) {
-        this.element = element;
+    initialize() {
         this.router = new this.constructor.Router(this.routeOptions);
-        this.i18n = new this.constructor.I18N(this.i18nOptions);
         return Promise.all([
             this.handleComponents(),
             this.handleNavigation(),
-            super.initialize(element),
+            super.initialize(),
         ]).then(() => {
             this.registerRoutes();
-            this.ready()
-                .then(() =>
-                    this.start()
-                )
-                .catch((ex) => {
-                    this.onInitializeError(ex);
-                });
             return Promise.resolve();
+        }).catch((ex) => {
+            this.onInitializeError(ex);
         });
     }
+
+    getContext() {
+        return this;
+    }
+
     onInitializeError(ex) {
         // eslint-disable-next-line
         console.error(ex);
@@ -101,17 +89,6 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         if (plugin.routeRules) {
             this.registerRoutes(plugin.routeRules);
         }
-        let Super = this.constructor;
-        let ctrs = [];
-        while (Super) {
-            if (Super.locales && ctrs.indexOf(Super.locales) === -1) {
-                ctrs.unshift(Super.locales);
-            }
-            Super = Object.getPrototypeOf(Super);
-        }
-        ctrs.forEach((locales) => {
-            this.registerLocales(locales);
-        });
     }
     /**
      * Start up the app.
@@ -124,16 +101,6 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
             this.notFound();
         });
         return this.router.start();
-    }
-    /**
-     * Add resources to localization helper.
-     *
-     * @param {Object} locales A list of localization rules.
-     */
-    registerLocales(locales) {
-        for (let k in locales) {
-            this.i18n.addResources(locales[k], k);
-        }
     }
 
     registerRoutes(routeRules) {
@@ -162,17 +129,18 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
                             this.beforeRoute(...args).then(() =>
                                 this.dispatchController(ruleMatch)
                                     .then((ctr) => {
-                                        let promise = ctr.ready();
+                                        let promise;
                                         if (action && typeof ctr[action] === 'function') {
-                                            promise = promise.then(() => ctr[action].call(ctr, ...args));
+                                            promise = ctr[action].call(ctr, ...args);
                                         } else {
-                                            promise = promise.then(() => ctr.exec(...args));
+                                            promise = ctr.exec(...args);
                                         }
                                         return promise
                                             .then(() => this.dispatchView(ctr));
                                     })
                                     .then(() => this.afterRoute(...args))
                                     .catch((err) => {
+                                        console.error(err);
                                         try {
                                             if (!this.throwException(err)) {
                                                 return Promise.reject(err);
@@ -249,9 +217,9 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
         Component.notifications.on('created', (elem) => {
             if (elem instanceof Component) {
                 let scope = this._isRendering() ? this :
-                    (lastComponent && lastComponent.getOwner());
+                    (lastComponent && lastComponent.getContext());
                 if (scope === this) {
-                    elem.setOwner(scope);
+                    elem.setContext(scope);
                     this._addRendering(
                         elem.initialize()
                     );
@@ -268,52 +236,53 @@ export class App extends mix(BaseObject).with(PluggableMixin) {
     dispatchController(RequestedController, ...args) {
         let lastControllerRequest = internal(this).lastControllerRequest
             || Promise.resolve();
-        let ctr = new RequestedController(this, ...args);
-        let destroyCtr = Promise.resolve();
-        let previousCtr = internal(this).currentController;
-        if (previousCtr) {
-            destroyCtr = previousCtr.destroy();
-        }
-        lastControllerRequest = lastControllerRequest.then(() =>
-            destroyCtr.then(() => {
-                internal(this).currentController = ctr;
-                return ctr.ready()
-                    .then(() => Promise.resolve(ctr))
-                    .catch(() => Promise.reject(ctr));
-            })
-        );
-        internal(this).lastControllerRequest = lastControllerRequest;
-        return lastControllerRequest;
+        return this.initClass(RequestedController, ...args)
+            .then((ctr) => {
+                let destroyCtr = Promise.resolve();
+                let previousCtr = internal(this).currentController;
+                if (previousCtr) {
+                    destroyCtr = previousCtr.destroy();
+                }
+                lastControllerRequest = lastControllerRequest.then(() =>
+                    destroyCtr.then(() => {
+                        internal(this).currentController = ctr;
+                        return ctr.ready()
+                            .then(() => Promise.resolve(ctr))
+                            .catch(() => Promise.reject(ctr));
+                    })
+                );
+                internal(this).lastControllerRequest = lastControllerRequest;
+                return lastControllerRequest;
+            });
     }
 
     dispatchView(controller) {
-        return new Promise((resolve) => {
-            let oldPage = this.currentPage;
-            let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
-            destroyPromise.then(() => {
-                let page = new this.constructor.View();
-                page.setOwner(this);
-                this.currentPage = page;
-                DOM.appendChild(this.element, page);
-                let renderPromise = Promise.resolve();
-                if (controller) {
-                    controller.pipe((updatedResponse) => {
-                        this.render(controller.render(updatedResponse));
-                    });
-                    renderPromise = this.render(controller.render(controller.getResponse()));
-                }
-                let shown = Promise.all([
-                    renderPromise,
-                    this.currentPage.show(!oldPage),
-                ]);
-                shown.then(() => {
-                    if (oldPage) {
-                        DOM.removeChild(this.element, oldPage);
+        let oldPage = this.currentPage;
+        let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
+        return destroyPromise.then(() =>
+            this.initClass(this.constructor.View)
+                .then((page) => {
+                    this.currentPage = page;
+                    DOM.appendChild(this.element, page);
+                    let renderPromise = Promise.resolve();
+                    if (controller) {
+                        controller.pipe((updatedResponse) => {
+                            this.render(controller.render(updatedResponse));
+                        });
+                        renderPromise = this.render(controller.render(controller.getResponse()));
                     }
-                    resolve();
-                });
-            });
-        });
+                    let shown = Promise.all([
+                        renderPromise,
+                        this.currentPage.show(!oldPage),
+                    ]);
+                    return shown.then(() => {
+                        if (oldPage) {
+                            DOM.removeChild(this.element, oldPage);
+                        }
+                        return Promise.resolve(page);
+                    });
+                })
+        );
     }
 
     render(renderFn) {

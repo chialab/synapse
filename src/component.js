@@ -2,10 +2,9 @@ import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.j
 import { BaseComponent } from '@dnajs/idom/index.observer.js';
 import { mix } from './helpers/mixin.js';
 import { BaseMixin } from './mixins/base.js';
-import { OwnableMixin } from './mixins/ownable.js';
 import { InjectableMixin } from './mixins/injectable.js';
 
-export class Component extends mix(BaseComponent).with(BaseMixin, OwnableMixin, InjectableMixin) {
+export class Component extends mix(BaseComponent).with(BaseMixin, InjectableMixin) {
     get preventInitialization() {
         return true;
     }
