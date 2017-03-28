@@ -37,6 +37,10 @@ export class Database {
         }
     }
 
+    info() {
+        return internal(this).db.info();
+    }
+
     destroy() {
         return internal(this).db.destroy();
     }
