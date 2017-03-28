@@ -1,4 +1,5 @@
 import PouchDB from '../vendors/pouchdb.js';
+import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
 import { internal } from './internal.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
 import { DBSyncFailedException } from '../exceptions/db-sync-failed.js';
@@ -22,18 +23,33 @@ function prepareOptions(defaults = {}, options = {}) {
     return opt;
 }
 
-export class Database {
+export class Database extends CallbackManager {
     get queries() {
         return {};
     }
 
     constructor(name, options = {}) {
+        super();
         try {
             this.syncOptions = options.sync || {};
             delete options.sync;
             internal(this).db = new PouchDB(name, options);
         } catch (ex) {
             this.databaseError = new DBOpeningErrorException(ex);
+        }
+    }
+
+    changes(fn) {
+        this.on('change', fn);
+        if (!internal(this).listen) {
+            internal(this).db.changes({
+                live: true,
+                include_docs: true,
+            }).on('change', (res) => {
+                if (res.id && !res.id.match(/^_design/)) {
+                    this.trigger('change', res);
+                }
+            });
         }
     }
 
