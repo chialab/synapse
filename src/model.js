@@ -17,6 +17,16 @@ export class Model extends mix(SchemaModel).with(
         return [];
     }
 
+    // eslint-disable-next-line
+    constructor() {
+        super();
+    }
+
+    initialize(data) {
+        super.initialize();
+        this.set(data);
+    }
+
     set(data, value, options = false) {
         if (typeof options === 'boolean') {
             options = {

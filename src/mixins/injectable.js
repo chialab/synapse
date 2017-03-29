@@ -3,20 +3,36 @@ import { internal } from '../helpers/internal.js';
 export const InjectableMixin = (superClass) => class extends superClass {
     initialize(...args) {
         return super.initialize(...args)
-            .then(() => {
-                let Super = this.constructor;
-                let promise = Promise.resolve();
-                while (Super) {
-                    let injectors = Super.injectors;
-                    if (injectors) {
-                        for (let name in injectors) {
-                            promise = promise.then(() => this.inject(name, injectors[name]));
+            .then(() =>
+                this.beforeInjectsInitialization()
+                    .then(() => {
+                        let Super = this.constructor;
+                        let promise = Promise.resolve();
+                        while (Super) {
+                            let injectors = Super.injectors;
+                            if (injectors) {
+                                for (let name in injectors) {
+                                    promise = promise.then(() => this.inject(name, injectors[name]));
+                                }
+                            }
+                            Super = Object.getPrototypeOf(Super);
                         }
-                    }
-                    Super = Object.getPrototypeOf(Super);
-                }
-                return promise;
-            });
+                        return promise
+                            .then(() => this.afterInjectsInitialization());
+                    })
+            );
+    }
+
+    beforeInjectsInitialization() {
+        return Promise.resolve();
+    }
+
+    afterInjectsInitialization() {
+        return Promise.resolve();
+    }
+
+    onInjectReady() {
+        return Promise.resolve();
     }
 
     inject(inject, Fn) {
@@ -37,7 +53,8 @@ export const InjectableMixin = (superClass) => class extends superClass {
         return resolve.then((fn) => {
             injs[inject] = fn;
             ctx.trigger('injected', inject, fn);
-            return fn.ready();
+            return fn.ready()
+                .then(() => this.onInjectReady(inject, fn));
         });
     }
 

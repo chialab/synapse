@@ -91,6 +91,10 @@ export class DBModel extends FetchModel {
                 )
             );
         }
+        return this.findAll();
+    }
+
+    static findAll() {
         return this.database.findAll()
             .then((data) =>
                 Promise.all(

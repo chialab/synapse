@@ -8,14 +8,26 @@ export const BaseMixin = (SuperClass) => class extends CallbackMixin(SuperClass)
     }
 
     initialize() {
-        this.initialized = true;
         return Promise.resolve();
     }
 
+    initializing() {
+        let promises = internal(this).readyPromises;
+        if (promises) {
+            return !!promises.length;
+        }
+        return false;
+    }
+
     ready() {
-        return Promise.all(
-            internal(this).readyPromises
-        );
+        let promises = internal(this).readyPromises;
+        if (!promises) {
+            return Promise.resolve();
+        }
+        return Promise.all(promises).then((res) => {
+            internal(this).readyPromises = null;
+            return Promise.resolve(res);
+        });
     }
 
     addReadyPromise(promise) {
@@ -39,7 +51,9 @@ export const BaseMixin = (SuperClass) => class extends CallbackMixin(SuperClass)
     initClass(Class, ...args) {
         let obj = new Class(...args);
         obj.setContext(this.getContext());
-        obj.addReadyPromise(obj.initialize(...args));
+        if (!obj.initializing()) {
+            obj.addReadyPromise(obj.initialize(...args));
+        }
         return obj.ready().then(() => Promise.resolve(obj));
     }
 };
