@@ -3,7 +3,7 @@ import { internal } from '../helpers/internal.js';
 import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
 
 export const CallbackMixin =
-    (superClass) => class extends mix(superClass).with(CallbackManager.mixin) {
+    (SuperClass) => class extends mix(SuperClass).with(CallbackManager.mixin) {
         constructor(...args) {
             super(...args);
             internal(this).listeners = [];

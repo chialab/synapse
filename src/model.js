@@ -3,12 +3,8 @@ import SchemaModel from '@chialab/schema-model';
 import { internal } from './helpers/internal.js';
 
 import { BaseMixin } from './mixins/base.js';
-import { InjectableMixin } from './mixins/injectable.js';
 
-export class Model extends mix(SchemaModel).with(
-    BaseMixin,
-    InjectableMixin
-) {
+export class Model extends mix(SchemaModel).with(BaseMixin) {
     static get schema() {
         return undefined;
     }
@@ -100,6 +96,11 @@ export class Model extends mix(SchemaModel).with(
             }
         });
         return res;
+    }
+
+    factory(name) {
+        let injected = this.getContext().getInjected();
+        return injected && injected[name];
     }
 }
 

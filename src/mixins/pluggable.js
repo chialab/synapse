@@ -6,31 +6,26 @@ export const PluggableMixin = (SuperClass) => class extends SuperClass {
         return [];
     }
 
-    initialize(...args) {
-        return super.initialize(...args)
+    constructor(...args) {
+        super(...args);
+        internal(this).plugins = [];
+    }
+
+    initialize(config = {}) {
+        return super.initialize(config)
             .then(() =>
-                this.beforePluginsInitialization()
-                    .then(() => {
-                        let plugins = this.plugins;
-                        let pluginsPromise = Promise.resolve();
-                        internal(this).plugins = [];
-                        if (Array.isArray(plugins)) {
-                            plugins
-                                .filter((PluginCtr) => !!PluginCtr)
-                                .forEach((PluginCtr) => {
-                                    pluginsPromise = pluginsPromise.then(() =>
-                                        this.registerPlugin(PluginCtr)
-                                    );
-                                });
-                        }
-                        return pluginsPromise;
-                    })
+                this.beforePluginsInitialization(config)
+                    .then((plugins) =>
+                        this.registerMultiplePlugins(plugins)
+                    )
                     .then(() => this.afterPluginsInitialization())
             );
     }
 
-    beforePluginsInitialization() {
-        return Promise.resolve();
+    beforePluginsInitialization(config) {
+        let fromCfg = config.plugins || [];
+        let fromCtr = this.constructor.plugins || [];
+        return Promise.resolve(fromCfg.concat(fromCtr));
     }
 
     afterPluginsInitialization() {
@@ -38,15 +33,34 @@ export const PluggableMixin = (SuperClass) => class extends SuperClass {
     }
 
     getPluginInstances() {
-        return internal(this).plugins;
+        return internal(this.getContext()).plugins;
+    }
+
+    registerMultiplePlugins(plugins, conf) {
+        let promise = Promise.resolve();
+        if (Array.isArray(plugins)) {
+            if (plugins.length === 2 &&
+                plugins[0].prototype instanceof Plugin &&
+                typeof plugins[1] === 'object') {
+                promise = this.registerPlugin(plugins[0], plugins[1]);
+            } else {
+                plugins.forEach((injs) => {
+                    promise = promise.then(() => this.registerMultiplePlugins(injs));
+                });
+            }
+        } else {
+            promise = this.registerPlugin(plugins, conf);
+        }
+        return promise;
     }
 
     registerPlugin(PluginCtr, conf = {}) {
-        if (Array.isArray(PluginCtr)) {
-            return this.registerPlugin(PluginCtr[0], PluginCtr[1]);
-        }
-        if (PluginCtr.prototype instanceof Plugin) {
-            const plugins = internal(this).plugins;
+        const plugins = this.getPluginInstances();
+        if (PluginCtr instanceof Plugin) {
+            plugins.push(PluginCtr);
+            this.onPluginReady(PluginCtr);
+            return Promise.resolve(PluginCtr);
+        } else if (PluginCtr.prototype instanceof Plugin) {
             for (let i = 0, len = plugins.length; i < len; i++) {
                 if (plugins[i] instanceof PluginCtr) {
                     return Promise.resolve();
@@ -54,9 +68,7 @@ export const PluggableMixin = (SuperClass) => class extends SuperClass {
             }
             let depsPromise = Promise.resolve();
             if (Array.isArray(PluginCtr.dependencies)) {
-                PluginCtr.dependencies.forEach((DepPlugin) => {
-                    depsPromise = depsPromise.then(() => this.registerPlugin(DepPlugin));
-                });
+                depsPromise = this.registerMultiplePlugins(PluginCtr.dependencies);
             }
             return depsPromise
                 .then(() =>

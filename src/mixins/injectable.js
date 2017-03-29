@@ -1,43 +1,61 @@
 import { internal } from '../helpers/internal.js';
 
-export const InjectableMixin = (superClass) => class extends superClass {
-    initialize(...args) {
-        return super.initialize(...args)
+export const InjectableMixin = (SuperClass) => class extends SuperClass {
+    constructor(...args) {
+        super(...args);
+        internal(this).injected = {};
+    }
+
+    initialize(config = {}) {
+        return super.initialize(config)
             .then(() =>
-                this.beforeInjectsInitialization()
-                    .then(() => {
-                        let Super = this.constructor;
-                        let promise = Promise.resolve();
-                        while (Super) {
-                            let injectors = Super.injectors;
-                            if (injectors) {
-                                for (let name in injectors) {
-                                    promise = promise.then(() => this.inject(name, injectors[name]));
-                                }
-                            }
-                            Super = Object.getPrototypeOf(Super);
-                        }
-                        return promise
-                            .then(() => this.afterInjectsInitialization());
-                    })
+                this.beforeInjectsInitialization(config)
+                    .then((injectors) =>
+                        this.injectMultiple(injectors)
+                    )
+                    .then(() => this.afterInjectsInitialization())
             );
     }
 
-    beforeInjectsInitialization() {
-        return Promise.resolve();
+    getContextInjected() {
+        return internal(this.getContext()).injected;
+    }
+
+    getInjected() {
+        return internal(this).injected;
+    }
+
+    beforeInjectsInitialization(config) {
+        let fromCfg = config.injectors || {};
+        let fromCtr = this.constructor.injectors || {};
+        return Promise.resolve([fromCfg, fromCtr]);
     }
 
     afterInjectsInitialization() {
         return Promise.resolve();
     }
 
-    onInjectReady() {
+    onInjectReady(inject, fn) {
+        internal(this).injected[inject] = fn;
         return Promise.resolve();
     }
 
+    injectMultiple(injectors) {
+        let promise = Promise.resolve();
+        if (Array.isArray(injectors)) {
+            injectors.forEach((injs) => {
+                promise = promise.then(() => this.injectMultiple(injs));
+            });
+        } else {
+            for (let name in injectors) {
+                promise = promise.then(() => this.inject(name, injectors[name]));
+            }
+        }
+        return promise;
+    }
+
     inject(inject, Fn) {
-        let ctx = this.getContext();
-        let injs = internal(ctx).injected = internal(ctx).injected || {};
+        let injs = this.getContextInjected();
         if (injs.hasOwnProperty(inject)) {
             return Promise.resolve(injs[inject]);
         }
@@ -52,14 +70,8 @@ export const InjectableMixin = (superClass) => class extends superClass {
         }
         return resolve.then((fn) => {
             injs[inject] = fn;
-            ctx.trigger('injected', inject, fn);
             return fn.ready()
                 .then(() => this.onInjectReady(inject, fn));
         });
-    }
-
-    factory(name) {
-        let ctx = this.getContext();
-        return internal(ctx).injected && internal(ctx).injected[name];
     }
 };

@@ -4,13 +4,14 @@ import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
 import { PluggableMixin } from './mixins/pluggable.js';
+import { InjectableMixin } from './mixins/injectable.js';
 import { Controller } from './controller.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { bootstrap, IDOM, DOM } from '@dnajs/idom/index.observer.js';
 
-export class App extends mix(Factory).with(PluggableMixin) {
+export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
     /**
      * The component to use as page view.
      * @type {Component}
@@ -40,11 +41,11 @@ export class App extends mix(Factory).with(PluggableMixin) {
     get routeRules() {
         return {};
     }
-    constructor(element, ...args) {
+    constructor(element, config) {
         super();
         this.element = element;
         this.addReadyPromise(
-            this.initialize(...args)
+            this.initialize(config)
         );
         this.ready()
             .then(() => this.start());
@@ -55,12 +56,12 @@ export class App extends mix(Factory).with(PluggableMixin) {
      * @param {Element} element The element to use for application root.
      * @return {Promise} The initialization promise.
      */
-    initialize() {
+    initialize(...args) {
         this.router = new this.constructor.Router(this.routeOptions);
         return Promise.all([
             this.handleComponents(),
             this.handleNavigation(),
-            super.initialize(),
+            super.initialize(...args),
         ]).then(() => {
             this.registerRoutes();
             return Promise.resolve();
@@ -89,6 +90,9 @@ export class App extends mix(Factory).with(PluggableMixin) {
         if (plugin.routeRules) {
             this.registerRoutes(plugin.routeRules);
         }
+        this.addReadyPromise(
+            this.injectMultiple(plugin.getInjected())
+        );
     }
     /**
      * Start up the app.

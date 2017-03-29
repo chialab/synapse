@@ -24,10 +24,12 @@ export const BaseMixin = (SuperClass) => class extends CallbackMixin(SuperClass)
         if (!promises) {
             return Promise.resolve();
         }
-        return Promise.all(promises).then((res) => {
-            internal(this).readyPromises = null;
-            return Promise.resolve(res);
-        });
+        return Promise.all(promises).then(() =>
+            Promise.all(promises).then((res) => {
+                internal(this).readyPromises = null;
+                return Promise.resolve(res);
+            })
+        );
     }
 
     addReadyPromise(promise) {

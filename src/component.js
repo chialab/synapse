@@ -2,13 +2,8 @@ import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.j
 import { BaseComponent } from '@dnajs/idom/index.observer.js';
 import { mix } from './helpers/mixin.js';
 import { BaseMixin } from './mixins/base.js';
-import { InjectableMixin } from './mixins/injectable.js';
 
-export class Component extends mix(BaseComponent).with(BaseMixin, InjectableMixin) {
-    get preventInitialization() {
-        return true;
-    }
-
+export class Component extends mix(BaseComponent).with(BaseMixin) {
     constructor(...args) {
         super(...args);
         Component.notifications.trigger('created', this);
@@ -27,6 +22,11 @@ export class Component extends mix(BaseComponent).with(BaseMixin, InjectableMixi
             return;
         }
         return super.render(...args);
+    }
+
+    factory(name) {
+        let injected = this.getContext().getInjected();
+        return injected && injected[name];
     }
 }
 
