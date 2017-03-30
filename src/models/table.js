@@ -92,7 +92,7 @@ export class DBTableModel extends Model {
             .then((data) =>
                 Promise.all(
                     data.map((entry) => {
-                        let res = entry.key;
+                        let res = entry.doc;
                         res[Ctr.databaseKey] = entry.id;
                         return this.initClass(Entry, res).then((model) =>
                             this.fetch(model)

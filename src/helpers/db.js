@@ -173,7 +173,9 @@ export class Database extends CallbackManager {
 
     findAll() {
         return internal(this).db
-            .allDocs()
+            .allDocs({
+                include_docs: true,
+            })
             .then((data) => {
                 if (data && data.rows) {
                     return Promise.all(
