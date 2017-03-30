@@ -23,7 +23,32 @@ function prepareOptions(defaults = {}, options = {}) {
     return opt;
 }
 
+let SUPPORTED = null;
+
 export class Database extends CallbackManager {
+    static supported() {
+        if (typeof SUPPORTED === 'boolean') {
+            return SUPPORTED ? Promise.resolve() : Promise.reject();
+        } else if (SUPPORTED instanceof Promise) {
+            return SUPPORTED;
+        }
+        try {
+            let db = new PouchDB('browser_test', { skip_setup: true });
+            SUPPORTED = db.info()
+                .then(() => {
+                    SUPPORTED = true;
+                    return Promise.resolve();
+                }).catch(() => {
+                    SUPPORTED = false;
+                    return Promise.reject();
+                });
+            return SUPPORTED;
+        } catch(ex) {
+            SUPPORTED = false;
+            return Promise.reject();
+        }
+    }
+
     get queries() {
         return {};
     }
@@ -34,14 +59,6 @@ export class Database extends CallbackManager {
             this.syncOptions = options.sync || {};
             delete options.sync;
             internal(this).db = new PouchDB(name, options);
-        } catch (ex) {
-            this.databaseError = new DBOpeningErrorException(ex);
-        }
-    }
-
-    changes(fn) {
-        this.on('change', fn);
-        if (!internal(this).listen) {
             internal(this).db.changes({
                 live: true,
                 include_docs: true,
@@ -50,6 +67,8 @@ export class Database extends CallbackManager {
                     this.trigger('change', res);
                 }
             });
+        } catch (ex) {
+            this.databaseError = new DBOpeningErrorException(ex);
         }
     }
 
@@ -82,7 +101,7 @@ export class Database extends CallbackManager {
 
     query(query, options) {
         return internal(this).db.query(query, options).then((res) =>
-            Promise.resolve(res.rows)
+            Promise.resolve(res.rows || [])
         );
     }
 
@@ -166,7 +185,7 @@ export class Database extends CallbackManager {
             });
     }
 
-    getById(id) {
+    findById(id) {
         return internal(this).db.get(id);
     }
 }

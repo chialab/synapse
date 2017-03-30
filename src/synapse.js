@@ -25,6 +25,7 @@ export * from './helpers/url.js';
 export * from './models/fetch.js';
 export * from './models/ajax.js';
 export * from './models/db.js';
+export * from './models/table.js';
 export * from './models/sync.js';
 // views
 export * from './components/page.js';

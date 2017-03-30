@@ -1,7 +1,6 @@
 import { internal } from '../helpers/internal.js';
-import { CallbackMixin } from './callback.js';
 
-export const BaseMixin = (SuperClass) => class extends CallbackMixin(SuperClass) {
+export const BaseMixin = (SuperClass) => class extends SuperClass {
     constructor(...args) {
         super(...args);
         internal(this).readyPromises = [];
@@ -38,8 +37,11 @@ export const BaseMixin = (SuperClass) => class extends CallbackMixin(SuperClass)
     }
 
     destroy() {
-        internal.destroy(this);
-        return Promise.resolve();
+        return super.destroy()
+            .then(() => {
+                internal.destroy(this);
+                return Promise.resolve();
+            });
     }
 
     setContext(ctx) {
