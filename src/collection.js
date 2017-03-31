@@ -69,8 +69,8 @@ export class Collection extends Model {
                 this.listeners[index]();
             }
             this.array[index] = val;
-            this.listeners[this.array.length - 1] = val.on('change', () => {
-                if (val.get('deleted', { internal: true })) {
+            this.listeners[this.array.length - 1] = val.on('change', (deleted) => {
+                if (deleted) {
                     this.remove(val);
                 } else {
                     this.trigger('change');

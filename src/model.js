@@ -106,6 +106,34 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
         let injected = this.getContext().getInjected();
         return injected && injected[name];
     }
+
+    reset() {
+        const Ctr = this.constructor;
+        let props = {};
+        if (Ctr.schema) {
+            props = Object.keys(Ctr.schemaProperties);
+        } else if (Ctr.properties) {
+            props = Ctr.properties;
+        }
+        let set = {};
+        props.forEach((prop) => {
+            if (prop !== 'id' && prop !== 'type') {
+                set[prop] = undefined;
+            }
+        });
+        this.set(set, { validate: false });
+    }
+
+    isDeleted() {
+        return !!this.get('deleted', { internal: true });
+    }
+
+    destroy() {
+        this.set('deleted', true, { internal: true });
+        this.reset();
+        this.trigger('change', true);
+        return super.destroy();
+    }
 }
 
 Model.ready = Promise.resolve();
