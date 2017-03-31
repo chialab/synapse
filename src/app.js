@@ -58,16 +58,15 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
      */
     initialize(...args) {
         this.router = new this.constructor.Router(this.routeOptions);
-        return Promise.all([
-            this.handleComponents(),
-            this.handleNavigation(),
-            super.initialize(...args),
-        ]).then(() => {
-            this.registerRoutes();
-            return Promise.resolve();
-        }).catch((ex) => {
-            this.onInitializeError(ex);
-        });
+        return this.handleNavigation()
+            .then(() => super.initialize(...args))
+            .then(() => this.handleComponents())
+            .then(() => {
+                this.registerRoutes();
+                return Promise.resolve();
+            }).catch((ex) => {
+                this.onInitializeError(ex);
+            });
     }
 
     getContext() {

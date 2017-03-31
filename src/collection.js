@@ -11,8 +11,8 @@ export class Collection extends Model {
         this.listeners = [];
     }
 
-    initialize(arr, ...args) {
-        return super.initialize(arr, ...args)
+    initialize(arr) {
+        return super.initialize()
             .then(() => {
                 if (arr) {
                     arr.forEach((val) => this.add(val));
@@ -42,7 +42,7 @@ export class Collection extends Model {
         return Promise.reject();
     }
 
-    getById(id) {
+    findById(id) {
         const arr = this.array;
         return this.getIndexById(id)
             .then((idx) =>

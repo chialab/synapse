@@ -20,8 +20,11 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
     }
 
     initialize(data) {
-        super.initialize();
-        this.set(data);
+        return super.initialize()
+            .then(() => {
+                this.set(data);
+                return Promise.resolve();
+            });
     }
 
     set(data, value, options = false) {
