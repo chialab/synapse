@@ -2,6 +2,7 @@
 export * from './factory.js';
 export * from './controller.js';
 export * from './model.js';
+export * from './collection.js';
 export * from './exceptions.js';
 export * from './component.js';
 export * from './plugin.js';
