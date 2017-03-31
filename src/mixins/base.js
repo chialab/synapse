@@ -36,10 +36,15 @@ export const BaseMixin = (SuperClass) => class extends SuperClass {
         return promise;
     }
 
+    isDestroyed() {
+        return this.destroyed;
+    }
+
     destroy() {
         return super.destroy()
             .then(() => {
                 internal.destroy(this);
+                this.destroyed = true;
                 return Promise.resolve();
             });
     }

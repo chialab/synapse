@@ -124,10 +124,6 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
         this.set(set, { validate: false });
     }
 
-    isDeleted() {
-        return !!this.get('deleted', { internal: true });
-    }
-
     destroy() {
         this.set('deleted', true, { internal: true });
         this.reset();
