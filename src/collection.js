@@ -78,7 +78,7 @@ export class Collection extends Model {
                 }
             });
             this.trigger('change');
-            this.trigger('added', index);
+            this.trigger('added', index, val);
             return Promise.resolve(index);
         }
         return Promise.reject();
@@ -100,14 +100,17 @@ export class Collection extends Model {
         if (index >= this.length) {
             return Promise.reject();
         }
-        if (this.listeners[index]) {
-            this.listeners[index]();
-        }
-        this.listeners.splice(index, 1);
-        this.array.splice(index, 1);
-        this.trigger('change');
-        this.trigger('removed', index);
-        return Promise.resolve(index);
+        return this.get(index)
+            .then((val) => {
+                if (this.listeners[index]) {
+                    this.listeners[index]();
+                }
+                this.listeners.splice(index, 1);
+                this.array.splice(index, 1);
+                this.trigger('change');
+                this.trigger('removed', index, val);
+                return Promise.resolve(index);
+            });
     }
 
     forEach(...args) {
