@@ -109,7 +109,7 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
 
     reset() {
         const Ctr = this.constructor;
-        let props = {};
+        let props = [];
         if (Ctr.schema) {
             props = Object.keys(Ctr.schemaProperties);
         } else if (Ctr.properties) {
@@ -125,7 +125,6 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
     }
 
     destroy() {
-        this.set('deleted', true, { internal: true });
         this.reset();
         this.trigger('change', true);
         return super.destroy();
