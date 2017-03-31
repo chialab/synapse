@@ -1,6 +1,6 @@
 {
   "name": "@chialab/synapse",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Just another micro MVC framework for Web Apps.",
   "main": "src/synapse.js",
   "scripts": {
@@ -26,7 +26,7 @@
     "@dnajs/idom": "^2.6.0",
     "chialab-callback-manager": "^2.0.0",
     "chialab-i18n": "^2.0.0",
-    "chialab-router": "^0.6.0",
+    "chialab-router": "^0.6.2",
     "object-path": "^0.9.2"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom/index.observer.js';
+import { Router } from 'chialab-router/src/router.js';
 
 export class Controller extends Factory {
     render() {
@@ -41,6 +42,8 @@ export class Controller extends Factory {
     }
 
     next() {
-        return Promise.reject();
+        return Promise.reject(
+            new Router.RouterUnhandledException()
+        );
     }
 }
