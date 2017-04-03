@@ -14,6 +14,10 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
         return [];
     }
 
+    static get key() {
+        return 'id';
+    }
+
     // eslint-disable-next-line
     constructor() {
         super();

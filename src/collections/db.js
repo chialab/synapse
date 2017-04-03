@@ -1,11 +1,11 @@
 import { Database } from '../helpers/db.js';
 import { internal } from '../helpers/internal.js';
-import { Model } from '../model.js';
-import { DBModel } from './db.js';
+import { Collection } from '../collection.js';
+import { DBModel } from '../models/db.js';
 
 const DBS = {};
 
-export class DBTableModel extends Model {
+export class DBCollection extends Collection {
     static get Entry() {
         return DBModel;
     }
@@ -18,8 +18,16 @@ export class DBTableModel extends Model {
         return undefined;
     }
 
-    static get databaseKey() {
-        return 'id';
+    constructor(...args) {
+        return super(...args).then(() => {
+            this.database.on('change', (res) => {
+                this.findById(res.id)
+                    .then((entry) => {
+                        this.trigger('change', entry);
+                    });
+            });
+            return Promise.resolve();
+        });
     }
 
     get queries() {
@@ -38,26 +46,18 @@ export class DBTableModel extends Model {
         return internal(Ctr).db;
     }
 
-    constructor(...args) {
-        super(...args);
-        this.database.on('change', (res) => {
-            this.findById(res.id)
-                .then((entry) => {
-                    this.trigger('change', entry);
-                });
-        });
-    }
-
-    destroy() {
-        return this.database.destroy()
-            .then(() => {
-                delete internal(this).db;
-                return Promise.resolve();
-            });
-    }
-
-    empty() {
-        return this.database.empty();
+    findById(id) {
+        const Ctr = this.constructor;
+        const Entry = Ctr.Entry;
+        return this.database.findById(id)
+            .then((entry) =>
+                this.entry(entry).then((model) =>
+                    this.fetch(model)
+                        .then(() =>
+                            Promise.resolve(model)
+                        )
+                )
+            );
     }
 
     find(query, data, options) {
@@ -73,8 +73,8 @@ export class DBTableModel extends Model {
                 Promise.all(
                     data.map((entry) => {
                         let res = entry.key;
-                        res[Ctr.databaseKey] = entry.id;
-                        return this.initClass(Entry, res).then((model) =>
+                        res[Entry.key] = entry.id;
+                        return this.entry(res).then((model) =>
                             this.fetch(model)
                                 .then(() =>
                                     Promise.resolve(model)
@@ -93,8 +93,8 @@ export class DBTableModel extends Model {
                 Promise.all(
                     data.map((entry) => {
                         let res = entry.doc;
-                        res[Ctr.databaseKey] = entry.id;
-                        return this.initClass(Entry, res).then((model) =>
+                        res[Entry.key] = entry.id;
+                        return this.entry(res).then((model) =>
                             this.fetch(model)
                                 .then(() =>
                                     Promise.resolve(model)
@@ -105,36 +105,12 @@ export class DBTableModel extends Model {
             );
     }
 
-    findById(id) {
-        const Ctr = this.constructor;
-        const Entry = Ctr.Entry;
-        return this.database.findById(id)
-            .then((entry) =>
-                this.initClass(Entry, entry).then((model) =>
-                    this.fetch(model)
-                        .then(() =>
-                            Promise.resolve(model)
-                        )
-                )
-            );
-    }
-
-    findOrCreate(id) {
-        const Ctr = this.constructor;
-        const Entry = Ctr.Entry;
-        return this.findById(id)
-            .catch(() =>
-                this.initClass(Entry, {
-                    [Ctr.databaseKey]: id,
-                })
-            );
-    }
-
     fetch(model) {
         let Ctr = this.constructor;
+        const Entry = Ctr.Entry;
         return model.beforeFetch()
             .then(() =>
-                this.database.findById(model.getDatabaseId() || model[Ctr.databaseKey])
+                this.database.findById(model.getDatabaseId() || model[Entry.key])
                     .then((data) => {
                         model.setResponse(data);
                         return model.afterFetch(data).then(() => {
@@ -151,18 +127,19 @@ export class DBTableModel extends Model {
             );
     }
 
-    save(model, syncOptions) {
+    post(model, syncOptions) {
         let Ctr = this.constructor;
+        const Entry = Ctr.Entry;
         let savePromise;
         if (model.getDatabaseId()) {
-            savePromise = this.put(model.toDBData());
+            savePromise = this.database.put(model.toDBData());
         } else {
             let data = model.toJSON();
-            if (Ctr.databaseKey && data[Ctr.databaseKey]) {
-                data._id = data[Ctr.databaseKey];
-                savePromise = this.put(data);
+            if (Entry.key && data[Entry.key]) {
+                data._id = data[Entry.key];
+                savePromise = this.database.put(data);
             } else {
-                savePromise = this.post(data);
+                savePromise = this.database.post(data);
             }
         }
         return savePromise.then((res) => {
@@ -190,15 +167,19 @@ export class DBTableModel extends Model {
         return this.database.push(data);
     }
 
-    post(data = {}) {
-        return this.database.post(data);
-    }
-
-    put(data = {}) {
-        return this.database.put(data);
-    }
-
     pull(data = {}) {
         return this.database.pull(data);
+    }
+
+    destroy() {
+        return this.database.destroy()
+            .then(() => {
+                delete internal(this).db;
+                return Promise.resolve();
+            });
+    }
+
+    empty() {
+        return this.database.empty();
     }
 }

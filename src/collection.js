@@ -1,16 +1,28 @@
-import { Model } from '@chialab/synapse';
+import { Model } from './model.js';
 
 export class Collection extends Model {
-    static get(arr, idx) {
-        return arr[idx];
+    /**
+     * The main model class for the collection.
+     * @type {Model}
+     */
+    static get Entry() {
+        return Model;
     }
-
-    constructor(...args) {
-        super(...args);
+    /**
+     * Construct a new collection.
+     * @param {Array} arr An initial array. 
+     */
+    constructor(arr) {
+        super(arr);
         this.array = [];
         this.listeners = [];
     }
-
+    /**
+     * Initialize the collection.
+     * @private
+     * @param {Array} arr The initial array.
+     * @returns {Promise}
+     */
     initialize(arr) {
         return super.initialize()
             .then(() => {
@@ -23,6 +35,18 @@ export class Collection extends Model {
 
     get length() {
         return this.array.length;
+    }
+
+    forEach(...args) {
+        return this.array.map(...args);
+    }
+
+    map(...args) {
+        return this.array.map(...args);
+    }
+
+    filter(...args) {
+        return this.array.filter(...args);
     }
 
     get(idx) {
@@ -42,14 +66,6 @@ export class Collection extends Model {
         return Promise.reject();
     }
 
-    findById(id) {
-        const arr = this.array;
-        return this.getIndexById(id)
-            .then((idx) =>
-                Promise.resolve(arr[idx])
-            );
-    }
-
     getIndexByModel(model) {
         const arr = this.array;
         for (let i = 0, len = arr.length; i < len; i++) {
@@ -60,8 +76,43 @@ export class Collection extends Model {
         return Promise.reject();
     }
 
+    entry(data) {
+        return this.initClass(
+            this.constructor.Entry,
+            data
+        );
+    }
+
+    findById(id) {
+        const arr = this.array;
+        return this.getIndexById(id)
+            .then((idx) =>
+                Promise.resolve(arr[idx])
+            );
+    }
+
+    findOrCreate(id) {
+        const Ctr = this.constructor;
+        const Entry = Ctr.Entry;
+        return this.findById(id)
+            .catch(() =>
+                this.entry({
+                    [Entry.key]: id,
+                })
+            );
+    }
+
+    find(map) {
+        return this.initClass(this.constructor, this.array.find(map));
+    }
+
+    findAll() {
+        return this.initClass(this.constructor, this.array);
+    }
+
     add(val, index) {
-        if (val instanceof Model) {
+        const Entry = this.constructor.Entry;
+        if (val instanceof Entry) {
             if (index === undefined) {
                 index = this.array.length;
             }
@@ -111,17 +162,5 @@ export class Collection extends Model {
                 this.trigger('removed', index, val);
                 return Promise.resolve(index);
             });
-    }
-
-    forEach(...args) {
-        return this.array.map(...args);
-    }
-
-    map(...args) {
-        return this.array.map(...args);
-    }
-
-    filter(...args) {
-        return this.array.filter(...args);
     }
 }
