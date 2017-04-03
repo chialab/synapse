@@ -13,4 +13,10 @@ export class FetchModel extends Model {
     fetch() {
         return Promise.resolve();
     }
+
+    setFromResponse(data = {}) {
+        this.set(data);
+        this.resetChanges();
+        return Promise.resolve();
+    }
 }

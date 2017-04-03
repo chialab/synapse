@@ -18,6 +18,23 @@ export class DBCollection extends Collection {
         return undefined;
     }
 
+    entry(data) {
+        const Entry = this.constructor.Entry;
+        if (data.doc && data.id && data.rev) {
+            let res = data.doc;
+            res[Entry.key] = data.id;
+            res._id = data.id;
+            res._rev = data.rev;
+            data = res;
+        }
+        return this.initClass(
+            Entry
+        ).then((model) =>
+            model.setFromResponse(data)
+                .then(() => Promise.resolve(data))
+            );
+    }
+
     initialize(...args) {
         return super.initialize(...args).then(() => {
             this.database.on('change', (res) => {
@@ -47,8 +64,6 @@ export class DBCollection extends Collection {
     }
 
     findById(id) {
-        const Ctr = this.constructor;
-        const Entry = Ctr.Entry;
         return this.database.findById(id)
             .then((entry) =>
                 this.entry(entry).then((model) =>
@@ -61,8 +76,6 @@ export class DBCollection extends Collection {
     }
 
     find(query, data, options) {
-        const Ctr = this.constructor;
-        const Entry = Ctr.Entry;
         if (typeof query === 'string') {
             query = {
                 map: this.queries[query].call(this, ...data),
@@ -71,36 +84,30 @@ export class DBCollection extends Collection {
         return this.database.query(query, options)
             .then((data) =>
                 Promise.all(
-                    data.map((entry) => {
-                        let res = entry.key;
-                        res[Entry.key] = entry.id;
-                        return this.entry(res).then((model) =>
+                    data.map((entry) =>
+                        this.entry(entry).then((model) =>
                             this.fetch(model)
                                 .then(() =>
                                     Promise.resolve(model)
                                 )
-                        );
-                    })
+                        )
+                    )
                 )
             );
     }
 
     findAll() {
-        const Ctr = this.constructor;
-        const Entry = Ctr.Entry;
         return this.database.findAll()
             .then((data) =>
                 Promise.all(
-                    data.map((entry) => {
-                        let res = entry.doc;
-                        res[Entry.key] = entry.id;
-                        return this.entry(res).then((model) =>
+                    data.map((entry) =>
+                        this.entry(entry).then((model) =>
                             this.fetch(model)
                                 .then(() =>
                                     Promise.resolve(model)
                                 )
-                        );
-                    })
+                        )
+                    )
                 )
             );
     }
@@ -114,15 +121,11 @@ export class DBCollection extends Collection {
                     .then((data) => {
                         model.setResponse(data);
                         return model.afterFetch(data).then(() => {
-                            model.set(data, true);
-                            model.setDatabaseTable(this);
-                            model.setDatabaseInfo({
-                                id: data._id,
-                                rev: data._rev,
-                            });
-                            model.resetChanges();
-                            return Promise.resolve(data);
-                        });
+                            model.setDatabaseTable(this)
+                            return model.setFromResponse(data);
+                        }).then(() =>
+                            Promise.resolve(data)
+                        );
                     })
             );
     }

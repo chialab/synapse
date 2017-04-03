@@ -13,6 +13,14 @@ export class DBModel extends FetchModel {
         this.setDatabaseInfo(dbInfo);
     }
 
+    setFromResponse(data = {}) {
+        this.setDatabaseInfo({
+            id: data._id,
+            rev: data._rev,
+        });
+        return super.setFromResponse(data);
+    }
+
     beforeFetch() {
         return Promise.resolve();
     }

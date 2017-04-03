@@ -6,6 +6,15 @@ export class AjaxCollection extends Collection {
         return AjaxModel;
     }
 
+    entry(data) {
+        return this.initClass(
+            this.constructor.Entry
+        ).then((model) => 
+            model.setFromResponse(data)
+                .then(() => Promise.resolve(data))
+        );
+    }
+
     buildEndpoint(model) {
         return `${this.endpoint}/${model.id}`;
     }
