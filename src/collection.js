@@ -10,7 +10,7 @@ export class Collection extends Model {
     }
     /**
      * Construct a new collection.
-     * @param {Array} arr An initial array. 
+     * @param {Array} arr An initial array.
      */
     constructor(arr) {
         super(arr);
@@ -26,10 +26,13 @@ export class Collection extends Model {
     initialize(arr) {
         return super.initialize()
             .then(() => {
+                let promise = Promise.resolve();
                 if (arr) {
-                    arr.forEach((val) => this.add(val));
+                    arr.forEach((val) => {
+                        promise = promise.then(() => this.add(val));
+                    });
                 }
-                return Promise.resolve();
+                return promise.then(() => Promise.resolve(this));
             });
     }
 

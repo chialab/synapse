@@ -18,8 +18,8 @@ export class DBCollection extends Collection {
         return undefined;
     }
 
-    constructor(...args) {
-        return super(...args).then(() => {
+    initialize(...args) {
+        return super.initialize(...args).then(() => {
             this.database.on('change', (res) => {
                 this.findById(res.id)
                     .then((entry) => {
