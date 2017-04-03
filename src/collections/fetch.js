@@ -2,7 +2,7 @@ import { Collection } from '../collection.js';
 
 export class FetchCollection extends Collection {
     entry(data, Entry) {
-        return super.entry({}, Entry)
+        return super.entry(null, Entry)
             .then((model) =>
                 model.setFromResponse(data)
             );

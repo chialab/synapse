@@ -26,7 +26,9 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
     initialize(data) {
         return super.initialize()
             .then(() => {
-                this.set(data);
+                if (data) {
+                    this.set(data);
+                }
                 return Promise.resolve();
             });
     }

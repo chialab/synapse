@@ -47,9 +47,12 @@ export class DBCollection extends FetchCollection {
     }
 
     findById(id) {
-        return this.database.findById(id)
-            .then((entry) =>
-                this.entry(entry)
+        return super.findById(id)
+            .catch(() =>
+                this.database.findById(id)
+                    .then((entry) =>
+                        this.entry(entry)
+                    )
             );
     }
 

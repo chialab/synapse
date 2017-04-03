@@ -3,25 +3,30 @@ import { Model } from '../model.js';
 
 export class DBModel extends Model {
     constructor(data = {}, ...args) {
-        let dbInfo = {
-            id: data._id,
-            rev: data._rev,
-        };
-        delete data._id;
-        delete data._rev;
+        let dbInfo = {};
+        if (data) {
+            dbInfo = {
+                id: data._id,
+                rev: data._rev,
+            };
+            delete data._id;
+            delete data._rev;
+        }
         super(data, ...args);
         this.setDatabaseInfo(dbInfo);
     }
 
     setFromResponse(data = {}) {
-        if (data._id) {
-            this.setDatabaseInfo({
-                id: data._id,
-                rev: data._rev,
-            });
+        if (data) {
+            if (data._id) {
+                this.setDatabaseInfo({
+                    id: data._id,
+                    rev: data._rev,
+                });
+            }
+            this.set(data);
+            this.resetChanges();
         }
-        this.set(data);
-        this.resetChanges();
         return Promise.resolve(this);
     }
 
