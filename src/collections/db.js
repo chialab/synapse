@@ -1,11 +1,11 @@
 import { Database } from '../helpers/db.js';
 import { internal } from '../helpers/internal.js';
-import { Collection } from '../collection.js';
 import { DBModel } from '../models/db.js';
+import { FetchCollection } from './fetch.js';
 
 const DBS = {};
 
-export class DBCollection extends Collection {
+export class DBCollection extends FetchCollection {
     static get Entry() {
         return DBModel;
     }
@@ -16,23 +16,6 @@ export class DBCollection extends Collection {
 
     static get databaseOptions() {
         return undefined;
-    }
-
-    entry(data) {
-        const Entry = this.constructor.Entry;
-        if (data.doc && data.id && data.rev) {
-            let res = data.doc;
-            res[Entry.key] = data.id;
-            res._id = data.id;
-            res._rev = data.rev;
-            data = res;
-        }
-        return this.initClass(
-            Entry
-        ).then((model) =>
-            model.setFromResponse(data)
-                .then(() => Promise.resolve(data))
-            );
     }
 
     initialize(...args) {
@@ -66,12 +49,7 @@ export class DBCollection extends Collection {
     findById(id) {
         return this.database.findById(id)
             .then((entry) =>
-                this.entry(entry).then((model) =>
-                    this.fetch(model)
-                        .then(() =>
-                            Promise.resolve(model)
-                        )
-                )
+                this.entry(entry)
             );
     }
 
@@ -99,38 +77,16 @@ export class DBCollection extends Collection {
     findAll() {
         return this.database.findAll()
             .then((data) =>
-                Promise.all(
-                    data.map((entry) =>
-                        this.entry(entry).then((model) =>
-                            this.fetch(model)
-                                .then(() =>
-                                    Promise.resolve(model)
-                                )
-                        )
-                    )
-                )
+                this.setFromResponse(data)
             );
     }
 
-    fetch(model) {
-        let Ctr = this.constructor;
-        const Entry = Ctr.Entry;
-        return model.beforeFetch()
-            .then(() =>
-                this.database.findById(model.getDatabaseId() || model[Entry.key])
-                    .then((data) => {
-                        model.setResponse(data);
-                        return model.afterFetch(data).then(() => {
-                            model.setDatabaseTable(this)
-                            return model.setFromResponse(data);
-                        }).then(() =>
-                            Promise.resolve(data)
-                        );
-                    })
-            );
+    execFetch(model) {
+        const Entry = this.constructor.Entry;
+        return this.database.findById(model.getDatabaseId() || model[Entry.key]);
     }
 
-    post(model, syncOptions) {
+    post(model, options) {
         let Ctr = this.constructor;
         const Entry = Ctr.Entry;
         let savePromise;
@@ -152,8 +108,8 @@ export class DBCollection extends Collection {
             });
             return Promise.resolve(model);
         }).then((model) => {
-            if (syncOptions) {
-                return this.put(syncOptions);
+            if (options) {
+                return this.put(options);
             }
             return Promise.resolve(model);
         }).then((model) => {

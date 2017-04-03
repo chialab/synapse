@@ -2,24 +2,30 @@ import { DBCollection } from './db.js';
 import { AjaxCollection } from './ajax.js';
 
 export class SyncCollection extends DBCollection {
-    fetch(...args) {
-        return AjaxCollection.prototype.fetch.call(this, ...args).then(
+    execFetch(...args) {
+        return AjaxCollection.prototype.execFetch.call(this, ...args).then(
             () => this.sync(),
-            () => super.fetch.call(this, ...args)
+            () => super.execFetch(...args)
         );
     }
 
     post(...args) {
-        return AjaxCollection.prototype.post.call(this, ...args).then(
+        return super.post(...args).then(
+            () => this.sync()
+        );
+    }
+
+    findById(...args) {
+        return AjaxCollection.prototype.findById.call(this, ...args).then(
             () => this.sync(),
-            () => super.post.call(this, ...args)
+            () => super.findById(...args)
         );
     }
 
     findAll(...args) {
-        return AjaxCollection.prototype.findAll.call(this, ...args).then(
-            () => this.sync(),
-            () => super.fetch.call(this, ...args)
-        );
+        return AjaxCollection.prototype.findAll.call(this, ...args)
+            .catch(
+                (err) => console.error(err) || super.findAll(...args)
+            );
     }
 }

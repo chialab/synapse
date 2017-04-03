@@ -1,15 +1,9 @@
-import { FetchModel } from './fetch.js';
+import { Model } from '../model.js';
 
-export class AjaxModel extends FetchModel {
-    static get fetchOptions() {
-        return {};
-    }
-
-    beforeFetch() {
-        return Promise.resolve();
-    }
-
-    afterFetch(data) {
-        return Promise.resolve(data);
+export class AjaxModel extends Model {
+    setFromResponse(data = {}) {
+        this.set(data);
+        this.resetChanges();
+        return Promise.resolve(this);
     }
 }

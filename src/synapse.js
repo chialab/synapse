@@ -23,10 +23,10 @@ export * from './helpers/script.js';
 export * from './helpers/title.js';
 export * from './helpers/url.js';
 // models
-export * from './models/fetch.js';
 export * from './models/ajax.js';
 export * from './models/db.js';
 // collections
+export * from './collections/fetch.js';
 export * from './collections/ajax.js';
 export * from './collections/db.js';
 export * from './collections/sync.js';

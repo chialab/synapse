@@ -79,9 +79,9 @@ export class Collection extends Model {
         return Promise.reject();
     }
 
-    entry(data) {
+    entry(data, Entry) {
         return this.initClass(
-            this.constructor.Entry,
+            Entry || this.constructor.Entry,
             data
         );
     }
