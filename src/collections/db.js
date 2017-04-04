@@ -11,7 +11,7 @@ export class DBCollection extends FetchCollection {
     }
 
     static get databaseName() {
-        return '';
+        return undefined;
     }
 
     static get databaseOptions() {
@@ -20,12 +20,14 @@ export class DBCollection extends FetchCollection {
 
     initialize(...args) {
         return super.initialize(...args).then(() => {
-            this.database.on('change', (res) => {
-                this.findById(res.id)
-                    .then((entry) => {
-                        this.trigger('change', entry);
-                    });
-            });
+            if (this.database) {
+                this.database.on('change', (res) => {
+                    this.findById(res.id)
+                        .then((entry) => {
+                            this.trigger('change', entry);
+                        });
+                });
+            }
             return Promise.resolve();
         });
     }
@@ -37,51 +39,62 @@ export class DBCollection extends FetchCollection {
     get database() {
         const Ctr = this.constructor;
         const name = Ctr.databaseName;
-        if (!internal(Ctr).db) {
-            if (!DBS[name]) {
-                DBS[name] = new Database(Ctr.databaseName, Ctr.databaseOptions);
+        if (name) {
+            if (!internal(Ctr).db) {
+                if (!DBS[name]) {
+                    DBS[name] = new Database(Ctr.databaseName, Ctr.databaseOptions);
+                }
+                internal(Ctr).db = DBS[name];
             }
-            internal(Ctr).db = DBS[name];
         }
         return internal(Ctr).db;
     }
 
     findById(id) {
         return super.findById(id)
-            .catch(() =>
-                this.database.findById(id)
-                    .then((entry) =>
-                        this.entry(entry)
-                    )
-            );
+            .catch(() => {
+                if (this.database) {
+                    this.database.findById(id)
+                        .then((entry) =>
+                            this.entry(entry)
+                        )
+                }
+                return Promise.reject();
+            });
     }
 
     find(query, data, options) {
-        if (typeof query === 'string') {
-            query = {
-                map: this.queries[query].call(this, ...data),
-            };
-        }
-        return this.database.query(query, options)
-            .then((data) =>
-                Promise.all(
-                    data.map((entry) =>
-                        this.entry(entry).then((model) =>
-                            this.fetch(model)
-                                .then(() =>
-                                    Promise.resolve(model)
-                                )
+        if (this.database) {
+            if (typeof query === 'string') {
+                query = {
+                    map: this.queries[query].call(this, ...data),
+                };
+            }
+            return this.database.query(query, options)
+                .then((data) =>
+                    Promise.all(
+                        data.map((entry) =>
+                            this.entry(entry).then((model) =>
+                                this.fetch(model)
+                                    .then(() =>
+                                        Promise.resolve(model)
+                                    )
+                            )
                         )
                     )
-                )
-            );
+                );
+        }
+        return Promise.reject();
     }
 
     findAll() {
-        return this.database.findAll()
-            .then((data) =>
-                this.setFromResponse(data)
-            );
+        if (this.database) {
+            return this.database.findAll()
+                .then((data) =>
+                    this.setFromResponse(data)
+                );
+        }
+        return Promise.reject();
     }
 
     execFetch(model) {
@@ -89,59 +102,72 @@ export class DBCollection extends FetchCollection {
         return this.database.findById(model.getDatabaseId() || model[Entry.key]);
     }
 
-    post(model, options) {
-        let Ctr = this.constructor;
-        const Entry = Ctr.Entry;
-        let savePromise;
-        if (model.getDatabaseId()) {
-            savePromise = this.database.put(model.toDBData());
-        } else {
-            let data = model.toJSON();
-            if (Entry.key && data[Entry.key]) {
-                data._id = data[Entry.key];
-                savePromise = this.database.put(data);
+    post(model) {
+        if (this.database) {
+            let Ctr = this.constructor;
+            const Entry = Ctr.Entry;
+            let savePromise;
+            if (model.getDatabaseId()) {
+                savePromise = this.database.put(model.toDBData());
             } else {
-                savePromise = this.database.post(data);
+                let data = model.toJSON();
+                if (Entry.key && data[Entry.key]) {
+                    data._id = data[Entry.key];
+                    savePromise = this.database.put(data);
+                } else {
+                    savePromise = this.database.post(data);
+                }
             }
-        }
-        return savePromise.then((res) => {
-            model.setDatabaseInfo({
-                id: res.id,
-                rev: res.rev,
+            return savePromise.then((res) => {
+                model.setDatabaseInfo({
+                    id: res.id,
+                    rev: res.rev,
+                });
+                return Promise.resolve(model);
+            }).then((model) => {
+                model.resetChanges();
+                return Promise.resolve(model);
             });
-            return Promise.resolve(model);
-        }).then((model) => {
-            if (options) {
-                return this.put(options);
-            }
-            return Promise.resolve(model);
-        }).then((model) => {
-            model.resetChanges();
-            return Promise.resolve(model);
-        });
+        }
+        return Promise.reject();
     }
 
     sync(data = {}) {
-        return this.database.sync(data);
+        if (this.database) {
+            return this.database.sync(data);
+        }
+        return Promise.reject();
     }
 
     push(data = {}) {
-        return this.database.push(data);
+        if (this.database) {
+            return this.database.push(data);
+        }
+        return Promise.reject();
     }
 
     pull(data = {}) {
-        return this.database.pull(data);
+        if (this.database) {
+            return this.database.pull(data);
+        }
+        return Promise.reject();
     }
 
     destroy() {
-        return this.database.destroy()
-            .then(() => {
-                delete internal(this).db;
-                return Promise.resolve();
-            });
+        if (this.database) {
+            return this.database.destroy()
+                .then(() => {
+                    delete internal(this).db;
+                    return Promise.resolve();
+                });
+        }
+        return Promise.reject();
     }
 
     empty() {
-        return this.database.empty();
+        if (this.database) {
+            return this.database.empty();
+        }
+        return Promise.reject();
     }
 }

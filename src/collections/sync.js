@@ -2,20 +2,27 @@ import { DBCollection } from './db.js';
 import { AjaxCollection } from './ajax.js';
 
 export class SyncCollection extends DBCollection {
-    execFetch(options) {
-        return AjaxCollection.prototype.execFetch.call(this, options)
-            .then(() =>
-                this.save()
-            )
+    fetch(model, options) {
+        return AjaxCollection.prototype.fetch.call(this, model, options)
+            .then((newModel) => {
+                if (this.database) {
+                    return this.save(newModel, options);
+                }
+                return Promise.resolve(newModel);
+            })
             .catch(() =>
-                super.execFetch(options)
+                super.fetch(model, options)
             );
     }
 
     post(model, options) {
-        return AjaxCollection.prototype.post.call(this, model, options).then(
-            () => this.save()
-        );
+        return AjaxCollection.prototype.post.call(this, model, options)
+            .then((newModel) => {
+                if (this.database) {
+                    this.save(newModel, options);
+                }
+                return Promise.resolve(newModel);
+            });
     }
 
     save(...args) {
@@ -23,15 +30,16 @@ export class SyncCollection extends DBCollection {
     }
 
     findById(id) {
-        return AjaxCollection.prototype.findById.call(this, id).catch(
-            () => super.findById(id)
-        );
+        return AjaxCollection.prototype.findById.call(this, id)
+            .catch(() =>
+                super.findById(id)
+            );
     }
 
     findAll(options) {
         return AjaxCollection.prototype.findAll.call(this, options)
-            .catch(
-                () => super.findAll(options)
+            .catch(() =>
+                super.findAll(options)
             );
     }
 }

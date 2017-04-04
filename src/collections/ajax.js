@@ -1,3 +1,4 @@
+import { internal } from '@chialab/synapse';
 import { FetchCollection } from './fetch.js';
 import { AjaxModel } from '../models/ajax.js';
 
@@ -6,16 +7,16 @@ export class AjaxCollection extends FetchCollection {
         return AjaxModel;
     }
 
-    setEntryData(model, data) {
-        model.set(data, true);
-    }
-
     findAll(options = {}) {
-        options.endpoint = options.endpoint || this.endpoint;
-        return this.execFetch(options)
-            .then((res) => 
-                this.setFromResponse(res)
-            );
+        if (!internal(this).finding) {
+            options.endpoint = options.endpoint || this.endpoint;
+            internal(this).finding = this.execFetch(options)
+                .then((res) => {
+                    internal(this).finding = null;
+                    return this.setFromResponse(res);
+                });
+        }
+        return internal(this).finding;
     }
 
     findById(id) {
