@@ -10,11 +10,17 @@ export class AjaxCollection extends FetchCollection {
     findAll(options = {}) {
         if (!internal(this).finding) {
             options.endpoint = options.endpoint || this.endpoint;
-            internal(this).finding = this.execFetch(options)
-                .then((res) => {
-                    internal(this).finding = null;
-                    return this.setFromResponse(res);
-                });
+            internal(this).finding = this.beforeFetch(options)
+                .then((options) =>
+                    this.execFetch(options)
+                        .then((res) =>
+                            this.afterFetch(res)
+                                .then((res) => {
+                                    internal(this).finding = null;
+                                    return this.setFromResponse(res);
+                                })
+                        )
+                );
         }
         return internal(this).finding;
     }

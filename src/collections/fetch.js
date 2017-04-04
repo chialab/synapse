@@ -37,12 +37,12 @@ export class FetchCollection extends Collection {
     setFromResponse(res) {
         let promise = Promise.resolve();
         if (Array.isArray(res)) {
-            res.forEach((data) =>
+            res.forEach((data) => {
                 promise = promise.then(() =>
                     this.entry(data)
                         .then((model) => this.add(model))
                 )
-            );
+            });
         }
         return promise.then(() => Promise.resolve(this));
     }

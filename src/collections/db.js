@@ -22,7 +22,8 @@ export class DBCollection extends FetchCollection {
         return super.initialize(...args).then(() => {
             if (this.database) {
                 this.database.on('change', (res) => {
-                    this.findById(res.id)
+                    this.database.findById(res.id)
+                        .then((entry) => this.entry(entry))
                         .then((entry) => {
                             this.trigger('change', entry);
                         });
@@ -38,9 +39,9 @@ export class DBCollection extends FetchCollection {
 
     get database() {
         const Ctr = this.constructor;
-        const name = Ctr.databaseName;
-        if (name) {
-            if (!internal(Ctr).db) {
+        if (!internal(Ctr).db) {
+            const name = Ctr.databaseName;
+            if (name) {
                 if (!DBS[name]) {
                     DBS[name] = new Database(Ctr.databaseName, Ctr.databaseOptions);
                 }
@@ -54,7 +55,7 @@ export class DBCollection extends FetchCollection {
         return super.findById(id)
             .catch(() => {
                 if (this.database) {
-                    this.database.findById(id)
+                    return this.database.findById(id)
                         .then((entry) =>
                             this.entry(entry)
                         )
@@ -123,8 +124,6 @@ export class DBCollection extends FetchCollection {
                     id: res.id,
                     rev: res.rev,
                 });
-                return Promise.resolve(model);
-            }).then((model) => {
                 model.resetChanges();
                 return Promise.resolve(model);
             });

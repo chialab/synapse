@@ -25,14 +25,21 @@ export class SyncCollection extends DBCollection {
             });
     }
 
-    save(...args) {
-        return super.post(...args);
+    save(model, options) {
+        return super.post(model, options);
     }
 
     findById(id) {
         return AjaxCollection.prototype.findById.call(this, id)
             .catch(() =>
                 super.findById(id)
+            );
+    }
+
+    findOrCreate(id) {
+        return super.findById(id)
+            .catch(() =>
+                AjaxCollection.prototype.findOrCreate.call(this, id)
             );
     }
 
