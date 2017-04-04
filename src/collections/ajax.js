@@ -21,6 +21,7 @@ export class AjaxCollection extends FetchCollection {
     findById(id) {
         const Ctr = this.constructor;
         const Entry = Ctr.Entry;
+
         return super.findById(id)
             .catch(() =>
                 this.entry({ [Entry.key]: id })

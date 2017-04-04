@@ -53,7 +53,7 @@ export class FetchCollection extends Collection {
     }
 
     beforePost(options) {
-        options.method = 'POST';
+        options.method = options.method || 'POST';
         return Promise.resolve(options);
     }
 
@@ -62,6 +62,7 @@ export class FetchCollection extends Collection {
     }
 
     post(model, options = {}) {
+        options.body = options.body || model.toJSON();
         return this.beforePost(options)
             .then(() =>
                 this.execPost(options)

@@ -3,15 +3,23 @@ import { AjaxCollection } from './ajax.js';
 
 export class SyncCollection extends DBCollection {
     execFetch(options) {
-        return AjaxCollection.prototype.execFetch.call(this, options).catch(
-            () => super.execFetch(options)
-        );
+        return AjaxCollection.prototype.execFetch.call(this, options)
+            .then(() =>
+                this.save()
+            )
+            .catch(() =>
+                super.execFetch(options)
+            );
     }
 
     post(model, options) {
-        return super.post(model, options).then(
-            () => this.sync()
+        return AjaxCollection.prototype.post.call(this, model, options).then(
+            () => this.save()
         );
+    }
+
+    save(...args) {
+        return super.post(...args);
     }
 
     findById(id) {
