@@ -54,29 +54,28 @@ export class Collection extends Model {
 
     get(idx) {
         if (this.array[idx]) {
-            return Promise.resolve(this.array[idx]);
+            return this.array[idx];
         }
-        return Promise.reject();
     }
 
     getIndexById(id) {
         const arr = this.array;
         for (let i = 0, len = arr.length; i < len; i++) {
             if (arr[i].id === id) {
-                return Promise.resolve(i);
+                return i;
             }
         }
-        return Promise.reject();
+        return -1;
     }
 
     getIndexByModel(model) {
         const arr = this.array;
         for (let i = 0, len = arr.length; i < len; i++) {
             if (arr[i] === model || (model.id && arr[i].id === model.id)) {
-                return Promise.resolve(i);
+                return i;
             }
         }
-        return Promise.reject();
+        return -1;
     }
 
     entry(data, Entry) {
@@ -88,10 +87,11 @@ export class Collection extends Model {
 
     findById(id) {
         const arr = this.array;
-        return this.getIndexById(id)
-            .then((idx) =>
-                Promise.resolve(arr[idx])
-            );
+        let idx = this.getIndexById(id);
+        if (idx !== -1) {
+            return Promise.resolve(arr[idx]);
+        }
+        return Promise.reject();
     }
 
     findOrCreate(id) {
