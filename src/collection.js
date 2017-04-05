@@ -156,21 +156,19 @@ export class Collection extends Model {
             } else if (typeof index === 'string') {
                 index = this.getIndexById(index);
             }
-            return index.then((idx) => this.remove(idx));
+            return this.remove(index);
         }
         if (index >= this.length) {
             return Promise.reject();
         }
-        return this.get(index)
-            .then((val) => {
-                if (this.listeners[index]) {
-                    this.listeners[index]();
-                }
-                this.listeners.splice(index, 1);
-                this.array.splice(index, 1);
-                this.trigger('change');
-                this.trigger('removed', index, val);
-                return Promise.resolve(index);
-            });
+        let model = this.get(index);
+        if (this.listeners[index]) {
+            this.listeners[index]();
+        }
+        this.listeners.splice(index, 1);
+        this.array.splice(index, 1);
+        this.trigger('change');
+        this.trigger('removed', index, model);
+        return Promise.resolve(index);
     }
 }
