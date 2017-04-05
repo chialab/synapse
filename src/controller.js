@@ -2,6 +2,7 @@ import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom/index.observer.js';
 import { Router } from 'chialab-router/src/router.js';
+import { RedirectException } from './exceptions/redirect.js';
 
 export class Controller extends Factory {
     render() {
@@ -38,7 +39,10 @@ export class Controller extends Factory {
     }
 
     redirect(path) {
-        return this.getContext().navigate(path);
+        this.getContext().navigate(path);
+        return Promise.reject(
+            new RedirectException()
+        );
     }
 
     next() {

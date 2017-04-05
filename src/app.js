@@ -11,6 +11,34 @@ import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { bootstrap, IDOM, DOM } from '@dnajs/idom/index.observer.js';
 
+class NavigationEntry {
+    constructor(previous) {
+        if (previous) {
+            previous.resolver();
+            this.previous = previous.promise;
+        } else {
+            this.previous = Promise.resolve();
+        }
+        this.promise = new Promise((resolve) => {
+            this.resolver = resolve;
+        });
+
+        this.promise
+            .then(() => {
+                this.resolved = true;
+            });
+    }
+
+    run(callback) {
+        return new Promise((resolve, reject) => {
+            this.previous
+                .then(() => {
+                    callback(this).then(resolve, reject)
+                });
+        });
+    }
+}
+
 export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
     /**
      * The component to use as page view.
@@ -128,32 +156,47 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
                         ruleMatch = ruleMatch[0];
                     }
                     if (ruleMatch.prototype instanceof Controller) {
-                        this.router.on(k, (...args) =>
-                            this.beforeRoute(...args).then(() =>
-                                this.dispatchController(ruleMatch)
-                                    .then((ctr) => {
-                                        let promise;
-                                        if (action && typeof ctr[action] === 'function') {
-                                            promise = ctr[action].call(ctr, ...args);
-                                        } else {
-                                            promise = ctr.exec(...args);
-                                        }
-                                        return promise
-                                            .then(() => this.dispatchView(ctr));
-                                    })
-                                    .then(() => this.afterRoute(...args))
-                                    .catch((err) => {
-                                        try {
-                                            if (!this.throwException(err)) {
-                                                return Promise.reject(err);
+                        this.router.on(k, (...args) => {
+                            internal(this).lastNavigation = new NavigationEntry(internal(this).lastNavigation);
+                            return internal(this).lastNavigation.run((entry) =>
+                                this.beforeRoute(...args).then(() => {
+                                    if (entry.resolved) {
+                                        return entry.promise;
+                                    }
+                                    return this.dispatchController(ruleMatch)
+                                        .then((ctr) => {
+                                            let promise;
+                                            if (action && typeof ctr[action] === 'function') {
+                                                promise = ctr[action].call(ctr, ...args);
+                                            } else {
+                                                promise = ctr.exec(...args);
                                             }
-                                        } catch (ex) {
-                                            return Promise.reject(ex);
-                                        }
-                                        return Promise.resolve();
-                                    })
-                            )
-                        );
+                                            return promise
+                                                .then(() => {
+                                                    if (entry.resolved) {
+                                                        return entry.promise;
+                                                    }
+                                                    return this.dispatchView(ctr);
+                                                });
+                                        })
+                                        .then(() =>
+                                            this.afterRoute(...args)
+                                        )
+                                        .catch((err) => {
+                                            if (!err || !(err instanceof EXCEPTIONS.RedirectException)) {
+                                                try {
+                                                    if (!this.throwException(err)) {
+                                                        return Promise.reject(err);
+                                                    }
+                                                } catch (ex) {
+                                                    return Promise.reject(ex);
+                                                }
+                                            }
+                                            return Promise.resolve();
+                                        })
+                                })
+                            );
+                        });
                     }
                 }
             }

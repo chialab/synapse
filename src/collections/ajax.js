@@ -1,4 +1,4 @@
-import { internal } from '@chialab/synapse';
+import { internal } from '../helpers/internal.js';
 import { FetchCollection } from './fetch.js';
 import { AjaxModel } from '../models/ajax.js';
 

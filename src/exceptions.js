@@ -1,4 +1,5 @@
 export * from './exceptions/app.js';
+export * from './exceptions/redirect.js';
 // content
 export * from './exceptions/content.js';
 export * from './exceptions/content-error.js';
