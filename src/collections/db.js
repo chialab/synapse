@@ -91,9 +91,10 @@ export class DBCollection extends FetchCollection {
     findAll() {
         if (this.database) {
             return this.database.findAll()
-                .then((data) =>
-                    this.setFromResponse(data)
-                );
+                .then((data) => {
+                    this.reset();
+                    return this.setFromResponse(data);
+                });
         }
         return Promise.reject();
     }

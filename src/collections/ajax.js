@@ -16,6 +16,7 @@ export class AjaxCollection extends FetchCollection {
                         .then((res) =>
                             this.afterFetch(res)
                                 .then((res) => {
+                                    this.reset();
                                     internal(this).finding = null;
                                     return this.setFromResponse(res);
                                 })
@@ -32,7 +33,7 @@ export class AjaxCollection extends FetchCollection {
         return super.findById(id)
             .catch(() =>
                 this.entry({ [Entry.key]: id })
-                    .then((model) => 
+                    .then((model) =>
                         this.fetch(model)
                     )
             );

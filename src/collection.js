@@ -14,8 +14,7 @@ export class Collection extends Model {
      */
     constructor(arr) {
         super(arr);
-        this.array = [];
-        this.listeners = [];
+        this.reset();
     }
     /**
      * Initialize the collection.
@@ -38,6 +37,14 @@ export class Collection extends Model {
 
     get length() {
         return this.array.length;
+    }
+
+    reset() {
+        if (this.listeners) {
+            this.listeners.forEach((listener) => listener());
+        }
+        this.listeners = [];
+        this.array = [];
     }
 
     forEach(...args) {
@@ -110,7 +117,7 @@ export class Collection extends Model {
     }
 
     findAll() {
-        return this.initClass(this.constructor, this.array);
+        return Promise.resolve(this);
     }
 
     add(val, index) {
