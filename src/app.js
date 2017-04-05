@@ -33,7 +33,7 @@ class NavigationEntry {
         return new Promise((resolve, reject) => {
             this.previous
                 .then(() => {
-                    callback(this).then(resolve, reject)
+                    callback(this).then(resolve, reject);
                 });
         });
     }
@@ -166,6 +166,7 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
                                     return this.dispatchController(ruleMatch)
                                         .then((ctr) => {
                                             let promise;
+                                            ctr.setQueryParams(this.router.query());
                                             if (action && typeof ctr[action] === 'function') {
                                                 promise = ctr[action].call(ctr, ...args);
                                             } else {
@@ -193,7 +194,7 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
                                                 }
                                             }
                                             return Promise.resolve();
-                                        })
+                                        });
                                 })
                             );
                         });

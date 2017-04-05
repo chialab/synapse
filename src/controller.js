@@ -19,6 +19,14 @@ export class Controller extends Factory {
         internal(this).streams = res;
     }
 
+    getQueryParams() {
+        return internal(this);
+    }
+
+    setQueryParams(params) {
+        internal(this).query = params;
+    }
+
     stream(vars = {}) {
         let previous = this.getResponse() || {};
         for (let k in previous) {
