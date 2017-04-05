@@ -1,7 +1,7 @@
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom/index.observer.js';
-import { Router } from 'chialab-router/src/router.js';
+import { Router } from '@chialab/router/src/router.js';
 import { RedirectException } from './exceptions/redirect.js';
 
 export class Controller extends Factory {

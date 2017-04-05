@@ -1,5 +1,5 @@
 import { mix } from './helpers/mixin.js';
-import { Router } from 'chialab-router/src/router.js';
+import { Router } from '@chialab/router/src/router.js';
 import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
@@ -49,7 +49,7 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
     }
     /**
      * The constructor to use for app navigation.
-     * It should replicate the same interface of chialab-router.
+     * It should replicate the same interface of @chialab/router.
      * @type {class}
      */
     static get Router() {
@@ -57,7 +57,7 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
     }
     /**
      * Default router options.
-     * @see chialab-router options.
+     * @see @chialab/router options.
      * @type {Object}
      */
     get routeOptions() {
