@@ -30,9 +30,26 @@ export class SyncCollection extends DBCollection {
     }
 
     findById(id) {
-        return AjaxCollection.prototype.findById.call(this, id)
+        let save = (newModel) => {
+            if (this.database) {
+                return this.save(newModel)
+                    .then(() =>
+                        Promise.resolve(newModel)
+                    );
+            }
+            return Promise.resolve(newModel);
+        };
+        return super.findById(id)
+            .then((model) =>
+                AjaxCollection.prototype.fetch.call(this, model)
+                    .then(save)
+                    .catch(() =>
+                        Promise.resolve(model)
+                    )
+            )
             .catch(() =>
-                super.findById(id)
+                AjaxCollection.prototype.findById.call(this, id)
+                    .then(save)
             );
     }
 
