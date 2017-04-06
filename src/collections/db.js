@@ -6,7 +6,7 @@ import { FetchCollection } from './fetch.js';
 const DBS = {};
 
 export class DBCollection extends FetchCollection {
-    static get Entry() {
+    static get Model() {
         return DBModel;
     }
 
@@ -23,7 +23,7 @@ export class DBCollection extends FetchCollection {
             if (this.database) {
                 this.database.on('change', (res) => {
                     this.database.findById(res.id)
-                        .then((entry) => this.entry(entry))
+                        .then((entry) => this.model(entry))
                         .then((entry) => {
                             this.trigger('change', entry);
                         });
@@ -57,8 +57,8 @@ export class DBCollection extends FetchCollection {
                 if (this.database) {
                     return this.database.findById(id)
                         .then((entry) =>
-                            this.entry(entry)
-                        )
+                            this.model(entry)
+                        );
                 }
                 return Promise.reject();
             });
@@ -75,7 +75,7 @@ export class DBCollection extends FetchCollection {
                 .then((data) =>
                     Promise.all(
                         data.map((entry) =>
-                            this.entry(entry).then((model) =>
+                            this.model(entry).then((model) =>
                                 this.fetch(model)
                                     .then(() =>
                                         Promise.resolve(model)
@@ -100,21 +100,21 @@ export class DBCollection extends FetchCollection {
     }
 
     execFetch(model) {
-        const Entry = this.constructor.Entry;
-        return this.database.findById(model.getDatabaseId() || model[Entry.key]);
+        const Model = this.constructor.Model;
+        return this.database.findById(model.getDatabaseId() || model[Model.key]);
     }
 
     post(model) {
         if (this.database) {
             let Ctr = this.constructor;
-            const Entry = Ctr.Entry;
+            const Model = Ctr.Model;
             let savePromise;
             if (model.getDatabaseId()) {
                 savePromise = this.database.put(model.toDBData());
             } else {
                 let data = model.toJSON();
-                if (Entry.key && data[Entry.key]) {
-                    data._id = data[Entry.key];
+                if (Model.key && data[Model.key]) {
+                    data._id = data[Model.key];
                     savePromise = this.database.put(data);
                 } else {
                     savePromise = this.database.post(data);

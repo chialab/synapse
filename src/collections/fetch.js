@@ -1,8 +1,8 @@
 import { Collection } from '../collection.js';
 
 export class FetchCollection extends Collection {
-    entry(data, Entry) {
-        return super.entry(null, Entry)
+    model(data, Model) {
+        return super.model(null, Model)
             .then((model) =>
                 model.setFromResponse(data)
             );
@@ -39,9 +39,9 @@ export class FetchCollection extends Collection {
         if (Array.isArray(res)) {
             res.forEach((data) => {
                 promise = promise.then(() =>
-                    this.entry(data)
+                    this.model(data)
                         .then((model) => this.add(model))
-                )
+                );
             });
         }
         return promise.then(() => Promise.resolve(this));

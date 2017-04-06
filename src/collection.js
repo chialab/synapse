@@ -5,7 +5,7 @@ export class Collection extends Model {
      * The main model class for the collection.
      * @type {Model}
      */
-    static get Entry() {
+    static get Model() {
         return Model;
     }
     /**
@@ -85,9 +85,9 @@ export class Collection extends Model {
         return -1;
     }
 
-    entry(data, Entry) {
+    model(data, Model) {
         return this.initClass(
-            Entry || this.constructor.Entry,
+            Model || this.constructor.Model,
             data
         );
     }
@@ -103,11 +103,11 @@ export class Collection extends Model {
 
     findOrCreate(id) {
         const Ctr = this.constructor;
-        const Entry = Ctr.Entry;
+        const Model = Ctr.Model;
         return this.findById(id)
             .catch(() =>
-                this.entry({
-                    [Entry.key]: id,
+                this.model({
+                    [Model.key]: id,
                 })
             );
     }
@@ -121,8 +121,8 @@ export class Collection extends Model {
     }
 
     add(val, index) {
-        const Entry = this.constructor.Entry;
-        if (val instanceof Entry) {
+        const Model = this.constructor.Model;
+        if (val instanceof Model) {
             if (index === undefined) {
                 index = this.array.length;
             }

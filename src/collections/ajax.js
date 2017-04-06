@@ -3,7 +3,7 @@ import { FetchCollection } from './fetch.js';
 import { AjaxModel } from '../models/ajax.js';
 
 export class AjaxCollection extends FetchCollection {
-    static get Entry() {
+    static get Model() {
         return AjaxModel;
     }
 
@@ -28,11 +28,11 @@ export class AjaxCollection extends FetchCollection {
 
     findById(id) {
         const Ctr = this.constructor;
-        const Entry = Ctr.Entry;
+        const Model = Ctr.Model;
 
         return super.findById(id)
             .catch(() =>
-                this.entry({ [Entry.key]: id })
+                this.model({ [Model.key]: id })
                     .then((model) =>
                         this.fetch(model)
                     )
