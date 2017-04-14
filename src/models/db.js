@@ -24,10 +24,17 @@ export class DBModel extends Model {
                     rev: data._rev,
                 });
             }
+            if (data._deleted) {
+                internal(this).deleted = true;
+            }
             this.set(data);
             this.resetChanges();
         }
         return Promise.resolve(this);
+    }
+
+    isDeleted() {
+        return !!internal(this).deleted;
     }
 
     setDatabaseInfo(info) {

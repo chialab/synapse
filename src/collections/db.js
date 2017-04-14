@@ -22,11 +22,18 @@ export class DBCollection extends FetchCollection {
         return super.initialize(...args).then(() => {
             if (this.database) {
                 this.database.on('change', (res) => {
-                    this.database.findById(res.id)
-                        .then((entry) => this.model(entry))
-                        .then((entry) => {
-                            this.trigger('change', entry);
-                        });
+                    if (res.deleted) {
+                        this.model(res.doc)
+                            .then((entry) => {
+                                this.trigger('change', entry);
+                            });
+                    } else {
+                        this.database.findById(res.id)
+                            .then((entry) => this.model(entry))
+                            .then((entry) => {
+                                this.trigger('change', entry);
+                            });
+                    }
                 });
             }
             return Promise.resolve();
