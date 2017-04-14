@@ -132,6 +132,19 @@ export class DBCollection extends FetchCollection {
         return Promise.reject();
     }
 
+    delete(model) {
+        if (this.database) {
+            if (model.getDatabaseId()) {
+                return this.database.delete({
+                    _id: model.getDatabaseId(),
+                    _rev: model.getDatabaseRev(),
+                });
+            }
+            return Promise.reject();
+        }
+        return Promise.reject();
+    }
+
     sync(data = {}) {
         if (this.database) {
             return this.database.sync(data);

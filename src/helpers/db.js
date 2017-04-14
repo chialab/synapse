@@ -126,6 +126,10 @@ export class Database extends CallbackManager {
         return internal(this).db.post(data);
     }
 
+    delete(data) {
+        return internal(this).db.remove(data);
+    }
+
     push(options = {}) {
         let opt = prepareOptions(this.syncOptions, options);
         if (opt.url) {
