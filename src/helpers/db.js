@@ -80,6 +80,10 @@ export class Database extends CallbackManager {
         return internal(this).db.destroy();
     }
 
+    compact() {
+        return internal(this).db.compact();
+    }
+
     empty() {
         let db = internal(this).db;
         return db.allDocs()
@@ -101,7 +105,9 @@ export class Database extends CallbackManager {
 
     query(query, options) {
         return internal(this).db.query(query, options).then((res) =>
-            Promise.resolve(res.rows || [])
+            Promise.resolve(
+                (res.rows || []).map((entry) => entry.key)
+            )
         );
     }
 

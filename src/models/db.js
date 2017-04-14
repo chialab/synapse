@@ -23,9 +23,12 @@ export class DBModel extends Model {
                     id: data._id,
                     rev: data._rev,
                 });
+                delete data._id;
+                delete data._rev;
             }
             if (data._deleted) {
                 internal(this).deleted = true;
+                delete data._deleted;
             }
             this.set(data);
             this.resetChanges();

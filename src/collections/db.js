@@ -82,12 +82,7 @@ export class DBCollection extends FetchCollection {
                 .then((data) =>
                     Promise.all(
                         data.map((entry) =>
-                            this.model(entry).then((model) =>
-                                this.fetch(model)
-                                    .then(() =>
-                                        Promise.resolve(model)
-                                    )
-                            )
+                            this.model(entry)
                         )
                     )
                 );
@@ -180,6 +175,13 @@ export class DBCollection extends FetchCollection {
                     delete internal(this).db;
                     return Promise.resolve();
                 });
+        }
+        return Promise.reject();
+    }
+
+    compact() {
+        if (this.database) {
+            return this.database.compact();
         }
         return Promise.reject();
     }
