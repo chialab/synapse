@@ -24,7 +24,7 @@
   "dependencies": {
     "@chialab/router": "^1.0.1",
     "@chialab/schema-model": "^1.2.4",
-    "@dnajs/idom": "^2.6.0",
+    "@dnajs/idom": "^2.6.5",
     "chialab-callback-manager": "^2.0.0",
     "chialab-i18n": "^2.0.0",
     "object-path": "^0.9.2"
