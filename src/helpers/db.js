@@ -1,3 +1,4 @@
+import '../vendors/pouchdb.safari.fix.js';
 import PouchDB from '../vendors/pouchdb.js';
 import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
 import { internal } from './internal.js';
