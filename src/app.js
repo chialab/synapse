@@ -9,7 +9,7 @@ import { Controller } from './controller.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
-import { bootstrap, IDOM, DOM } from '@dnajs/idom/index.observer.js';
+import { IDOM, DOM } from '@dnajs/idom/index.observer.js';
 
 class NavigationEntry {
     constructor(previous) {
@@ -87,8 +87,8 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
     initialize(...args) {
         this.router = new this.constructor.Router(this.routeOptions);
         return this.handleNavigation()
-            .then(() => super.initialize(...args))
             .then(() => this.handleComponents())
+            .then(() => super.initialize(...args))
             .then(() => {
                 this.registerRoutes();
                 return Promise.resolve();
@@ -258,6 +258,10 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
         return true;
     }
 
+    render() {
+        return () => <div navigation></div>;
+    }
+
     handleComponents() {
         let lastComponent;
         Component.notifications.on('created', (elem) => {
@@ -274,7 +278,8 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
             }
         });
         this._setRendering();
-        bootstrap(this.element);
+        let root = DOM.getComponentNode(this.element) || this.element;
+        IDOM.patch(root, this.render());
         this._unsetRendering();
         return this._rendered();
     }
@@ -309,13 +314,14 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
             this.initClass(this.constructor.View)
                 .then((page) => {
                     this.currentPage = page;
-                    DOM.appendChild(this.element, page);
+                    let navigationWrapper = this.element.querySelector('[navigation]');
+                    DOM.appendChild(navigationWrapper, page);
                     let renderPromise = Promise.resolve();
                     if (controller) {
                         controller.pipe((updatedResponse) => {
-                            this.render(controller.render(updatedResponse));
+                            this.renderContent(controller.render(updatedResponse));
                         });
-                        renderPromise = this.render(controller.render(controller.getResponse()));
+                        renderPromise = this.renderContent(controller.render(controller.getResponse()));
                     }
                     let shown = Promise.all([
                         renderPromise,
@@ -323,7 +329,7 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
                     ]);
                     return shown.then(() => {
                         if (oldPage) {
-                            DOM.removeChild(this.element, oldPage);
+                            DOM.removeChild(navigationWrapper, oldPage);
                         }
                         return Promise.resolve(page);
                     });
@@ -331,7 +337,7 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
         );
     }
 
-    render(renderFn) {
+    renderContent(renderFn) {
         this._setRendering();
         IDOM.patch(this.currentPage.node, renderFn);
         this._unsetRendering();
