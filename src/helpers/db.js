@@ -192,6 +192,7 @@ export class Database extends CallbackManager {
                     return Promise.all(
                         data.rows
                             .filter((entry) => !entry.id.match(/^_design/))
+                            .map((entry) => entry.doc || entry)
                     );
                 }
                 return Promise.resolve([]);

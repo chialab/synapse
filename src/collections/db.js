@@ -25,13 +25,13 @@ export class DBCollection extends FetchCollection {
                     if (res.deleted) {
                         this.model(res.doc)
                             .then((entry) => {
-                                this.trigger('change', entry);
+                                this.trigger('remote', entry);
                             });
                     } else {
                         this.database.findById(res.id)
                             .then((entry) => this.model(entry))
                             .then((entry) => {
-                                this.trigger('change', entry);
+                                this.trigger('remote', entry);
                             });
                     }
                 });
