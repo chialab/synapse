@@ -72,6 +72,10 @@ export class DBCollection extends FetchCollection {
     }
 
     find(query, data, options) {
+        if (!Array.isArray(data)) {
+            options = data;
+            data = [];
+        }
         if (this.database) {
             if (typeof query === 'string') {
                 query = {
@@ -110,11 +114,11 @@ export class DBCollection extends FetchCollection {
         if (this.database) {
             let Ctr = this.constructor;
             const Model = Ctr.Model;
+            let data = model.toDBData();
             let savePromise;
             if (model.getDatabaseId()) {
-                savePromise = this.database.put(model.toDBData());
+                savePromise = this.database.put(data);
             } else {
-                let data = model.toJSON();
                 if (Model.key && data[Model.key]) {
                     data._id = data[Model.key];
                     savePromise = this.database.put(data);

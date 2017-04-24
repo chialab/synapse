@@ -25,11 +25,13 @@ export * from './helpers/url.js';
 // models
 export * from './models/ajax.js';
 export * from './models/db.js';
+export * from './models/file.js';
 // collections
 export * from './collections/fetch.js';
 export * from './collections/ajax.js';
 export * from './collections/db.js';
 export * from './collections/sync.js';
+export * from './collections/files.js';
 // views
 export * from './components/page.js';
 // dispatcher

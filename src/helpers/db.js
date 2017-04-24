@@ -1,4 +1,3 @@
-import '../vendors/pouchdb.safari.fix.js';
 import PouchDB from '../vendors/pouchdb.js';
 import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
 import { internal } from './internal.js';
@@ -24,30 +23,11 @@ function prepareOptions(defaults = {}, options = {}) {
     return opt;
 }
 
-let SUPPORTED = null;
+const SUPPORTED = new PouchDB('test').info();
 
 export class Database extends CallbackManager {
     static supported() {
-        if (typeof SUPPORTED === 'boolean') {
-            return SUPPORTED ? Promise.resolve() : Promise.reject();
-        } else if (SUPPORTED instanceof Promise) {
-            return SUPPORTED;
-        }
-        try {
-            let db = new PouchDB('browser_test', { skip_setup: true });
-            SUPPORTED = db.info()
-                .then(() => {
-                    SUPPORTED = true;
-                    return Promise.resolve();
-                }).catch(() => {
-                    SUPPORTED = false;
-                    return Promise.reject();
-                });
-            return SUPPORTED;
-        } catch(ex) {
-            SUPPORTED = false;
-            return Promise.reject();
-        }
+        return SUPPORTED;
     }
 
     get queries() {
@@ -120,7 +100,7 @@ export class Database extends CallbackManager {
                 opt
             ).catch((err) => Promise.reject(
                 new DBSyncFailedException(internal(this).db, err))
-            );
+                );
         }
         return new DBSyncFailedException(internal(this).db, 'Missing database remote url.');
     }
@@ -147,7 +127,7 @@ export class Database extends CallbackManager {
                 Promise.reject(
                     new DBSyncFailedException(internal(this).db, err)
                 )
-            );
+                );
         }
         return new DBSyncFailedException(internal(this).db, 'Missing database remote url.');
     }
@@ -186,6 +166,7 @@ export class Database extends CallbackManager {
         return internal(this).db
             .allDocs({
                 include_docs: true,
+                attachments: true,
             })
             .then((data) => {
                 if (data && data.rows) {
@@ -200,6 +181,8 @@ export class Database extends CallbackManager {
     }
 
     findById(id) {
-        return internal(this).db.get(id);
+        return internal(this).db.get(id, {
+            attachments: true,
+        });
     }
 }

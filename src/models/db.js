@@ -55,8 +55,10 @@ export class DBModel extends Model {
 
     toDBData() {
         let data = this.toJSON();
-        data._id = this.getDatabaseId();
-        data._rev = this.getDatabaseRev();
+        if (this.getDatabaseId()) {
+            data._id = this.getDatabaseId();
+            data._rev = this.getDatabaseRev();
+        }
         return data;
     }
 }
