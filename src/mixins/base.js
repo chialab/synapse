@@ -7,7 +7,12 @@ export const BaseMixin = (SuperClass) => class extends SuperClass {
     }
 
     initialize() {
+        internal(this).initialized = true;
         return Promise.resolve();
+    }
+
+    initialized() {
+        return !!internal(this).initialized;
     }
 
     initializing() {
@@ -60,7 +65,7 @@ export const BaseMixin = (SuperClass) => class extends SuperClass {
     initClass(Class, ...args) {
         let obj = new Class(...args);
         obj.setContext(this.getContext());
-        if (!obj.initializing()) {
+        if (!obj.initializing() && !obj.initialized()) {
             obj.addReadyPromise(obj.initialize(...args));
         }
         return obj.ready().then(() => Promise.resolve(obj));
