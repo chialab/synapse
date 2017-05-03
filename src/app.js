@@ -3,8 +3,9 @@ import { Router } from '@chialab/router/src/router.js';
 import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
-import { PluggableMixin } from './mixins/pluggable.js';
 import { InjectableMixin } from './mixins/injectable.js';
+import { RenderMixin } from './mixins/render.js';
+import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
@@ -39,7 +40,7 @@ class NavigationEntry {
     }
 }
 
-export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
+export class App extends mix(Factory).with(InjectableMixin, RenderMixin, PluggableMixin) {
     /**
      * The component to use as page view.
      * @type {Component}
@@ -69,6 +70,7 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
     get routeRules() {
         return {};
     }
+
     constructor(element, config) {
         super();
         this.element = element;
@@ -87,9 +89,9 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
     initialize(...args) {
         this.router = new this.constructor.Router(this.routeOptions);
         return this.handleNavigation()
-            .then(() => this.handleComponents())
             .then(() => super.initialize(...args))
             .then(() => {
+                this.handleComponents();
                 this.registerRoutes();
                 return Promise.resolve();
             }).catch((ex) => {
@@ -277,11 +279,6 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
                 lastComponent = elem;
             }
         });
-        this._setRendering();
-        let root = DOM.getComponentNode(this.element) || this.element;
-        IDOM.patch(root, this.render());
-        this._unsetRendering();
-        return this._rendered();
     }
 
     dispatchController(RequestedController, ...args) {
@@ -381,47 +378,5 @@ export class App extends mix(Factory).with(InjectableMixin, PluggableMixin) {
     error() {
         // ERROR
         return Promise.resolve();
-    }
-    /**
-     * Set the application in rendering mode.
-     * @private
-     */
-    _setRendering() {
-        internal(this).rendering = true;
-        internal(this).renderingPromises = [];
-    }
-    /**
-     * Unset the application from rendering mode.
-     * @private
-     */
-    _unsetRendering() {
-        internal(this).rendering = false;
-    }
-    /**
-     * Add a rendering promise.
-     * @private
-     *
-     * @param {Promise} rendering The promise to add to rendering queue.
-     */
-    _addRendering(rendering) {
-        internal(this).renderingPromises.push(rendering);
-    }
-    /**
-     * Check if app is in rendering mode.
-     * @private
-     *
-     * @return {Boolean}
-     */
-    _isRendering() {
-        return !!internal(this).rendering;
-    }
-    /**
-     * Return the rendering resolution queue.
-     * @private
-     *
-     * @return {Promise} Resolves when all rendering promieses are resolved.
-     */
-    _rendered() {
-        return Promise.all(internal(this).renderingPromises);
     }
 }
