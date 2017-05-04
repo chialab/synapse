@@ -131,7 +131,7 @@ export class Collection extends Model {
             }
             this.array[index] = val;
             this.listeners[this.array.length - 1] = val.on('change', (deleted) => {
-                if (deleted) {
+                if (deleted === true) {
                     this.remove(val);
                 } else {
                     this.trigger('change');
