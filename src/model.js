@@ -42,17 +42,22 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
         if (typeof data === 'object') {
             options = value || {};
             let changed = false;
+            let changes = {};
             if (!options.skipChanges && !options.internal) {
                 for (let k in data) {
                     if (this[k] !== data[k]) {
                         changed = true;
+                        changes[k] = {
+                            oldValue: this[k],
+                            newValue: data[k],
+                        };
                         this.setChanges(k, this[k], data[k]);
                     }
                 }
             }
             super.set(data, options);
             if (changed) {
-                this.trigger('change');
+                this.trigger('change', changes);
             }
         } else if (typeof data === 'string') {
             let s = {};
