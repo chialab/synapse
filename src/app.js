@@ -88,10 +88,10 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
      */
     initialize(...args) {
         this.router = new this.constructor.Router(this.routeOptions);
+        this.handleComponents();
         return this.handleNavigation()
             .then(() => super.initialize(...args))
             .then(() => {
-                this.handleComponents();
                 this.registerRoutes();
                 return Promise.resolve();
             }).catch((ex) => {
