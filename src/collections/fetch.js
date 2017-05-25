@@ -40,6 +40,7 @@ export class FetchCollection extends Collection {
             promise = Promise.all(
                 res.map((data) => this.model(data))
             ).then((models) => {
+                this.reset();
                 this.add(...models);
                 return Promise.resolve();
             });

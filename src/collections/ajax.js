@@ -13,10 +13,9 @@ export class AjaxCollection extends FetchCollection {
                 this.execFetch(options)
                     .then((res) =>
                         this.afterFetch(res)
-                            .then((res) => {
-                                this.reset();
-                                return this.setFromResponse(res);
-                            })
+                            .then((res) =>
+                                this.setFromResponse(res)
+                            )
                     )
             );
     }
