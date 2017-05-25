@@ -113,15 +113,11 @@ export class Collection extends Model {
         values.forEach((val) => {
             if (val instanceof Model) {
                 this.array.push(val);
-                this.listeners[this.array.length - 1] = val.on('change', (deleted) => {
-                    if (deleted === true) {
-                        this.remove(val);
-                    } else {
-                        this.trigger('change', {
-                            type: 'update',
-                            changed: [val],
-                        });
-                    }
+                this.listeners[this.array.length - 1] = val.on('change', () => {
+                    this.trigger('change', {
+                        type: 'update',
+                        changed: [val],
+                    });
                 });
                 added.push(val);
             }
