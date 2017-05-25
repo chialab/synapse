@@ -9,14 +9,6 @@ export class Collection extends Model {
         return Model;
     }
     /**
-     * Construct a new collection.
-     * @param {Array} arr An initial array.
-     */
-    constructor(arr) {
-        super(arr);
-        this.reset();
-    }
-    /**
      * Initialize the collection.
      * @private
      * @param {Array} arr The initial array.
@@ -25,14 +17,17 @@ export class Collection extends Model {
     initialize(arr) {
         return super.initialize()
             .then(() => {
-                let promise = Promise.resolve();
-                if (arr) {
-                    arr.forEach((val) => {
-                        promise = promise.then(() => this.add(val));
-                    });
-                }
-                return promise.then(() => Promise.resolve(this));
+                this.reset()
+                this.add(...arr)
+                return Promise.resolve(this);
             });
+    }
+
+    model(data, Model) {
+        return this.initClass(
+            Model || this.constructor.Model,
+            data
+        );
     }
 
     get length() {
@@ -40,11 +35,7 @@ export class Collection extends Model {
     }
 
     reset() {
-        if (this.listeners) {
-            this.listeners.forEach((listener) => listener());
-        }
-        this.listeners = [];
-        this.array = [];
+        this.remove(...this.array);
     }
 
     forEach(...args) {
@@ -57,6 +48,10 @@ export class Collection extends Model {
 
     filter(...args) {
         return this.array.filter(...args);
+    }
+
+    find(map) {
+        return this.array.find(map);
     }
 
     get(idx) {
@@ -85,13 +80,6 @@ export class Collection extends Model {
         return -1;
     }
 
-    model(data, Model) {
-        return this.initClass(
-            Model || this.constructor.Model,
-            data
-        );
-    }
-
     findById(id) {
         const arr = this.array;
         let idx = this.getIndexById(id);
@@ -112,63 +100,66 @@ export class Collection extends Model {
             );
     }
 
-    find(map) {
-        return this.initClass(this.constructor, this.array.find(map));
-    }
-
     findAll() {
         return Promise.resolve(this);
     }
 
-    add(val, index) {
+    add(...values) {
         const Model = this.constructor.Model;
-        if (val instanceof Model) {
-            if (index === undefined) {
-                index = this.array.length;
+        let added = [];
+        values.forEach((val) => {
+            if (val instanceof Model) {
+                this.array.push(val);
+                this.listeners[this.array.length - 1] = val.on('change', (deleted) => {
+                    if (deleted === true) {
+                        this.remove(val);
+                    } else {
+                        this.trigger('change', {
+                            type: 'update',
+                            changed: [val],
+                        });
+                    }
+                });
+                added.push(val);
             }
-            if (this.listeners[index]) {
-                this.listeners[index]();
-            }
-            this.array[index] = val;
-            this.listeners[this.array.length - 1] = val.on('change', (deleted) => {
-                if (deleted === true) {
-                    this.remove(val);
-                } else {
-                    this.trigger('change');
-                    this.trigger('updated', index);
-                }
+        });
+        if (added.length) {
+            this.trigger('change', {
+                type: 'add',
+                added,
             });
-            this.trigger('change');
-            this.trigger('added', index, val);
-            return Promise.resolve(index);
         }
-        return Promise.reject();
     }
 
-    remove(index) {
-        if (typeof index !== 'number') {
-            if (index instanceof Model) {
-                if (index.id) {
-                    index = this.getIndexById(index.id);
-                } else {
-                    index = this.getIndexByModel(index);
+    remove(...indexes) {
+        let removed = [];
+        indexes.forEach((index) => {
+            if (typeof index !== 'number') {
+                if (index instanceof Model) {
+                    if (index.id) {
+                        index = this.getIndexById(index.id);
+                    } else {
+                        index = this.getIndexByModel(index);
+                    }
+                } else if (typeof index === 'string') {
+                    index = this.getIndexById(index);
                 }
-            } else if (typeof index === 'string') {
-                index = this.getIndexById(index);
             }
-            return this.remove(index);
+            if (index < this.length) {
+                let model = this.get(index);
+                if (this.listeners[index]) {
+                    this.listeners[index]();
+                }
+                this.listeners.splice(index, 1);
+                this.array.splice(index, 1);
+                removed.push(model);
+            }
+        });
+        if (removed.length) {
+            this.trigger('change', {
+                type: 'remove',
+                removed,
+            });
         }
-        if (index >= this.length) {
-            return Promise.reject();
-        }
-        let model = this.get(index);
-        if (this.listeners[index]) {
-            this.listeners[index]();
-        }
-        this.listeners.splice(index, 1);
-        this.array.splice(index, 1);
-        this.trigger('change');
-        this.trigger('removed', index, model);
-        return Promise.resolve(index);
     }
 }
