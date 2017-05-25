@@ -165,4 +165,8 @@ export class Collection extends Model {
             });
         }
     }
+
+    toJSON() {
+        return this.map((model) => model.toJSON());
+    }
 }
