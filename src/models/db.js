@@ -30,7 +30,7 @@ export class DBModel extends Model {
                 internal(this).deleted = true;
                 delete data._deleted;
             }
-            this.set(data);
+            this.set(data, { validate: false });
             this.resetChanges();
         }
         return Promise.resolve(this);
