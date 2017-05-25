@@ -28,9 +28,10 @@ export class FetchCollection extends Collection {
                     .then((res) =>
                         this.afterFetch(res)
                     )
-                    .then((data) =>
-                        model.setFromResponse(data)
-                    )
+                    .then((data) => {
+                        model.resetChanges();
+                        return model.setFromResponse(data)
+                    })
             );
     }
 
@@ -64,9 +65,10 @@ export class FetchCollection extends Collection {
                     .then((res) =>
                         this.afterPost(res)
                     )
-                    .then((data) =>
-                        model.setFromResponse(data)
-                    )
+                    .then((data) => {
+                        model.resetChanges();
+                        return model.setFromResponse(data)
+                    })
             );
     }
 }

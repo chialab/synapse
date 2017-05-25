@@ -130,11 +130,11 @@ export class DBCollection extends FetchCollection {
                 }
             }
             return savePromise.then((res) => {
+                model.resetChanges();
                 model.setDatabaseInfo({
                     id: res.id,
                     rev: res.rev,
-                });
-                model.resetChanges();
+                }, { skipChanges: true });
                 return Promise.resolve(model);
             });
         }

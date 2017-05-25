@@ -22,7 +22,7 @@ export class FileModel extends DBModel {
             this.set({
                 data: `data:${attach.content_type};base64,${attach.data}`,
                 type: attach.content_type,
-            }, { validate: false });
+            }, { validate: false, skipChanges: true });
             delete data._attachments;
         }
         return super.setFromResponse(data);
