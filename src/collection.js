@@ -15,10 +15,13 @@ export class Collection extends Model {
      * @returns {Promise}
      */
     initialize(arr) {
+        this.array = [];
+        this.listeners = [];
         return super.initialize()
             .then(() => {
-                this.reset()
-                this.add(...arr)
+                if (arr) {
+                    this.add(...arr);
+                }
                 return Promise.resolve(this);
             });
     }
