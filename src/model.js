@@ -118,7 +118,7 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
         return injected && injected[name];
     }
 
-    reset() {
+    reset(skipChanges = false) {
         const Ctr = this.constructor;
         let props = [];
         if (Ctr.schema) {
@@ -132,7 +132,7 @@ export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
                 set[prop] = undefined;
             }
         });
-        this.set(set, { validate: false });
+        this.set(set, { validate: false, skipChanges });
     }
 
     destroy() {
