@@ -21,6 +21,7 @@ export class Component extends mix(BaseComponent).with(BaseMixin) {
             this.requestedRender = args;
             return;
         }
+        Component.notifications.trigger('rendering', this);
         return super.render(...args);
     }
 

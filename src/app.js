@@ -266,6 +266,11 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
 
     handleComponents() {
         let lastComponent;
+        Component.notifications.on('rendering', (elem) => {
+            if (elem.getContext()) {
+                lastComponent = elem;
+            }
+        });
         Component.notifications.on('created', (elem) => {
             if (elem instanceof Component) {
                 let scope = this._isRendering() ? this :
