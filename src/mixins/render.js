@@ -1,5 +1,5 @@
 import { internal } from '../helpers/internal.js';
-import { DOM, IDOM } from '@dnajs/idom/index.observer.js';
+import { DOM, IDOM } from '@dnajs/idom';
 
 export const RenderMixin = (SuperClass) => class extends SuperClass {
     get root() {

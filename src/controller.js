@@ -1,6 +1,6 @@
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
-import { IDOM } from '@dnajs/idom/index.observer.js';
+import { IDOM } from '@dnajs/idom';
 import { Router } from '@chialab/router/src/router.js';
 import { RedirectException } from './exceptions/redirect.js';
 

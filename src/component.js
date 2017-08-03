@@ -1,5 +1,5 @@
 import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
-import { BaseComponent } from '@dnajs/idom/index.observer.js';
+import { BaseComponent } from '@dnajs/idom';
 import { mix } from './helpers/mixin.js';
 import { BaseMixin } from './mixins/base.js';
 

@@ -10,7 +10,7 @@ import { Controller } from './controller.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
-import { IDOM, DOM } from '@dnajs/idom/index.observer.js';
+import { IDOM, DOM } from '@dnajs/idom';
 
 class NavigationEntry {
     constructor(previous) {
