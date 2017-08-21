@@ -94,9 +94,7 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
             .then(() => {
                 this.registerRoutes();
                 return Promise.resolve();
-            }).catch((ex) => {
-                this.onInitializeError(ex);
-            });
+            }).catch((ex) => this.onInitializeError(ex));
     }
 
     getContext() {
@@ -105,9 +103,10 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
 
     onInitializeError(ex) {
         // eslint-disable-next-line
-        console.error(ex);
+        console.error('Error occurred on application initialize.');
         // eslint-disable-next-line
-        alert('Error occurred on application initialize.');
+        console.error(ex);
+        return Promise.reject(ex);
     }
     /**
      * Callback for plugins ready.
