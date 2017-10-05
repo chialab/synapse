@@ -23,7 +23,12 @@ function prepareOptions(defaults = {}, options = {}) {
     return opt;
 }
 
-const SUPPORTED = new PouchDB('test').info();
+let SUPPORTED;
+try {
+    SUPPORTED = new PouchDB('test').info();
+} catch(err) {
+    SUPPORTED = Promise.reject();
+}
 
 export class Database extends CallbackManager {
     static supported() {
