@@ -48,7 +48,9 @@ export const InjectableMixin = (SuperClass) => class extends SuperClass {
             });
         } else {
             for (let name in injectors) {
-                promise = promise.then(() => this.inject(name, injectors[name]));
+                if (injectors[name]) {
+                    promise = promise.then(() => this.inject(name, injectors[name]));
+                }
             }
         }
         return promise;
