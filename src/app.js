@@ -9,8 +9,9 @@ import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
+import { notifications } from './mixins/component.js';
 import * as EXCEPTIONS from './exceptions.js';
-import { IDOM, DOM } from '@dnajs/idom';
+import { BaseComponent, IDOM, DOM } from '@dnajs/idom';
 
 class NavigationEntry {
     constructor(previous) {
@@ -156,50 +157,52 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
                         action = ruleMatch[1];
                         ruleMatch = ruleMatch[0];
                     }
-                    if (ruleMatch.prototype instanceof Controller) {
-                        this.router.on(k, (...args) => {
-                            internal(this).lastNavigation = new NavigationEntry(internal(this).lastNavigation);
-                            return internal(this).lastNavigation.run((entry) =>
-                                this.beforeRoute(...args).then(() => {
-                                    if (entry.resolved) {
-                                        return entry.promise;
-                                    }
-                                    return this.dispatchController(ruleMatch)
-                                        .then((ctr) => {
-                                            let promise;
-                                            ctr.setQueryParams(this.router.query());
-                                            if (action && typeof ctr[action] === 'function') {
-                                                promise = ctr[action].call(ctr, ...args);
-                                            } else {
-                                                promise = ctr.exec(...args);
-                                            }
-                                            return promise
-                                                .then(() => {
-                                                    if (entry.resolved) {
-                                                        return entry.promise;
-                                                    }
-                                                    return this.dispatchView(ctr);
-                                                });
-                                        })
-                                        .then(() =>
-                                            this.afterRoute(...args)
-                                        )
-                                        .catch((err) => {
-                                            if (!err || !(err instanceof EXCEPTIONS.RedirectException)) {
-                                                try {
-                                                    if (!this.throwException(err)) {
-                                                        return Promise.reject(err);
-                                                    }
-                                                } catch (ex) {
-                                                    return Promise.reject(ex);
+                    this.router.on(k, (...args) => {
+                        internal(this).lastNavigation = new NavigationEntry(internal(this).lastNavigation);
+                        return internal(this).lastNavigation.run((entry) =>
+                            this.beforeRoute(...args).then(() => {
+                                if (entry.resolved) {
+                                    return entry.promise;
+                                }
+                                return this.dispatchController(ruleMatch)
+                                    .then((ctr) => {
+                                        console.log(ctr)
+                                        let promise;
+                                        ctr.setQueryParams(this.router.query());
+                                        if (action && typeof ctr[action] === 'function') {
+                                            promise = ctr[action].call(ctr, ...args);
+                                        } else {
+                                            promise = ctr.exec(...args);
+                                        }
+                                        if (!(promise instanceof Promise)) {
+                                            promise = Promise.resolve(promise);
+                                        }
+                                        return promise
+                                            .then(() => {
+                                                if (entry.resolved) {
+                                                    return entry.promise;
                                                 }
+                                                return this.dispatchView(ctr);
+                                            });
+                                    })
+                                    .then(() =>
+                                        this.afterRoute(...args)
+                                    )
+                                    .catch((err) => {
+                                        if (!err || !(err instanceof EXCEPTIONS.RedirectException)) {
+                                            try {
+                                                if (!this.throwException(err)) {
+                                                    return Promise.reject(err);
+                                                }
+                                            } catch (ex) {
+                                                return Promise.reject(ex);
                                             }
-                                            return Promise.resolve();
-                                        });
-                                })
-                            );
-                        });
-                    }
+                                        }
+                                        return Promise.resolve();
+                                    });
+                            })
+                        );
+                    });
                 }
             }
         }
@@ -265,12 +268,12 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
 
     handleComponents() {
         let lastComponent;
-        Component.notifications.on('rendering', (elem) => {
+        notifications.on('rendering', (elem) => {
             if (elem.getContext()) {
                 lastComponent = elem;
             }
         });
-        Component.notifications.on('created', (elem) => {
+        notifications.on('created', (elem) => {
             if (elem instanceof Component) {
                 let scope = this._isRendering() ? this :
                     (lastComponent && lastComponent.getContext());
@@ -311,14 +314,15 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
     dispatchView(controller) {
         let oldPage = this.currentPage;
         let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
-        return destroyPromise.then(() =>
-            this.initClass(this.constructor.View)
+        return destroyPromise.then(() => {
+            let pageCreation = controller instanceof BaseComponent ? Promise.resolve(controller) : this.initClass(this.constructor.View);
+            return pageCreation
                 .then((page) => {
                     this.currentPage = page;
                     let navigationWrapper = this.element.querySelector('[navigation]');
                     DOM.appendChild(navigationWrapper, page);
                     let renderPromise = Promise.resolve();
-                    if (controller) {
+                    if (controller instanceof Controller) {
                         controller.pipe((updatedResponse) => {
                             this.renderContent(controller.render(updatedResponse));
                         });
@@ -335,7 +339,7 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
                         return Promise.resolve(page);
                     });
                 })
-        );
+        });
     }
 
     renderContent(renderFn) {

@@ -1,10 +1,12 @@
 import { internal } from './helpers/internal.js';
+import { mix } from './helpers/mixin.js';
 import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom';
 import { Router } from '@chialab/router/src/router.js';
 import { RedirectException } from './exceptions/redirect.js';
+import { ControllerMixin } from './mixins/controller.js';
 
-export class Controller extends Factory {
+export class Controller extends mix(Factory).with(ControllerMixin) {
     render() {
         let res = internal(this).streams;
         return () =>
@@ -17,14 +19,6 @@ export class Controller extends Factory {
 
     setResponse(res) {
         internal(this).streams = res;
-    }
-
-    getQueryParams() {
-        return internal(this);
-    }
-
-    setQueryParams(params) {
-        internal(this).query = params;
     }
 
     stream(vars = {}) {
@@ -44,18 +38,5 @@ export class Controller extends Factory {
 
     exec() {
         return this.stream({});
-    }
-
-    redirect(path) {
-        this.getContext().navigate(path);
-        return Promise.reject(
-            new RedirectException()
-        );
-    }
-
-    next() {
-        return Promise.reject(
-            new Router.RouterUnhandledException()
-        );
     }
 }

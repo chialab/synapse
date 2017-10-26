@@ -1,7 +1,9 @@
-import { BaseComponent, define } from '@dnajs/idom';
-import { PageMixin } from '../mixins/page.js';
+import { define } from '@dnajs/idom';
+import { mix } from '../helpers/mixin.js';
+import { ComponentMixin } from './component.js';
+import { ControllerMixin } from './controller.js';
 
-export class PageViewComponent extends PageMixin(BaseComponent) {
+export const PageMixin = (SuperClass) => class extends mix(SuperClass).with(ComponentMixin, ControllerMixin) {
     hide() {
         this.node.classList.remove('navigation--show');
         this.node.classList.add('navigation--hide');
@@ -44,7 +46,3 @@ export class PageViewComponent extends PageMixin(BaseComponent) {
         return Promise.resolve();
     }
 }
-
-define('page-view', PageViewComponent, {
-    extends: 'section',
-});

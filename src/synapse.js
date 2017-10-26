@@ -9,7 +9,10 @@ export * from './plugin.js';
 // mixins
 export * from './mixins/base.js';
 export * from './mixins/callback.js';
+export * from './mixins/component.js';
+export * from './mixins/controller.js';
 export * from './mixins/injectable.js';
+export * from './mixins/page.js';
 export * from './mixins/pluggable.js';
 // helpers
 export * from './helpers/configure.js';
