@@ -3,9 +3,6 @@ npm-debug.log
 /bower_components
 /coverage
 /test
-.eslint*
-.editorconfig
-.git*
-.babelrc
+.*
 gulpfile.js
 rollup.config.js
