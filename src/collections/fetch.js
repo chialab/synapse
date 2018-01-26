@@ -30,7 +30,7 @@ export class FetchCollection extends Collection {
                     )
                     .then((data) => {
                         model.resetChanges();
-                        return model.setFromResponse(data)
+                        return model.setFromResponse(data);
                     })
             );
     }
@@ -67,7 +67,7 @@ export class FetchCollection extends Collection {
                     )
                     .then((data) => {
                         model.resetChanges();
-                        return model.setFromResponse(data)
+                        return model.setFromResponse(data);
                     })
             );
     }

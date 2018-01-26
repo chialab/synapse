@@ -28,4 +28,4 @@ export const ControllerMixin = (SuperClass) => class extends SuperClass {
             new Router.RouterUnhandledException()
         );
     }
-}
+};

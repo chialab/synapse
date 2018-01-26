@@ -337,7 +337,7 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
                         }
                         return Promise.resolve(page);
                     });
-                })
+                });
         });
     }
 

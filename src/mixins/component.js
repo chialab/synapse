@@ -1,5 +1,4 @@
 import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
-import { BaseComponent } from '@dnajs/idom';
 import { mix } from '../helpers/mixin.js';
 import { BaseMixin } from './base.js';
 
@@ -31,4 +30,4 @@ export const ComponentMixin = (SuperClass) => class extends mix(SuperClass).with
         let injected = this.getContext().getInjected();
         return injected && injected[name];
     }
-}
+};

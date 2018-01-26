@@ -1,4 +1,3 @@
-import { define } from '@dnajs/idom';
 import { mix } from '../helpers/mixin.js';
 import { ComponentMixin } from './component.js';
 import { ControllerMixin } from './controller.js';
@@ -45,4 +44,4 @@ export const PageMixin = (SuperClass) => class extends mix(SuperClass).with(Comp
         this.hide();
         return Promise.resolve();
     }
-}
+};

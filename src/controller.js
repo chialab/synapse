@@ -2,8 +2,6 @@ import { internal } from './helpers/internal.js';
 import { mix } from './helpers/mixin.js';
 import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom';
-import { Router } from '@chialab/router/src/router.js';
-import { RedirectException } from './exceptions/redirect.js';
 import { ControllerMixin } from './mixins/controller.js';
 
 export class Controller extends mix(Factory).with(ControllerMixin) {
