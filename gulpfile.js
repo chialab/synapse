@@ -48,7 +48,7 @@ function clean() {
 }
 
 function lint() {
-    return gulp.src(path.join(SRC_PATH, ENTRY))
+    return gulp.src(path.join(SRC_PATH, '**/*.js'))
         .pipe(eslint())
         .pipe(eslint.format())
         .pipe(eslint.failAfterError());

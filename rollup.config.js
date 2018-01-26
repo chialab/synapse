@@ -11,7 +11,7 @@ module.exports = {
     sourceMap: process.env.NODE_ENV !== 'production' ? 'inline' : false,
     format: 'umd',
     moduleName: 'Synapse',
-    entry: 'src/synapse.js',
+    entry: 'src/index.js',
     useStrict: false,
     globals: {
         '@dnajs/idom': 'DNA',

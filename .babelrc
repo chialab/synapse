@@ -1,7 +1,7 @@
 {
-    "compact": true,
+    "compact": "auto",
     "presets": ["es2015-rollup"],
     "plugins": [
-        "transform-inline-environment-variables",
-    ],
+        "transform-inline-environment-variables"
+    ]
 }
