@@ -1,5 +1,8 @@
+# RNA-CORE
 /node_modules
-/bower_components
 /coverage
 npm-debug.log
-/dist
+# RNA-CORE
+# RNA-STRUCTURE
+dist
+# RNA-STRUCTURE

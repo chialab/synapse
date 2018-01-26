@@ -105,7 +105,7 @@ export class Database extends CallbackManager {
                 opt
             ).catch((err) => Promise.reject(
                 new DBSyncFailedException(internal(this).db, err))
-                );
+            );
         }
         return new DBSyncFailedException(internal(this).db, 'Missing database remote url.');
     }
@@ -132,7 +132,7 @@ export class Database extends CallbackManager {
                 Promise.reject(
                     new DBSyncFailedException(internal(this).db, err)
                 )
-                );
+            );
         }
         return new DBSyncFailedException(internal(this).db, 'Missing database remote url.');
     }

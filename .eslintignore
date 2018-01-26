@@ -1,1 +1,8 @@
+# RNA
+node_modules/
+dist/
+public/
+# RNA
+
+
 src/vendors/**/*.js
