@@ -166,7 +166,6 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
                                 }
                                 return this.dispatchController(ruleMatch)
                                     .then((ctr) => {
-                                        console.log(ctr)
                                         let promise;
                                         ctr.setQueryParams(this.router.query());
                                         if (action && typeof ctr[action] === 'function') {
