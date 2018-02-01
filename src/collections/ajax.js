@@ -24,15 +24,15 @@ export class AjaxCollection extends FetchCollection {
             );
     }
 
-    findById(id) {
+    findById(id, options = {}) {
         const Ctr = this.constructor;
         const Model = Ctr.Model;
 
-        return super.findById(id)
+        return super.findById(id, options)
             .catch(() =>
                 this.model({ [Model.key]: id })
                     .then((model) =>
-                        this.fetch(model)
+                        this.fetch(model, options)
                     )
             );
     }
