@@ -1,5 +1,5 @@
+import { Emitter } from '@chialab/proteins';
 import PouchDB from '../vendors/pouchdb.js';
-import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
 import { internal } from './internal.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
 import { DBSyncFailedException } from '../exceptions/db-sync-failed.js';
@@ -30,7 +30,7 @@ try {
     SUPPORTED = Promise.reject();
 }
 
-export class Database extends CallbackManager {
+export class Database extends Emitter {
     static supported() {
         return SUPPORTED;
     }

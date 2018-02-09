@@ -1,11 +1,9 @@
-import { mix } from './helpers/mixin.js';
+import { mix, EmitterMixin } from '@chialab/proteins';
 import SchemaModel from '@chialab/schema-model';
 import { internal } from './helpers/internal.js';
-
-import { CallbackMixin } from './mixins/callback.js';
 import { BaseMixin } from './mixins/base.js';
 
-export class Model extends mix(SchemaModel).with(CallbackMixin, BaseMixin) {
+export class Model extends mix(SchemaModel).with(EmitterMixin, BaseMixin) {
     static get schema() {
         return undefined;
     }
