@@ -1,4 +1,5 @@
-import { mix, Emitter } from '@chialab/proteins';
+import { mix } from '@chialab/proteins/src/mixin.js';
+import { Emitter } from '@chialab/proteins/src/factory.js';
 import { BaseMixin } from './base.js';
 
 export const notifications = new Emitter();

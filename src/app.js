@@ -1,5 +1,5 @@
-import { mix } from '@chialab/proteins';
 import { Router } from '@chialab/router';
+import { mix } from '@chialab/proteins/src/mixin.js';
 import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';

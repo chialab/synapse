@@ -1,5 +1,5 @@
 import { internal } from './helpers/internal.js';
-import { mix } from '@chialab/proteins';
+import { mix } from '@chialab/proteins/src/mixin.js';
 import { Factory } from './factory.js';
 import { IDOM } from '@dnajs/idom';
 import { ControllerMixin } from './mixins/controller.js';

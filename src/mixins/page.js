@@ -1,4 +1,4 @@
-import { mix } from '@chialab/proteins';
+import { mix } from '@chialab/proteins/src/mixin.js';
 import { ComponentMixin } from './component.js';
 import { ControllerMixin } from './controller.js';
 
