@@ -1,4 +1,4 @@
-import { mix } from '@chialab/proteins/src/mixin.js';
+import mix from '@chialab/proteins/src/mixin.js';
 import { EmitterMixin } from '@chialab/proteins/src/factory.js';
 import { BaseMixin } from './mixins/base.js';
 
