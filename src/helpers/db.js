@@ -1,4 +1,4 @@
-import { Emitter } from '@chialab/proteins';
+import { Emitter } from '@chialab/proteins/src/factory.js';
 import PouchDB from '../vendors/pouchdb.js';
 import { internal } from './internal.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
