@@ -1,11 +1,6 @@
-import objectPath from 'object-path';
+import * as keypath from '@chialab/proteins/src/keypath.js';
+import { isObject } from '@chialab/proteins/src/types.js';
 import { internal } from './internal.js';
-
-function isObject(value) {
-    return typeof value !== 'undefined' &&
-        value !== null &&
-        value.constructor === Object;
-}
 
 export class ConfigureHelper {
     constructor() {
@@ -29,7 +24,7 @@ export class ConfigureHelper {
             }
             return true;
         }
-        objectPath.set(internal(this).conf, path, value);
+        keypath.set(internal(this).conf, path, value);
         return true;
     }
 
@@ -57,10 +52,10 @@ export class ConfigureHelper {
     }
 
     read(path) {
-        return objectPath.get(internal(this).conf, path, undefined);
+        return keypath.get(internal(this).conf, path, undefined);
     }
 
     delete(path) {
-        return objectPath.del(internal(this).conf, path);
+        return keypath.del(internal(this).conf, path);
     }
 }

@@ -1,6 +1,6 @@
+import Router from '@chialab/router';
 import { internal } from '../helpers/internal.js';
 import { IDOM } from '@dnajs/idom';
-import { Router } from '@chialab/router/src/router.js';
 import { RedirectException } from '../exceptions/redirect.js';
 
 export const ControllerMixin = (SuperClass) => class extends SuperClass {

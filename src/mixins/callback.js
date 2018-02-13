@@ -1,30 +1,47 @@
-import { mix } from '../helpers/mixin.js';
-import { internal } from '../helpers/internal.js';
-import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
+import { on, off, trigger } from '@chialab/proteins/src/events.js';
+import Symbolic from '@chialab/proteins/src/symbolic.js';
+
+const LISTENERS_SYM = Symbolic('listeners');
 
 export const CallbackMixin =
-    (SuperClass) => class extends mix(SuperClass).with(CallbackManager.mixin) {
+    (SuperClass) => class extends SuperClass {
         constructor(...args) {
             super(...args);
-            internal(this).listeners = [];
+            if (!this[LISTENERS_SYM]) {
+                this[LISTENERS_SYM] = [];
+            }
         }
 
-        listen(scope, ev, callback) {
-            internal(this).listeners.push(
-                scope.on(ev, callback)
-            );
+        on(name, callback) {
+            return on(this, name, callback);
         }
 
-        unlisten() {
-            if (internal(this).listeners) {
-                internal(this).listeners.forEach((destroy) => destroy());
-                internal(this).listeners = [];
+        off(name, callback) {
+            return off(this, name, callback);
+        }
+
+        trigger(name, ...args) {
+            return trigger(this, name, ...args);
+        }
+
+        listen(obj, name, callback) {
+            let destroyer = on(obj, name, callback);
+            this[LISTENERS_SYM].push(destroyer);
+            return destroyer;
+        }
+
+        unlisten(obj, name, callback) {
+            if (obj) {
+                off(obj, name, callback);
+            } else {
+                this[LISTENERS_SYM].forEach((offListener) => offListener());
+                this[LISTENERS_SYM] = [];
             }
         }
 
         destroy() {
-            this.unlisten();
             this.off();
-            return Promise.resolve();
+            this.unlisten();
+            return super.destroy();
         }
     };

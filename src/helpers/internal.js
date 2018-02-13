@@ -1,14 +1,12 @@
-const MAP = new WeakMap();
+import Symbolic from '@chialab/proteins/src/symbolic.js';
+
+const INTERNAL_SYM = Symbolic('internal');
 
 export function internal(object) {
-    if (!MAP.has(object)) {
-        MAP.set(object, {});
-    }
-    return MAP.get(object);
+    object[INTERNAL_SYM] = object[INTERNAL_SYM] || {};
+    return object[INTERNAL_SYM];
 }
 
 internal.destroy = function(object) {
-    if (MAP.has(object)) {
-        MAP.delete(object);
-    }
+    delete object[INTERNAL_SYM];
 };

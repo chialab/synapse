@@ -1,4 +1,4 @@
-import { mix } from './helpers/mixin.js';
+import mix from '@chialab/proteins/src/mixin.js';
 import { Factory } from './factory.js';
 import { InjectableMixin } from './mixins/injectable.js';
 

@@ -1,8 +1,8 @@
-import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
-import { mix } from '../helpers/mixin.js';
+import mix from '@chialab/proteins/src/mixin.js';
+import { Emitter } from '@chialab/proteins/src/factory.js';
 import { BaseMixin } from './base.js';
 
-export const notifications = new CallbackManager();
+export const notifications = new Emitter();
 
 export const ComponentMixin = (SuperClass) => class extends mix(SuperClass).with(BaseMixin) {
     constructor(...args) {

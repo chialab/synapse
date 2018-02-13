@@ -1,17 +1,5 @@
 /**
- * @author Justin Fagnani
- * @see https://github.com/justinfagnani/mixwith.js
+ * This is a retro-compatibility file.
+ * Use `@chialab/proteins` mix function instead.
  */
-class Mixin {
-    constructor(superclass) {
-        superclass = superclass || class {};
-        this.superclass = superclass;
-    }
-
-    with() {
-        // eslint-disable-next-line
-        return [].slice.call(arguments, 0).reduce((c, m) => m(c), this.superclass);
-    }
-}
-
-export const mix = (superClass) => new Mixin(superClass);
+export { default as mix } from '@chialab/proteins/src/mixin.js';
