@@ -64,8 +64,8 @@ export class DBCollection extends FetchCollection {
         return super.model(data, ...args).then((model) => {
             if (id && rev) {
                 model.setDatabaseInfo({
-                    id: id,
-                    rev: rev,
+                    id,
+                    rev,
                 });
             }
             return model;
