@@ -177,8 +177,8 @@ export class Database extends Emitter {
                 if (data && data.rows) {
                     return Promise.all(
                         data.rows
-                            .filter((entry) => !entry.id.match(/^_design/))
-                            .map((entry) => entry.doc || entry)
+                            .filter((entry) => entry.doc && !entry.id.match(/^_design/))
+                            .map((entry) => entry.doc)
                     );
                 }
                 return Promise.resolve([]);

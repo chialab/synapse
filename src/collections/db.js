@@ -58,6 +58,20 @@ export class DBCollection extends FetchCollection {
         return internal(Ctr).db;
     }
 
+    model(data, ...args) {
+        let id = data && data._id;
+        let rev = data && data._rev;
+        return super.model(data, ...args).then((model) => {
+            if (id && rev) {
+                model.setDatabaseInfo({
+                    id: id,
+                    rev: rev,
+                });
+            }
+            return model;
+        });
+    }
+
     findById(id) {
         return super.findById(id)
             .catch(() => {
@@ -134,7 +148,7 @@ export class DBCollection extends FetchCollection {
                 model.setDatabaseInfo({
                     id: res.id,
                     rev: res.rev,
-                }, { skipChanges: true });
+                });
                 return Promise.resolve(model);
             });
         }
