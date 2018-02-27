@@ -52,7 +52,10 @@ export class ConfigureHelper {
     }
 
     read(path) {
-        return keypath.get(internal(this).conf, path, undefined);
+        if (path) {
+            return keypath.get(internal(this).conf, path, undefined);
+        }
+        return internal(this).conf;
     }
 
     delete(path) {
