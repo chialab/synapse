@@ -2,15 +2,19 @@
 # yarn lockfile v1
 
 
+"@chialab/proteins@^3.0.0-rc.5":
+  version "3.0.0-rc.9"
+  resolved "https://registry.npmjs.org/@chialab/proteins/-/proteins-3.0.0-rc.9.tgz#a7b31a13502f272cd7c8e8035753b629fd9967a6"
+
 "@chialab/proteins@^3.0.0-rc.8":
   version "3.0.0-rc.8"
   resolved "https://registry.npmjs.org/@chialab/proteins/-/proteins-3.0.0-rc.8.tgz#863c54256c50afa0c1d66fc6579c0a998cf08031"
 
-"@chialab/router@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.npmjs.org/@chialab/router/-/router-1.0.1.tgz#1f05ceb7621a57a24dd3499341130c4c7789449a"
+"@chialab/router@^3.0.0-alpha.1":
+  version "3.0.0-alpha.1"
+  resolved "https://registry.npmjs.org/@chialab/router/-/router-3.0.0-alpha.1.tgz#bbdd0f09cb5ee76265e797ef2125d1fd1589e4aa"
   dependencies:
-    chialab-callback-manager "^2.0.0"
+    "@chialab/proteins" "^3.0.0-rc.5"
 
 "@chialab/schema-model@^1.3.2":
   version "1.3.3"
@@ -148,10 +152,6 @@ chalk@^2.0.0, chalk@^2.1.0:
 chardet@^0.4.0:
   version "0.4.2"
   resolved "https://registry.npmjs.org/chardet/-/chardet-0.4.2.tgz#b5473b33dc97c424e5d98dc87d55d4d8a29c8bf2"
-
-chialab-callback-manager@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.npmjs.org/chialab-callback-manager/-/chialab-callback-manager-2.0.0.tgz#7e262bf5caa0c7ec1f33d36b5645f8fbc068698e"
 
 chialab-i18n@^2.0.0:
   version "2.0.0"
