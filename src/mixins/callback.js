@@ -42,6 +42,6 @@ export const CallbackMixin =
         destroy() {
             this.off();
             this.unlisten();
-            return super.destroy();
+            return super.destroy ? super.destroy() : Promise.resolve();
         }
     };
