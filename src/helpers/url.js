@@ -3,7 +3,7 @@ import { Url, resolve, join, isAbsoluteUrl, isDataUrl } from '@chialab/proteins/
 /**
  * @class UrlHelper
  * Handle urls.
- * @deprecated since version 2.1.0
+ * @deprecated since version 2.3.0
  * Use @chialab/proteins~Url
  */
 export class UrlHelper {
