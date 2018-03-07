@@ -1,70 +1,45 @@
-const PROTOCOL_REGEX = new RegExp('^((?:[a-z]+:)|(?://))', 'i');
-const DOMAIN_REGEX = new RegExp('^(?:[a-z]+:)?//[^/]*', 'i');
-const DATA_REGEX = /^data:/;
+import { Url, resolve, join, isAbsoluteUrl, isDataUrl } from '@chialab/proteins/src/url.js';
 
+/**
+ * @class UrlHelper
+ * Handle urls.
+ * @deprecated since version 2.1.0
+ * Use @chialab/proteins~Url
+ */
 export class UrlHelper {
     static join(...paths) {
-        let len = paths.length - 1;
-        return paths
-            .filter((path) => !!path)
-            .map((path, index) => {
-                if (index === 0) {
-                    return path.replace(/\/*$/, '');
-                } else if (index === len) {
-                    return path.replace(/^\/*/, '');
-                }
-                return path.replace(/^\/*/, '').replace(/\/*$/, '');
-            })
-            .join('/');
+        return join(...paths);
     }
 
     static isAbsoluteUrl(url) {
-        return PROTOCOL_REGEX.test(url);
+        return isAbsoluteUrl(url);
     }
 
     static isDataUrl(url) {
-        return DATA_REGEX.test(url);
+        return isDataUrl(url);
     }
 
     static resolve(base, relative) {
-        if (relative[0] === '/') {
-            if (!this.isAbsoluteUrl(base)) {
-                throw new Error('base url is not an absolute url');
-            }
-            base = `${base.match(DOMAIN_REGEX)[0]}/`;
-        }
-        let stack = base.split('/');
-        let parts = relative.split('/').filter((part) => part !== '');
-        stack.pop();
-        for (let i = 0; i < parts.length; i++) {
-            if (parts[i] === '.') {
-                continue;
-            } else if (parts[i] === '..') {
-                stack.pop();
-            } else {
-                stack.push(parts[i]);
-            }
-        }
-        return stack.join('/');
+        return resolve(base, relative);
     }
 
     constructor(url) {
-        this.url = url;
+        this.url = new Url(url);
     }
 
     isAbsoluteUrl() {
-        return UrlHelper.isAbsoluteUrl(this.url);
+        return this.url.isAbsoluteUrl();
     }
 
     isDataUrl() {
-        return UrlHelper.isDataUrl(this.url);
+        return this.url.isDataUrl();
     }
 
     resolve(path) {
-        return UrlHelper.resolve(this.url, path);
+        return this.url.resolve(path).href;
     }
 
     join(...paths) {
-        return UrlHelper.join(this.url, ...paths);
+        return this.url.join(...paths).href;
     }
 }

@@ -1,5 +1,6 @@
 import Router from '@chialab/router';
 import mix from '@chialab/proteins/src/mixin.js';
+import { isAbsoluteUrl } from '@chialab/proteins/src/url.js';
 import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
@@ -7,7 +8,6 @@ import { InjectableMixin } from './mixins/injectable.js';
 import { RenderMixin } from './mixins/render.js';
 import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
-import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import { notifications } from './mixins/component.js';
 import * as EXCEPTIONS from './exceptions.js';
@@ -247,12 +247,12 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
                 }
             }
         }
-        let node = ev.target;
-        let link = node.tagName === 'A' ? node : node.closest('a');
+        const node = ev.target;
+        const link = node.closest('a');
         if (link) {
-            let href = link.getAttribute('href');
-            let target = link.getAttribute('target');
-            if (href && (!target || target === '_self') && !UrlHelper.isAbsoluteUrl(href)) {
+            const href = link.getAttribute('href');
+            const target = link.getAttribute('target');
+            if (href && (!target || target === '_self') && !isAbsoluteUrl(href)) {
                 ev.preventDefault();
                 ev.stopPropagation();
                 this.navigate(href);
