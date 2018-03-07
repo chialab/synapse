@@ -1,4 +1,4 @@
-const PROTOCOL_REGEX = new RegExp('^(?:[a-z]+:)?//', 'i');
+const PROTOCOL_REGEX = new RegExp('^((?:[a-z]+:)|(?://))', 'i');
 const DOMAIN_REGEX = new RegExp('^(?:[a-z]+:)?//[^/]*', 'i');
 const DATA_REGEX = /^data:/;
 
