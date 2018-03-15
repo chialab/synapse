@@ -46,7 +46,8 @@ export const BaseMixin = (SuperClass) => class extends SuperClass {
     }
 
     destroy() {
-        return super.destroy()
+        const destroyPromise = Promise.resolve().then(() => (super.destroy ? super.destroy() : true));
+        return destroyPromise
             .then(() => {
                 internal.destroy(this);
                 this.destroyed = true;

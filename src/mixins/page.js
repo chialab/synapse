@@ -41,9 +41,6 @@ export const PageMixin = (SuperClass) => class extends mix(SuperClass).with(Comp
     }
 
     destroy() {
-        return this.hide()
-            .then(() =>
-                (super.destroy ? super.destroy() : Promise.resolve())
-            );
+        return this.hide().then(() => super.destroy());
     }
 };
