@@ -225,11 +225,8 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
 
     handleNavigation() {
         this.element.addEventListener('click', (ev) => {
-            let elem = ev.target;
-            while (elem && elem.tagName !== 'A') {
-                elem = elem.parentNode;
-            }
-            if (elem && elem.tagName === 'A') {
+            let elem = ev.target.closest('a');
+            if (elem) {
                 return this.handleLink(ev, elem, this);
             }
             return true;
@@ -237,18 +234,16 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
         return Promise.resolve();
     }
 
-    handleLink(ev, ...args) {
+    handleLink(ev, link, ...args) {
         const plugins = this.getPluginInstances();
         for (let i = 0, len = plugins.length; i < len; i++) {
             let plugin = plugins[i];
             if (typeof plugin.handleLink === 'function') {
-                if (!plugin.handleLink(ev, ...args)) {
+                if (!plugin.handleLink(ev, link, ...args)) {
                     return false;
                 }
             }
         }
-        const node = ev.target;
-        const link = node.closest('a');
         if (link) {
             const href = link.getAttribute('href');
             const target = link.getAttribute('target');
