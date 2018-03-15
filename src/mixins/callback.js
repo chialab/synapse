@@ -21,7 +21,11 @@ export const CallbackMixin =
         }
 
         trigger(name, ...args) {
-            return trigger(this, name, ...args);
+            let res = trigger(this, name, ...args);
+            if (!(res instanceof Promise)) {
+                res = Promise.resolve(res);
+            }
+            return res;
         }
 
         listen(obj, name, callback) {
