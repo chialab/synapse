@@ -1,6 +1,6 @@
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
-import { IDOM } from '@dnajs/idom/index.observer.js';
+import { IDOM } from '@dnajs/idom';
 
 export class Controller extends Factory {
     render() {

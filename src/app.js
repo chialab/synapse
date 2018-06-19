@@ -9,7 +9,7 @@ import { I18NHelper } from './helpers/i18n.js';
 import { UrlHelper } from './helpers/url.js';
 import { Component } from './component.js';
 import * as EXCEPTIONS from './exceptions.js';
-import { bootstrap, IDOM, DOM } from '@dnajs/idom/index.observer.js';
+import { bootstrap, IDOM, DOM } from '@dnajs/idom';
 
 export class App extends mix(BaseObject).with(PluggableMixin) {
     /**

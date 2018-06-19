@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/Chialab/synapse#readme",
   "dependencies": {
-    "@dnajs/idom": "^2.6.0",
+    "@dnajs/idom": "^2.7.0",
     "chialab-callback-manager": "^2.0.0",
     "chialab-i18n": "^2.0.0",
     "chialab-router": "^0.6.0",
