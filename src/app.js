@@ -337,9 +337,13 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
     }
 
     renderContent(renderFn) {
-        this._setRendering();
-        IDOM.patch(this.currentPage.node, renderFn);
-        this._unsetRendering();
+        if (typeof renderFn === 'string') {
+            this.currentPage.node.innerHTML = renderFn;
+        } else {
+            this._setRendering();
+            IDOM.patch(this.currentPage.node, renderFn);
+            this._unsetRendering();
+        }
         return this._rendered();
     }
 
