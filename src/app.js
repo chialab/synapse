@@ -8,38 +8,12 @@ import { InjectableMixin } from './mixins/injectable.js';
 import { RenderMixin } from './mixins/render.js';
 import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
+import { NavigationEntry } from './models/navigation.js';
 import { Component } from './component.js';
 import { notifications } from './mixins/component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { BaseComponent, IDOM, DOM } from '@dnajs/idom';
-
-class NavigationEntry {
-    constructor(previous) {
-        if (previous) {
-            previous.resolver();
-            this.previous = previous.promise;
-        } else {
-            this.previous = Promise.resolve();
-        }
-        this.promise = new Promise((resolve) => {
-            this.resolver = resolve;
-        });
-
-        this.promise
-            .then(() => {
-                this.resolved = true;
-            });
-    }
-
-    run(callback) {
-        return new Promise((resolve, reject) => {
-            this.previous
-                .then(() => {
-                    callback(this).then(resolve, reject);
-                });
-        });
-    }
-}
+import './components/navigation.js';
 
 export class App extends mix(Factory).with(InjectableMixin, RenderMixin, PluggableMixin) {
     /**
@@ -257,7 +231,7 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
     }
 
     render() {
-        return () => <div navigation></div>;
+        return () => <div key="navigation" is="navigation"></div>;
     }
 
     handleComponents() {
