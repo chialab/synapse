@@ -281,7 +281,7 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
 
     dispatchView(controller) {
         let oldPage = this.currentPage;
-        let destroyPromise = oldPage ? oldPage.destroy() : Promise.resolve();
+        let destroyPromise = (oldPage && !oldPage.isDestroyed()) ? oldPage.destroy() : Promise.resolve();
         return destroyPromise.then(() => {
             let pageCreation = controller instanceof BaseComponent ? Promise.resolve(controller) : this.initClass(this.constructor.View);
             return pageCreation
