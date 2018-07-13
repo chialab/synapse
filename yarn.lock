@@ -82,9 +82,9 @@
   version "3.0.0-rc.11"
   resolved "https://registry.npmjs.org/@chialab/proteins/-/proteins-3.0.0-rc.11.tgz#5eb71c731841f30de7d0536e288e9a7a5870197f"
 
-"@chialab/router@^3.0.0-alpha.1":
-  version "3.0.0-alpha.1"
-  resolved "https://registry.npmjs.org/@chialab/router/-/router-3.0.0-alpha.1.tgz#bbdd0f09cb5ee76265e797ef2125d1fd1589e4aa"
+"@chialab/router@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.npmjs.org/@chialab/router/-/router-3.0.0.tgz#8fd9c29fa73c45d10a20d595a0ed3ec2028a04cd"
   dependencies:
     "@chialab/proteins" "^3.0.0-rc.5"
 
