@@ -2,6 +2,7 @@
 /node_modules
 /coverage
 npm-debug.log
+.eslintcache
 # RNA-CORE
 # RNA-STRUCTURE
 dist

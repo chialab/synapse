@@ -30,7 +30,9 @@
     "chialab-i18n": "^2.0.0"
   },
   "devDependencies": {
+    "babel-eslint": "8",
     "eslint": "^4.10.0",
+    "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-mocha": "^4.11.0"
   },
   "structure": "module"
