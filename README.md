@@ -10,10 +10,10 @@
     <a href="https://www.npmjs.com/package/@chialab/synapse">
         <img alt="NPM" src="https://img.shields.io/npm/v/@chialab/synapse.svg?style=flat-square">
     </a>
-    <a href="./blob/master/LICENSE">
+    <a href="https://github.com/Chialab/synapse/blob/master/LICENSE">
         <img alt="License" src="https://img.shields.io/npm/l/@chialab/synapse.svg?style=flat-square">
     </a>
-    <a href="./wiki">
+    <a href="https://github.com/Chialab/synapse/wiki">
         <img alt="Documentation" src="https://img.shields.io/badge/documentation-wiki-ff69b4.svg?style=flat-square">
     </a>
 </p>
