@@ -36,9 +36,12 @@ Use via cdn:
 ## Development
 ### Requirements
 
-* Node (>= 8.9)
-* RNA cli (`npm install @chialab/rna-cli`)
-
+Make sure you have the latest [RNA cli](https://github.com/chialab/rna-cli) installed:
+```sh
+$ npm install @chialab/rna-cli -g
+# or
+$ yarn global add @chialab/rna-cli
+```
 
 ### Build the project
 
