@@ -18,6 +18,8 @@
     </a>
 </p>
 
+---
+
 ## Install
 
 Add as a dependency of a Node project:
