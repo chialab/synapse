@@ -23,16 +23,9 @@ function prepareOptions(defaults = {}, options = {}) {
     return opt;
 }
 
-let SUPPORTED;
-try {
-    SUPPORTED = new PouchDB('test').info();
-} catch(err) {
-    SUPPORTED = Promise.reject();
-}
-
 export class Database extends Emitter {
     static supported() {
-        return SUPPORTED;
+        return 'indexedDB' in self;
     }
 
     get queries() {
