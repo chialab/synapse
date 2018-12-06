@@ -16,17 +16,17 @@
     "MVC",
     "framework"
   ],
-  "author": "Chialab <dev@chialab.io> (http://www.chialab.it)",
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Chialab/synapse/issues"
   },
   "homepage": "https://github.com/Chialab/synapse#readme",
   "dependencies": {
-    "@chialab/proteins": "^3.0.0-rc.8",
+    "@chialab/proteins": "^3.0.0",
     "@chialab/router": "^3.0.0",
     "@chialab/schema-model": "^1.3.2",
-    "@dnajs/idom": "^2.7.0",
+    "@dnajs/idom": "^2.8.0",
     "chialab-i18n": "^2.0.0"
   },
   "devDependencies": {
