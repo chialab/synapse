@@ -4,7 +4,8 @@
 // PouchDB may be freely distributed under the Apache license, version 2.0.
 // For all details and documentation:
 // http://pouchdb.com
-(function (f) {
+
+/*#__PURE__*/(function (f) {
     if (typeof exports === "object" && typeof module !== "undefined") {
         module.exports = f()
     } else if (typeof define === "function" && define.amd) {
