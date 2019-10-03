@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Chialab/synapse.git"
+    "url": "git@github.com:Chialab/synapse.git"
   },
   "keywords": [
     "Chialab",
@@ -17,11 +17,15 @@
     "framework"
   ],
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "lib": "src/index.js",
+  "directories": {
+    "src": "src"
+  },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Chialab/synapse/issues"
+    "url": "https://github.com/chialab/synapse/issues"
   },
-  "homepage": "https://github.com/Chialab/synapse#readme",
+  "homepage": "https://www.chialab.io/p/synapse",
   "dependencies": {
     "@chialab/proteins": "^3.0.0",
     "@chialab/router": "^3.0.0",
@@ -30,10 +34,9 @@
     "chialab-i18n": "^2.0.0"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.1",
-    "eslint": "^5.9.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.5.1",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-mocha": "^5.2.0"
-  },
-  "structure": "module"
+    "eslint-plugin-mocha": "^6.1.1"
+  }
 }

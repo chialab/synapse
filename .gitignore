@@ -1,9 +1,19 @@
-# RNA-CORE
+# RNA
+# NPM
 /node_modules
-/coverage
 npm-debug.log
+yarn-error.log
+
+# LINT
 .eslintcache
-# RNA-CORE
-# RNA-STRUCTURE
-dist
-# RNA-STRUCTURE
+.stylelintcache
+
+# TEST
+/test/__coverage__
+/test/__generated__
+
+# BUILD
+/dist
+/public
+
+#RNA
