@@ -10,7 +10,7 @@ import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
 import { NavigationEntry } from './models/navigation.js';
 import { Component } from './component.js';
-import { notifications } from './mixins/component.js';
+import { notifications, ComponentMixin } from './mixins/component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { BaseComponent, IDOM, DOM } from '@dnajs/idom';
 import './components/navigation.js';
@@ -242,7 +242,7 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
             }
         });
         notifications.on('created', (elem) => {
-            if (elem instanceof Component) {
+            if (mix(elem.constructor).has(ComponentMixin)) {
                 let scope = this._isRendering() ? this :
                     (lastComponent && lastComponent.getContext());
                 if (scope === this) {
