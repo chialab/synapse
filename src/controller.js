@@ -22,7 +22,7 @@ export class Controller extends mix(Factory).with(ControllerMixin) {
     stream(vars = {}) {
         let previous = this.getResponse() || {};
         for (let k in previous) {
-            if (!vars.hasOwnProperty(k)) {
+            if (!Object.prototype.hasOwnProperty.call(vars, k)) {
                 vars[k] = previous[k];
             }
         }

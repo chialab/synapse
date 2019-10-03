@@ -8,16 +8,12 @@ function prepareOptions(defaults = {}, options = {}) {
     let opt = {};
     if (typeof defaults === 'object') {
         for (let k in defaults) {
-            if (defaults.hasOwnProperty(k)) {
-                opt[k] = defaults[k];
-            }
+            opt[k] = defaults[k];
         }
     }
     if (typeof options === 'object') {
         for (let k in options) {
-            if (options.hasOwnProperty(k)) {
-                opt[k] = options[k];
-            }
+            opt[k] = options[k];
         }
     }
     return opt;

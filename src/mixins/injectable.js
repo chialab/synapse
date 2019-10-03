@@ -58,7 +58,7 @@ export const InjectableMixin = (SuperClass) => class extends SuperClass {
 
     inject(inject, Fn) {
         let injs = this.getContextInjected();
-        if (injs.hasOwnProperty(inject)) {
+        if (Object.prototype.hasOwnProperty.call(injs, inject)) {
             return Promise.resolve(injs[inject]);
         }
         let args = [];

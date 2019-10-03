@@ -10,17 +10,13 @@ export class ConfigureHelper {
     write(path, value) {
         if (typeof path === 'object') {
             for (let k in path) {
-                if (path.hasOwnProperty(k)) {
-                    this.write(k, path[k]);
-                }
+                this.write(k, path[k]);
             }
             return true;
         }
         if (isObject(value)) {
             for (let k in value) {
-                if (value.hasOwnProperty(k)) {
-                    this.write(`${path}.${k}`, value[k]);
-                }
+                this.write(`${path}.${k}`, value[k]);
             }
             return true;
         }
@@ -31,17 +27,13 @@ export class ConfigureHelper {
     defaults(path, value) {
         if (typeof path === 'object') {
             for (let k in path) {
-                if (path.hasOwnProperty(k)) {
-                    this.defaults(k, path[k]);
-                }
+                this.defaults(k, path[k]);
             }
             return true;
         }
         if (isObject(value)) {
             for (let k in value) {
-                if (value.hasOwnProperty(k)) {
-                    this.defaults(`${path}.${k}`, value[k]);
-                }
+                this.defaults(`${path}.${k}`, value[k]);
             }
             return true;
         }

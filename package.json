@@ -5,7 +5,7 @@
   "main": "dist/synapse.js",
   "module": "src/index.js",
   "scripts": {
-    "build": "rna lint 'src/**/*.js' + build --production"
+    "build": "rna lint 'src/**/*.js' + build src/index.js --output dist/synapse.js --no-lint --production"
   },
   "repository": {
     "type": "git",

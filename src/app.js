@@ -9,7 +9,6 @@ import { RenderMixin } from './mixins/render.js';
 import { PluggableMixin } from './mixins/pluggable.js';
 import { Controller } from './controller.js';
 import { NavigationEntry } from './models/navigation.js';
-import { Component } from './component.js';
 import { notifications, ComponentMixin } from './mixins/component.js';
 import * as EXCEPTIONS from './exceptions.js';
 import { BaseComponent, IDOM, DOM } from '@dnajs/idom';
@@ -114,69 +113,70 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
         const callbacks = this.router.callbacks;
         routeRules = routeRules || this.routeRules;
         for (let k in routeRules) {
-            if (routeRules.hasOwnProperty(k) && !callbacks.hasOwnProperty(k)) {
-                let ruleMatch = routeRules[k];
-                if (typeof ruleMatch === 'string') {
-                    if (typeof this[ruleMatch] === 'function') {
-                        this.router.on(k, (...args) =>
-                            this.beforeRoute(...args).then((args2) =>
-                                this[ruleMatch].call(this, ...args2)
-                                    .then(() => this.afterRoute())
-                            )
-                        );
-                    }
-                } else {
-                    let action;
-                    if (Array.isArray(ruleMatch)) {
-                        action = ruleMatch[1];
-                        ruleMatch = ruleMatch[0];
-                    }
-                    this.router.on(k, (...args) => {
-                        internal(this).lastNavigation = new NavigationEntry(internal(this).lastNavigation);
-                        return internal(this).lastNavigation.run((entry) =>
-                            this.beforeRoute(...args).then(() => {
-                                if (entry.resolved) {
-                                    return entry.promise;
-                                }
-                                return this.dispatchController(ruleMatch)
-                                    .then((ctr) => {
-                                        let promise;
-                                        ctr.setQueryParams(this.router.query());
-                                        if (action && typeof ctr[action] === 'function') {
-                                            promise = ctr[action].call(ctr, ...args);
-                                        } else {
-                                            promise = ctr.exec(...args);
-                                        }
-                                        if (!(promise instanceof Promise)) {
-                                            promise = Promise.resolve(promise);
-                                        }
-                                        return promise
-                                            .then(() => {
-                                                if (entry.resolved) {
-                                                    return entry.promise;
-                                                }
-                                                return this.dispatchView(ctr);
-                                            });
-                                    })
-                                    .then(() =>
-                                        this.afterRoute(...args)
-                                    )
-                                    .catch((err) => {
-                                        if (!err || !(err instanceof EXCEPTIONS.RedirectException)) {
-                                            try {
-                                                if (!this.throwException(err)) {
-                                                    return Promise.reject(err);
-                                                }
-                                            } catch (ex) {
-                                                return Promise.reject(ex);
-                                            }
-                                        }
-                                        return Promise.resolve();
-                                    });
-                            })
-                        );
-                    });
+            if (Object.prototype.hasOwnProperty.call(callbacks, k)) {
+                continue;
+            }
+            let ruleMatch = routeRules[k];
+            if (typeof ruleMatch === 'string') {
+                if (typeof this[ruleMatch] === 'function') {
+                    this.router.on(k, (...args) =>
+                        this.beforeRoute(...args).then((args2) =>
+                            this[ruleMatch].call(this, ...args2)
+                                .then(() => this.afterRoute())
+                        )
+                    );
                 }
+            } else {
+                let action;
+                if (Array.isArray(ruleMatch)) {
+                    action = ruleMatch[1];
+                    ruleMatch = ruleMatch[0];
+                }
+                this.router.on(k, (...args) => {
+                    internal(this).lastNavigation = new NavigationEntry(internal(this).lastNavigation);
+                    return internal(this).lastNavigation.run((entry) =>
+                        this.beforeRoute(...args).then(() => {
+                            if (entry.resolved) {
+                                return entry.promise;
+                            }
+                            return this.dispatchController(ruleMatch)
+                                .then((ctr) => {
+                                    let promise;
+                                    ctr.setQueryParams(this.router.query());
+                                    if (action && typeof ctr[action] === 'function') {
+                                        promise = ctr[action].call(ctr, ...args);
+                                    } else {
+                                        promise = ctr.exec(...args);
+                                    }
+                                    if (!(promise instanceof Promise)) {
+                                        promise = Promise.resolve(promise);
+                                    }
+                                    return promise
+                                        .then(() => {
+                                            if (entry.resolved) {
+                                                return entry.promise;
+                                            }
+                                            return this.dispatchView(ctr);
+                                        });
+                                })
+                                .then(() =>
+                                    this.afterRoute(...args)
+                                )
+                                .catch((err) => {
+                                    if (!err || !(err instanceof EXCEPTIONS.RedirectException)) {
+                                        try {
+                                            if (!this.throwException(err)) {
+                                                return Promise.reject(err);
+                                            }
+                                        } catch (ex) {
+                                            return Promise.reject(ex);
+                                        }
+                                    }
+                                    return Promise.resolve();
+                                });
+                        })
+                    );
+                });
             }
         }
     }
