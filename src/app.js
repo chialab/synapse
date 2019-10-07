@@ -236,12 +236,12 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
 
     handleComponents() {
         let lastComponent;
-        notifications.on('rendering', (elem) => {
+        this._onRendering = (elem) => {
             if (elem.getContext()) {
                 lastComponent = elem;
             }
-        });
-        notifications.on('created', (elem) => {
+        };
+        this._onCreated = (elem) => {
             if (mix(elem.constructor).has(ComponentMixin)) {
                 let scope = this._isRendering() ? this :
                     (lastComponent && lastComponent.getContext());
@@ -253,7 +253,9 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
                 }
                 lastComponent = elem;
             }
-        });
+        };
+        notifications.on('rendering', this._onRendering);
+        notifications.on('created', this._onCreated);
     }
 
     dispatchController(RequestedController, ...args) {
@@ -358,5 +360,18 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
     error() {
         // ERROR
         return Promise.resolve();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    destroy(...args) {
+        if (this._onRendering) {
+            notifications.off('rendering', this._onRendering);
+        }
+        if (this._onCreated) {
+            notifications.off('created', this._onCreated);
+        }
+        return super.destroy(...args);
     }
 }
