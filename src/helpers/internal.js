@@ -1,4 +1,4 @@
-import Symbolic from '@chialab/proteins/src/symbolic.js';
+import { Symbolic } from '@chialab/proteins';
 
 const INTERNAL_SYM = Symbolic('internal');
 

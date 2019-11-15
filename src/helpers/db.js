@@ -1,4 +1,4 @@
-import { Emitter } from '@chialab/proteins/src/factory.js';
+import { Factory } from '@chialab/proteins';
 import PouchDB from '../vendors/pouchdb.js';
 import { internal } from './internal.js';
 import { DBOpeningErrorException } from '../exceptions/db-opening-error.js';
@@ -19,7 +19,7 @@ function prepareOptions(defaults = {}, options = {}) {
     return opt;
 }
 
-export class Database extends Emitter {
+export class Database extends Factory.Emitter {
     static supported() {
         return (('indexedDB' in window) || ('openDatabase' in window));
     }

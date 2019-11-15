@@ -1,5 +1,4 @@
-import * as keypath from '@chialab/proteins/src/keypath.js';
-import { isObject } from '@chialab/proteins/src/types.js';
+import { keypath, isObject } from '@chialab/proteins';
 import { internal } from './internal.js';
 
 export class ConfigureHelper {

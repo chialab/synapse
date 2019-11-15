@@ -30,8 +30,7 @@
     "@chialab/proteins": "^3.0.0",
     "@chialab/router": "^3.0.0",
     "@chialab/schema-model": "^1.3.2",
-    "@dnajs/idom": "^2.8.0",
-    "chialab-i18n": "^2.0.0"
+    "@dnajs/idom": "^2.8.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",

@@ -1,8 +1,7 @@
-import mix from '@chialab/proteins/src/mixin.js';
-import { Emitter } from '@chialab/proteins/src/factory.js';
+import { mix, Factory } from '@chialab/proteins';
 import { BaseMixin } from './base.js';
 
-export const notifications = new Emitter();
+export const notifications = new Factory.Emitter();
 
 export const ComponentMixin = (SuperClass) => class extends mix(SuperClass).with(BaseMixin) {
     constructor(...args) {

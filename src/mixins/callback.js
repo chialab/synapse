@@ -1,5 +1,4 @@
-import { on, off, trigger } from '@chialab/proteins/src/events.js';
-import Symbolic from '@chialab/proteins/src/symbolic.js';
+import { on, off, trigger, Symbolic } from '@chialab/proteins';
 
 const LISTENERS_SYM = Symbolic('listeners');
 

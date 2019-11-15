@@ -1,4 +1,4 @@
-import { Url, resolve, join, isAbsoluteUrl, isDataUrl } from '@chialab/proteins/src/url.js';
+import { Url } from '@chialab/proteins';
 
 /**
  * @class UrlHelper
@@ -8,23 +8,23 @@ import { Url, resolve, join, isAbsoluteUrl, isDataUrl } from '@chialab/proteins/
  */
 export class UrlHelper {
     static join(...paths) {
-        return join(...paths);
+        return Url.join(...paths);
     }
 
     static isAbsoluteUrl(url) {
-        return isAbsoluteUrl(url);
+        return Url.isAbsoluteUrl(url);
     }
 
     static isDataUrl(url) {
-        return isDataUrl(url);
+        return Url.isDataUrl(url);
     }
 
     static resolve(base, relative) {
-        return resolve(base, relative);
+        return Url.resolve(base, relative);
     }
 
     constructor(url) {
-        this.url = new Url(url);
+        this.url = new Url.Url(url);
     }
 
     isAbsoluteUrl() {

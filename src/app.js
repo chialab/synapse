@@ -1,6 +1,5 @@
 import Router from '@chialab/router';
-import mix from '@chialab/proteins/src/mixin.js';
-import { isAbsoluteUrl } from '@chialab/proteins/src/url.js';
+import { mix, Url } from '@chialab/proteins';
 import { PageViewComponent } from './components/page.js';
 import { internal } from './helpers/internal.js';
 import { Factory } from './factory.js';
@@ -221,7 +220,7 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
         if (link) {
             const href = link.getAttribute('href');
             const target = link.getAttribute('target');
-            if (href && (!target || target === '_self') && !isAbsoluteUrl(href)) {
+            if (href && (!target || target === '_self') && !Url.isAbsoluteUrl(href)) {
                 ev.preventDefault();
                 ev.stopPropagation();
                 this.navigate(href);

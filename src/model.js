@@ -1,4 +1,4 @@
-import mix from '@chialab/proteins/src/mixin.js';
+import { mix } from '@chialab/proteins';
 import SchemaModel from '@chialab/schema-model';
 import { internal } from './helpers/internal.js';
 import { CallbackMixin } from './mixins/callback.js';

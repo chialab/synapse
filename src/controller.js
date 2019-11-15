@@ -1,7 +1,7 @@
-import { internal } from './helpers/internal.js';
-import mix from '@chialab/proteins/src/mixin.js';
-import { Factory } from './factory.js';
+import { mix } from '@chialab/proteins';
 import { IDOM } from '@dnajs/idom';
+import { internal } from './helpers/internal.js';
+import { Factory } from './factory.js';
 import { ControllerMixin } from './mixins/controller.js';
 
 export class Controller extends mix(Factory).with(ControllerMixin) {
