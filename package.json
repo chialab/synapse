@@ -2,11 +2,10 @@
   "name": "@chialab/synapse",
   "version": "2.3.9",
   "description": "Just another micro MVC framework for Web Apps.",
-  "main": "dist/synapse.js",
-  "module": "src/index.js",
-  "scripts": {
-    "build": "rna lint 'src/**/*.js' + build src/index.js --output dist/synapse.js --no-lint --production"
-  },
+  "lib": "src/index.js",
+  "main": "dist/cjs/synapse.js",
+  "module": "dist/esm/synapse.js",
+  "browser": "dist/umd/synapse.js",
   "repository": {
     "type": "git",
     "url": "git@github.com:Chialab/synapse.git"
@@ -17,9 +16,18 @@
     "framework"
   ],
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
-  "lib": "src/index.js",
   "directories": {
-    "src": "src"
+    "src": "src",
+    "test": "test",
+    "dist": "dist"
+  },
+  "scripts": {
+    "build": "rna build",
+    "watch": "rna build --watch",
+    "test": "rna lint + unit",
+    "lint": "rna lint",
+    "start": "yarn install --ignore-scripts && yarn watch",
+    "prepublish": "yarn run build"
   },
   "license": "MIT",
   "bugs": {
@@ -34,8 +42,8 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
-    "eslint": "^6.5.1",
+    "eslint": "^6.6.0",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-mocha": "^6.1.1"
+    "eslint-plugin-mocha": "^6.2.1"
   }
 }

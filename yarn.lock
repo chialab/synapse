@@ -102,26 +102,26 @@
     "@chialab/proteins" "^3.0.0"
 
 "@chialab/schema-model@^1.3.2":
-  version "1.3.3"
-  resolved "https://registry.npmjs.org/@chialab/schema-model/-/schema-model-1.3.3.tgz#9f011f7bfedd3aa33d5633e9be626724e42722a3"
-  integrity sha512-aHTDAgxbaZeqflnCMYEKjvAQVXEvA686q3SBlkXSl0VVT6xZFtXc4BRXhlOrl+Szr62lL5sK/I2NUfvbdNbYBg==
+  version "1.3.4"
+  resolved "https://registry.npmjs.org/@chialab/schema-model/-/schema-model-1.3.4.tgz#c6f601689a6724a88cd95d42bb1fb4518583c983"
+  integrity sha512-w67JJWVob8m8b96xGOImyqrIf7v0q5JNqTZWNKzvLXXXHDAuWuVi0EBoJ8SAwPwINRPr6srjz0tPMVrVXEm0wQ==
   dependencies:
     tv4 "^1.2.7"
 
-"@dnajs/core@^2.9.7":
-  version "2.9.7"
-  resolved "https://registry.npmjs.org/@dnajs/core/-/core-2.9.7.tgz#6253867a03eb10cdec394b5909209757d2e10119"
-  integrity sha512-oLCzQ/P2eNaFshFOpGAxu8tuOL06A8j7kwhn6lIoJGYoCh4O4j+BQInaBH3HuyUsH9Aq7XWy4MJm1LzNaL1/6Q==
+"@dnajs/core@^2.9.8":
+  version "2.9.8"
+  resolved "https://registry.npmjs.org/@dnajs/core/-/core-2.9.8.tgz#25b8966ea2d455e56e920dd35750eb84875350f8"
+  integrity sha512-MFXO0L3Nor4SL14oo6le7QbQaf/AeEqnsHpWRCoGIhSrNeORdbVs4O/2LZWRjzsew6m41F31e34sOSEXJSCoXA==
   dependencies:
     "@chialab/proteins" "^3.0.0"
 
 "@dnajs/idom@^2.8.0":
-  version "2.9.7"
-  resolved "https://registry.npmjs.org/@dnajs/idom/-/idom-2.9.7.tgz#e4f411d258399200c6204904f22f7bbe7bebf4e8"
-  integrity sha512-+t8irayxT3MRmgAWQlYipvILYYEQFSgtYwmRayBkuo9dR+4HPkvmkoH+sIKcISs3tCEzcGgw+w42y5CNtMN16Q==
+  version "2.9.8"
+  resolved "https://registry.npmjs.org/@dnajs/idom/-/idom-2.9.8.tgz#7f2dbfd3f5243c8da6513fd68587d7236e959941"
+  integrity sha512-7+KP9kMR3yIYhbz0mJJlrdf68uMY/ktyypjab8BmLNJXFfTqRXtfkS34YuWfVEkFzqo0HnidYcdRM/Nqm+06Xw==
   dependencies:
     "@chialab/proteins" "^3.0.0"
-    "@dnajs/core" "^2.9.7"
+    "@dnajs/core" "^2.9.8"
     incremental-dom "^0.5.1"
 
 acorn-jsx@^5.1.0:
@@ -305,7 +305,7 @@ eslint-plugin-babel@^5.3.0:
   dependencies:
     eslint-rule-composer "^0.3.0"
 
-eslint-plugin-mocha@^6.1.1:
+eslint-plugin-mocha@^6.2.1:
   version "6.2.1"
   resolved "https://registry.npmjs.org/eslint-plugin-mocha/-/eslint-plugin-mocha-6.2.1.tgz#f2ae6d82511291949e440a34b57df773cb4b5ede"
   integrity sha512-o3Ibhpczi5MjUVpnlnrpC/+oJYGoHKB5m4bQdRnaAOeFCN3HRkqBisQ2/h0hEuCR4lPxyHP1Qzyjpna8MsOdlA==
@@ -337,7 +337,7 @@ eslint-visitor-keys@^1.0.0, eslint-visitor-keys@^1.1.0:
   resolved "https://registry.npmjs.org/eslint-visitor-keys/-/eslint-visitor-keys-1.1.0.tgz#e2a82cea84ff246ad6fb57f9bde5b46621459ec2"
   integrity sha512-8y9YjtM1JBJU/A9Kc+SbaOV4y29sSWckBwMHa+FGtVj5gN/sbnKDf6xJUl+8g7FAij9LVaP8C24DUiH/f/2Z9A==
 
-eslint@^6.5.1:
+eslint@^6.6.0:
   version "6.6.0"
   resolved "https://registry.npmjs.org/eslint/-/eslint-6.6.0.tgz#4a01a2fb48d32aacef5530ee9c5a78f11a8afd04"
   integrity sha512-PpEBq7b6qY/qrOmpYQ/jTMDYfuQMELR4g4WI1M/NaSDDD/bdcMb+dj4Hgks7p41kW2caXsPsEZAEAyAgjVVC0g==
