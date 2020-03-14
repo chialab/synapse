@@ -38,7 +38,7 @@ Use via cdn:
 ### Requirements
 
 In order to build and test DNA, the following requirements are needed:
-* [NodeJS](https://nodejs.org/) (>= 8.0.0)
+* [NodeJS](https://nodejs.org/) (>= 10.0.0)
 * [Yarn](https://yarnpkg.com)
 * [RNA](https://github.com/chialab/rna-cli) (>= 3.0.0)
 
