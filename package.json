@@ -22,7 +22,7 @@
     "dist": "dist"
   },
   "scripts": {
-    "build": "rna build",
+    "build": "rna build --production",
     "watch": "rna build --watch",
     "test": "rna lint + unit",
     "lint": "rna lint",
