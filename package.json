@@ -1,6 +1,6 @@
 {
   "name": "@chialab/synapse",
-  "version": "2.3.10",
+  "version": "2.3.11",
   "description": "Just another micro MVC framework for Web Apps.",
   "lib": "src/index.js",
   "main": "dist/cjs/synapse.js",
