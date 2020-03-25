@@ -1,13 +1,12 @@
-import { BaseComponent, define, prop } from '@dnajs/idom';
+import { BaseComponent, define } from '@dnajs/idom';
 
 export class NavigationComponent extends BaseComponent {
-    get properties() {
-        return {
-            navigation: prop(Boolean).default(true).attribute(),
-        };
+    connectedCallback() {
+        super.connectedCallback();
+        this.setAttribute('navigation', '');
     }
 }
 
-define('navigation', NavigationComponent, {
+define('page-navigation', NavigationComponent, {
     extends: 'div',
 });

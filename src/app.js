@@ -230,7 +230,7 @@ export class App extends mix(Factory).with(InjectableMixin, RenderMixin, Pluggab
     }
 
     render() {
-        return () => <div key="navigation" is="navigation"></div>;
+        return () => <div key="navigation" is="page-navigation"></div>;
     }
 
     handleComponents() {
