@@ -1,49 +1,36 @@
 {
   "name": "@chialab/synapse",
-  "version": "2.3.11",
-  "description": "Just another micro MVC framework for Web Apps.",
-  "lib": "src/index.js",
-  "main": "dist/cjs/synapse.js",
-  "module": "dist/esm/synapse.js",
-  "browser": "dist/umd/synapse.js",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:Chialab/synapse.git"
-  },
-  "keywords": [
-    "Chialab",
-    "MVC",
-    "framework"
-  ],
-  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
+  "version": "3.0.0-alpha.1",
+  "description": "Application framework built on the top of DNA Web Components.",
   "directories": {
     "src": "src",
     "test": "test",
     "dist": "dist"
   },
+  "lib": "src/index.ts",
+  "module": "dist/esm/synapse.js",
+  "main": "dist/cjs/synapse.js",
+  "browser": "dist/umd/synapse.js",
   "scripts": {
-    "build": "rna build --production",
+    "build": "rna build --production --typings",
     "watch": "rna build --watch",
     "test": "rna lint + unit",
     "lint": "rna lint",
-    "start": "yarn install --ignore-scripts && yarn watch",
+    "start": "yarn install --ignore-scripts && rna build --watch",
     "prepublish": "yarn run build"
   },
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/chialab/synapse/issues"
-  },
-  "homepage": "https://www.chialab.io/p/synapse",
-  "dependencies": {
-    "@chialab/proteins": "^3.0.0",
-    "@chialab/router": "^3.0.0",
-    "@chialab/schema-model": "^1.3.2",
-    "@dnajs/idom": "^2.8.0"
-  },
+  "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "devDependencies": {
-    "babel-eslint": "^10.0.3",
-    "eslint": "^6.6.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.0.0",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-mocha": "^6.2.1"
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-mocha": "^7.0.0",
+    "eslint-plugin-mocha-no-only": "^1.1.0"
+  },
+  "dependencies": {
+    "@chialab/dna": "^3.0.0-beta.30",
+    "@chialab/proteins": "^3.2.1"
   }
 }

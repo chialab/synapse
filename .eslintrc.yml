@@ -1,6 +1,7 @@
 # RNA
 extends:
   - eslint:recommended
+  - plugin:jsx-a11y/recommended
 
 globals:
   globalThis: true
@@ -15,8 +16,8 @@ env:
   node: true
 
 plugins:
-  - mocha
   - babel
+  - jsx-a11y
 
 parser: babel-eslint
 
@@ -108,5 +109,60 @@ rules:
     - 1
   require-atomic-updates:
     - 0
+
+overrides:
+  - files:
+      - '*.spec.js'
+      - '*.spec.jsx'
+      - '*.spec.ts'
+      - '*.spec.tsx'
+      - '*.specs.js'
+      - '*.specs.jsx'
+      - '*.specs.ts'
+      - '*.specs.tsx'
+      - '*.test.js'
+      - '*.test.jsx'
+      - '*.test.ts'
+      - '*.test.tsx'
+      - '*.tests.js'
+      - '*.tests.jsx'
+      - '*.tests.ts'
+      - '*.tests.tsx'
+      - '*.unit.js'
+      - '*.unit.jsx'
+      - '*.unit.ts'
+      - '*.unit.tsx'
+      - '*.e2e.js'
+      - '*.e2e.jsx'
+      - '*.e2e.ts'
+      - '*.e2e.tsx'
+      - 'test/**/*.js'
+      - 'test/**/*.jsx'
+      - 'test/**/*.ts'
+      - 'test/**/*.tsx'
+      - 'tests/**/*.js'
+      - 'tests/**/*.jsx'
+      - 'tests/**/*.ts'
+      - 'tests/**/*.tsx'
+      - 'unit/**/*.js'
+      - 'unit/**/*.jsx'
+      - 'unit/**/*.ts'
+      - 'unit/**/*.tsx'
+      - 'e2e/**/*.js'
+      - 'e2e/**/*.jsx'
+      - 'e2e/**/*.ts'
+      - 'e2e/**/*.tsx'
+    env:
+      es6: true
+      browser: true
+      node: true
+      mocha: true
+    plugins:
+      - babel
+      - mocha
+      - mocha-no-only
+    rules:
+      mocha-no-only/mocha-no-only:
+        - 1
 
 # RNA
