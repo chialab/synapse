@@ -34,9 +34,9 @@ export class Router {
      * @param routes A list of routes to connect.
      * @param middlewares A list of middlewares to connect.
      */
-    constructor(routes: RouteRule[] = [], middlewares: MiddlewareRule[] = []) {
+    constructor(routes: (Route|RouteRule)[] = [], middlewares: (Middleware|MiddlewareRule)[] = []) {
         if (routes) {
-            routes.forEach((route) => this.add(route));
+            routes.forEach((route) => this.connect(route));
         }
         if (middlewares) {
             middlewares.forEach((middleware) => this.middleware(middleware));
@@ -113,16 +113,18 @@ export class Router {
     /**
      * Connect a middleware.
      * @param middleware A MiddlewareRule object.
-     * @param routePath The path of the middleware rule.
+     * @param path The path of the middleware rule.
      * @param after The middleware method to invoke after routing.
      * @param before The middleware method to invoke before routing.
      * @return The Middleware instance.
      */
-    middleware(middleware: MiddlewareRule): Middleware;
-    middleware(routePath: string, after?: MiddlewareAfterHandler, before?: MiddlewareBeforeHandler): Middleware;
-    middleware(middlewareOrPath: MiddlewareRule | string, after?: MiddlewareAfterHandler, before?: MiddlewareBeforeHandler): Middleware {
+    middleware(middleware: Middleware | MiddlewareRule): Middleware;
+    middleware(path: string, after?: MiddlewareAfterHandler, before?: MiddlewareBeforeHandler): Middleware;
+    middleware(middlewareOrPath: Middleware | MiddlewareRule | string, after?: MiddlewareAfterHandler, before?: MiddlewareBeforeHandler): Middleware {
         let middleware: Middleware;
-        if (typeof middlewareOrPath === 'string') {
+        if (middlewareOrPath instanceof Middleware) {
+            middleware = middlewareOrPath;
+        } else if (typeof middlewareOrPath === 'string') {
             middleware = new Middleware({ pattern: middlewareOrPath, before, after });
         } else {
             middleware = new Middleware(middlewareOrPath);
@@ -132,11 +134,20 @@ export class Router {
         return middleware;
     }
 
-    add(route: RouteRule): Route;
-    add(routePath: string, handler: RouteHandler): Route;
-    add(routeOrPath: RouteRule | string, handler?: RouteHandler): Route {
+    /**
+     * Connect a route.
+     * @param route A RouteRule object.
+     * @param path The path of the route rule.
+     * @param handler The callback to exec when matched.
+     * @return The Route instance.
+     */
+    connect(route: Route|RouteRule): Route;
+    connect(path: string, handler: RouteHandler): Route;
+    connect(routeOrPath: Route | RouteRule | string, handler?: RouteHandler): Route {
         let route: Route;
-        if (typeof routeOrPath === 'string') {
+        if (routeOrPath instanceof Route) {
+            route = routeOrPath;
+        } else if (typeof routeOrPath === 'string') {
             if (!handler) {
                 throw new Error(`Missing handler for "${routeOrPath}" route`);
             }
@@ -147,5 +158,27 @@ export class Router {
         this.connectedRoutes.push(route);
         this.connectedRoutes.sort((route1, route2) => route2.priority - route1.priority);
         return route;
+    }
+
+    /**
+     * Disconnect a Route or a Middleware.
+     * @param routeOrMiddleare The Route or the Middleware instance to disconnect.
+     * @return It returns false if the given input is not connected.
+     */
+    disconnect(routeOrMiddleare: Route | Middleware): boolean {
+        if (routeOrMiddleare instanceof Route) {
+            let io = this.connectedRoutes.indexOf(routeOrMiddleare);
+            if (io !== -1) {
+                this.connectedRoutes.splice(io, 1);
+                return true;
+            }
+        } else if (routeOrMiddleare instanceof Middleware) {
+            let io = this.connectedMiddlewares.indexOf(routeOrMiddleare);
+            if (io !== -1) {
+                this.connectedMiddlewares.splice(io, 1);
+                return true;
+            }
+        }
+        return false;
     }
 }

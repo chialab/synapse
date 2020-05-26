@@ -2,15 +2,47 @@ import { Url } from '@chialab/proteins';
 import { TemplateItem, Component, window, property } from '@chialab/dna';
 import { Response } from './Router/Response';
 import { Router } from './Router/Router';
+import { RouteRule, Route } from './Router/Route';
+import { MiddlewareRule, Middleware } from './Router/Middleware';
 
 /**
  * A Web Component which handles routing.
  */
 export class App extends Component {
     /**
+     * A list of routes to connect.
+     */
+    @property({
+        setter(routes: RouteRule[]) {
+            if (routes) {
+                return routes.map((rule) => new Route(rule));
+            }
+            return [];
+        },
+        observe(this: App, oldValue: Route[], newValue: Route[]) {
+            this.connectRoutes(newValue, oldValue);
+        },
+    }) routes: Route[] = [];
+
+    /**
+     * A list of middlewares to connect.
+     */
+    @property({
+        setter(middlewares: MiddlewareRule[]) {
+            if (middlewares) {
+                return middlewares.map((rule) => new Middleware(rule));
+            }
+            return [];
+        },
+        observe(this: App, oldValue: Middleware[], newValue: Middleware[]) {
+            this.connectMiddlewares(newValue, oldValue);
+        },
+    }) middlewares: Middleware[] = [];
+
+    /**
      * The Router instance for the application.
      */
-    public router: Router = new Router();
+    public router: Router = new Router(this.routes, this.middlewares);
 
     /**
      * The last Router Response instance.
@@ -93,6 +125,34 @@ export class App extends Component {
             event.preventDefault();
             event.stopPropagation();
             this.navigate(href);
+        }
+    }
+
+    /**
+     * Connect new routes to the router.
+     * @param routes The new routes to set.
+     * @param oldRoutes The old routes to disconnect.
+     */
+    private connectRoutes(routes: Route[], oldRoutes?: Route[]) {
+        if (oldRoutes) {
+            oldRoutes.forEach((route) => this.router.disconnect(route))
+        }
+        if (routes) {
+            routes.forEach((route) => this.router.connect(route))
+        }
+    }
+
+    /**
+     * Connect new middlewares to the router.
+     * @param middlewares The new middlewares to set.
+     * @param oldMiddlewares The old middlewares to disconnect.
+     */
+    private connectMiddlewares(middlewares: Middleware[], oldMiddlewares?: Middleware[]) {
+        if (oldMiddlewares) {
+            oldMiddlewares.forEach((middleware) => this.router.disconnect(middleware))
+        }
+        if (middlewares) {
+            middlewares.forEach((middleware) => this.router.middleware(middleware))
         }
     }
 

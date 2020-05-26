@@ -44,17 +44,18 @@ import { App, Router, ... } from '@chialab/synapse';
 
 ```ts
 import { html, customElements, render } from '@chialab/dna';
-import { Router, App } from '@chialab/synapse';
+import { App } from '@chialab/synapse';
 
-class DemoApp extends App {
-    router = new Router([{
+const routes = [
+    {
         pattern: '/',
         render(req, res) {
             return html`<div>
                 <h1>Home</h1>
             </div>`;
         },
-    },{
+    },
+    {
         handler(req, res) {
             res.data = new Error('not found');
         },
@@ -65,9 +66,10 @@ class DemoApp extends App {
                     <pre>${res.data.stack}</pre>
                 </details>
             </div>`;
-        },
-    }]);
+    },
+}];
 
+class DemoApp extends App {
     render() {
         return html`
             <header>
@@ -89,7 +91,7 @@ class DemoApp extends App {
 
 customElements.define('demo-app', DemoApp);
 
-const app = render(document.getElementById('app'), html`<${DemoApp} />`);
+const app = render(document.getElementById('app'), html`<${DemoApp} routes=${routes} />`);
 app.navigate('/');
 ```
 
