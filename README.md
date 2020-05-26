@@ -13,7 +13,7 @@
     <a href="https://github.com/chialab/synapse"><img alt="Source link" src="https://img.shields.io/badge/Source-GitHub-lightgrey.svg?style=flat-square"></a>
     <a href="https://www.chialab.it"><img alt="Authors link" src="https://img.shields.io/badge/Authors-Chialab-lightgrey.svg?style=flat-square"></a>
     <a href="https://www.npmjs.com/package/@chialab/synapse"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/synapse.svg?style=flat-square"></a>
-    <a href="https://github.com/chialab/synapse/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@chialab/dna.svg?style=flat-square"></a>
+    <a href="https://github.com/chialab/synapse/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@chialab/synapse.svg?style=flat-square"></a>
 </p>
 
 ---
@@ -42,7 +42,56 @@ import { App, Router, ... } from '@chialab/synapse';
 
 ## Create an application
 
-TODO
+```ts
+import { html, customElements, render } from '@chialab/dna';
+import { Router, App } from '@chialab/synapse';
+
+class DemoApp extends App {
+    router = new Router([{
+        pattern: '/',
+        render(req, res) {
+            return html`<div>
+                <h1>Home</h1>
+            </div>`;
+        },
+    },{
+        handler(req, res) {
+            res.data = new Error('not found');
+        },
+        render(req, res) {
+            return html`<div>
+                <details>
+                    <summary>${res.data.message}</summary>
+                    <pre>${res.data.stack}</pre>
+                </details>
+            </div>`;
+        },
+    }]);
+
+    render() {
+        return html`
+            <header>
+                <h1>Synapse 3.0</h1>
+            </header>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                </ul>
+            </nav>
+            <main>
+                ${super.render()}
+            </main>
+        `;
+    }
+}
+
+customElements.define('demo-app', DemoApp);
+
+const app = render(document.getElementById('app'), html`<${DemoApp} />`);
+app.navigate('/');
+```
 
 ---
 
