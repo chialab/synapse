@@ -74,7 +74,7 @@ export class App extends Component {
      * Start the routing of the application.
      * @param path The initial path to navigate.
      */
-    async start(path: string = '/') {
+    async start(path?: string) {
         this.onPopState = this.onPopState.bind(this);
         this.router.middleware('*', undefined, (req, res) => {
             this.request = req;
