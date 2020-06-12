@@ -30,6 +30,23 @@ export class Response {
     public data: any;
 
     /**
+     * The error bound to the response.
+     */
+    public error?: Error;
+
+    /**
+     * The title of the response.
+     */
+    public title?: string;
+
+    /**
+     * Check if the response is ok.
+     */
+    get ok() {
+        return this.error == null;
+    }
+
+    /**
      * Create a new Response instance.
      * @param router The Router instance of the request.
      * @param request The Request instance.
@@ -42,6 +59,30 @@ export class Response {
      */
     setView(templateFactory: ResponseTemplateFactory) {
         this.templateFactory = templateFactory;
+    }
+
+    /**
+     * Set data for the Response.
+     * @param data Data to set.
+     */
+    setData(data: any) {
+        this.data = data;
+    }
+
+    /**
+     * Set the title of the Response.
+     * @param title The string to set.
+     */
+    setTitle(title: string) {
+        this.title = title;
+    }
+
+    /**
+     * Set the title of the Response.
+     * @param title The string to set.
+     */
+    setError(error: Error) {
+        this.error = error;
     }
 
     /**

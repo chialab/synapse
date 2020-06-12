@@ -30,7 +30,7 @@
     "eslint-plugin-mocha-no-only": "^1.1.0"
   },
   "dependencies": {
-    "@chialab/dna": "^3.0.0-beta.30",
+    "@chialab/dna": "^3.0.0-rc.3",
     "@chialab/proteins": "^3.2.1"
   }
 }

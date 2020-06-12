@@ -1,58 +1,34 @@
 import { Url } from '@chialab/proteins';
 import { TemplateItem, Component, window, property } from '@chialab/dna';
 import { Response } from './Router/Response';
-import { Router } from './Router/Router';
-import { RouteRule, Route } from './Router/Route';
-import { MiddlewareRule, Middleware } from './Router/Middleware';
+import { Router, PopStateData } from './Router/Router';
+
+enum NavigationDirection {
+    back = 'back',
+    forward = 'forward',
+}
 
 /**
  * A Web Component which handles routing.
  */
 export class App extends Component {
     /**
-     * A list of routes to connect.
+     * @inheritdoc
      */
-    @property({
-        setter(routes: RouteRule[]) {
-            if (routes) {
-                return routes.map((rule) => new Route(rule));
-            }
-            return [];
-        },
-        observe(this: App, oldValue: Route[], newValue: Route[]) {
-            this.connectRoutes(newValue, oldValue);
-        },
-    }) routes: Route[] = [];
-
-    /**
-     * A list of middlewares to connect.
-     */
-    @property({
-        setter(middlewares: MiddlewareRule[]) {
-            if (middlewares) {
-                return middlewares.map((rule) => new Middleware(rule));
-            }
-            return [];
-        },
-        observe(this: App, oldValue: Middleware[], newValue: Middleware[]) {
-            this.connectMiddlewares(newValue, oldValue);
-        },
-    }) middlewares: Middleware[] = [];
-
-    /**
-     * The Router instance for the application.
-     */
-    public router: Router = new Router(this.routes, this.middlewares);
-
-    /**
-     * The last Router Response instance.
-     */
-    private previousResponse?: Response;
-
-    /**
-     * The current Router Response instance.
-     */
-    @property() response?: Response;
+    static get listeners() {
+        return {
+            'click a': function(this: App, event: Event, node?: Node) {
+                return this.handleLink(event, node);
+            },
+            'animationstart': function(this: App) {
+                this.activeAnimations++;
+            },
+            'animationend': function(this: App) {
+                this.activeAnimations--;
+                this.removePreviousResponse();
+            },
+        };
+    }
 
     /**
      * The number of active animations.
@@ -61,19 +37,34 @@ export class App extends Component {
     private activeAnimations: number = 0;
 
     /**
-     * @inheritdoc
+     * The History instance for the application.
      */
-    get listeners() {
-        return {
-            'click a': this.handleLink,
-            'animationstart': () => {
-                this.activeAnimations++;
-            },
-            'animationend': () => {
-                this.activeAnimations--;
-                this.removePreviousResponse();
-            },
-        };
+    public history: History = window.history;
+
+    /**
+     * The Router instance for the application.
+     */
+    public router: Router = new Router();
+
+    /**
+     * The previous Router Response instance.
+     */
+    private previousResponse?: Response;
+
+    /**
+     * The current Router Response instance.
+     */
+    @property() response?: Response;
+
+    @property({ type: String, attribute: 'navigation' }) navigationDirection: NavigationDirection = NavigationDirection.forward;
+
+    async start(path?: string) {
+        this.onPopState = this.onPopState.bind(this);
+        this.router.on('popstate', this.onPopState);
+        let response = await this.router.start(this.history, path);
+        this.navigationDirection = NavigationDirection.forward;
+        this.response = response;
+        return response;
     }
 
     /**
@@ -106,6 +97,7 @@ export class App extends Component {
      */
     async navigate(path: string): Promise<Response> {
         let response = await this.router.navigate(path);
+        this.navigationDirection = NavigationDirection.forward;
         this.previousResponse = this.response;
         this.response = response;
         return response;
@@ -128,40 +120,20 @@ export class App extends Component {
         }
     }
 
-    /**
-     * Connect new routes to the router.
-     * @param routes The new routes to set.
-     * @param oldRoutes The old routes to disconnect.
-     */
-    private connectRoutes(routes: Route[], oldRoutes?: Route[]) {
-        if (oldRoutes) {
-            oldRoutes.forEach((route) => this.router.disconnect(route))
-        }
-        if (routes) {
-            routes.forEach((route) => this.router.connect(route))
-        }
-    }
-
-    /**
-     * Connect new middlewares to the router.
-     * @param middlewares The new middlewares to set.
-     * @param oldMiddlewares The old middlewares to disconnect.
-     */
-    private connectMiddlewares(middlewares: Middleware[], oldMiddlewares?: Middleware[]) {
-        if (oldMiddlewares) {
-            oldMiddlewares.forEach((middleware) => this.router.disconnect(middleware))
-        }
-        if (middlewares) {
-            middlewares.forEach((middleware) => this.router.middleware(middleware))
-        }
+    private onPopState({ state, previous }: PopStateData) {
+        this.navigationDirection = state.index < previous.index ? NavigationDirection.back : NavigationDirection.forward;
+        this.previousResponse = previous.response;
+        this.response = state.response;
     }
 
     /**
      * Remove the previous page if all animations ended.
      */
     private removePreviousResponse() {
-        if (this.activeAnimations === 0 &&
-            this.previousResponse) {
+        if (this.activeAnimations !== 0) {
+            return;
+        }
+        if (this.previousResponse) {
             this.previousResponse = undefined;
             this.forceUpdate();
         }
