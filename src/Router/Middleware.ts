@@ -4,16 +4,16 @@ import { Pattern, PatternRule } from './Pattern';
 
 /**
  * The signature of middleware handler to invoke before routing.
- * @param {Request} req The request instance.
- * @param {Response} res The current response instance.
+ * @param req The request instance.
+ * @param res The current response instance.
  * @return The Response instance.
  */
 export type MiddlewareBeforeHandler = (req: Request, res: Response, params: RequestParams) => Response|Promise<Response>|void;
 
 /**
  * The signature of middleware handler to invoke after routing.
- * @param {Request} req The request instance.
- * @param {Response} res The current response instance.
+ * @param req The request instance.
+ * @param res The current response instance.
  * @return The Response instance.
  */
 export type MiddlewareAfterHandler = (req: Readonly<Request>, res: Response, params: RequestParams) => Response|Promise<Response>;

@@ -6,16 +6,27 @@ import { State } from './State';
 import { RouteRule, RouteHandler, Route, NextHandler } from './Route';
 import { Middleware, MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Middleware';
 
+/**
+ * The options to pass to the router.
+ */
 export interface RouterOptions {
     base?: string;
     prefix?: string;
 }
 
+/**
+ * Describe the popstate data.
+ */
 export interface PopStateData {
     state: State,
     previous: State,
 }
 
+/**
+ * Trim slashes from the start and end of a string.
+ * @param token The string to trim.
+ * @return THe trimmed string.
+ */
 function trimSlash(token: string) {
     return token
         .replace(/\/*$/, '')
@@ -237,10 +248,15 @@ export class Router extends Factory.Emitter {
         return response;
     }
 
-    refresh(path?: string, store?: any) {
-        path = path || this.current;
+    /**
+     * Refresh the state of the router.
+     * Reset and re-start the navigation.
+     * @param path The path to use to restart the router.
+     * @return Resolve the navigation response.
+     */
+    refresh(path: string = this.current) {
         this.reset();
-        return this.replace(path, store);
+        return this.replace(path);
     }
 
     /**
@@ -358,6 +374,9 @@ export class Router extends Factory.Emitter {
         delete this.history;
     }
 
+    /**
+     * Reset the router states stack.
+     */
     reset() {
         this.states.splice(0, this.states.length);
         this.index = 0;
@@ -430,6 +449,11 @@ export class Router extends Factory.Emitter {
         });
     }
 
+    /**
+     * Build the full url combining base url, prefix and path.
+     * @param path The internal route path.
+     * @return The full url of the routing.
+     */
     private buildFullUrl(path: string) {
         let url = '/';
         if (this.base) {
@@ -442,10 +466,19 @@ export class Router extends Factory.Emitter {
         return url;
     }
 
+    /**
+     * Prepare the path for the routing rule.
+     * @param path The path to navigate.
+     * @return The path ready for the navigation.
+     */
     private preparePath(path: string) {
         return `/${trimSlash(path)}`;
     }
 
+    /**
+     * Extract the path from the browser location.
+     * @return The path to navigate.
+     */
     private getPathFromLocation() {
         let path = trimSlash(`${window.location.pathname}${window.location.hash}`);
         if (this.base && path.indexOf(this.base) === 0) {

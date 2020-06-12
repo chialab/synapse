@@ -62,9 +62,19 @@ export class App extends Component {
      */
     @property() response?: Response;
 
-    @property({ type: String, attribute: 'navigation' }) navigationDirection: NavigationDirection = NavigationDirection.forward;
+    /**
+     * The direction of the navigation.
+     */
+    @property({
+        type: String,
+        attribute: 'navigation',
+    }) navigationDirection: NavigationDirection = NavigationDirection.forward;
 
-    async start(path?: string) {
+    /**
+     * Start the routing of the application.
+     * @param path The initial path to navigate.
+     */
+    async start(path: string = '/') {
         this.onPopState = this.onPopState.bind(this);
         this.router.middleware('*', undefined, (req, res) => {
             this.request = req;
@@ -112,7 +122,6 @@ export class App extends Component {
         return response;
     }
 
-
     /**
      * Handle click on anchors.
      * @param event The click event.
@@ -129,6 +138,10 @@ export class App extends Component {
         }
     }
 
+    /**
+     * Handle popstate event from the router.
+     * @param event The event triggered by the router.
+     */
     private onPopState({ state, previous }: PopStateData) {
         this.navigationDirection = state.index < previous.index ?
             NavigationDirection.back :

@@ -1,6 +1,9 @@
 import { Factory } from '@chialab/proteins';
 import { State } from './State';
 
+/**
+ * A history state representation.
+ */
 interface HistoryState {
     state: State;
     title: string;
@@ -43,8 +46,7 @@ export class History extends Factory.Emitter {
 
     /**
      * Move in the history.
-     *
-     * @param {number} shift The shift movement in the history.
+     * @param shift The shift movement in the history.
      */
     go(shift) {
         if (shift !== 0) {
@@ -60,8 +62,7 @@ export class History extends Factory.Emitter {
 
     /**
      * Move back in the history by one entry. Same as `.go(-1)`
-     *
-     * @return {Promise} A promise which resolves the new current state.
+     * @return A promise which resolves the new current state.
      */
     back() {
         return this.go(-1);
@@ -69,8 +70,7 @@ export class History extends Factory.Emitter {
 
     /**
      * Move forward in the history by one entry. Same as `.go(1)`
-     *
-     * @return {Promise} A promise which resolves the new current state.
+     * @return A promise which resolves the new current state.
      */
     forward() {
         return this.go(1);
@@ -78,11 +78,10 @@ export class History extends Factory.Emitter {
 
     /**
      * Add a state to the history.
-     *
-     * @param {Object} stateObj The state properties.
-     * @param {String} title The state title.
-     * @param {String} url The state path.
-     * @return {Object} The new current state.
+     * @param stateObj The state properties.
+     * @param title The state title.
+     * @param url The state path.
+     * @return The new current state.
      */
     pushState(stateObj, title, url) {
         let state = createState(stateObj, title, url, 'push');
@@ -96,10 +95,10 @@ export class History extends Factory.Emitter {
     /**
      * Replace the current state of the history.
      *
-     * @param {Object} stateObj The state properties.
-     * @param {String} title The state title.
-     * @param {String} url The state path.
-     * @return {Object} The new current state.
+     * @param stateObj The state properties.
+     * @param title The state title.
+     * @param url The state path.
+     * @return The new current state.
      */
     replaceState(stateObj, title, url) {
         let state = createState(stateObj, title, url, 'replace');
