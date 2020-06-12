@@ -134,7 +134,7 @@ export class Router extends Factory.Emitter {
                 continue;
             }
             response = await middleware.hookBefore(request, response, params) || response;
-            if (response.redirected) {
+            if (response.redirected != null) {
                 return response;
             }
         }
@@ -142,7 +142,7 @@ export class Router extends Factory.Emitter {
         const starter: NextHandler = routes.reduceRight(
             (next: NextHandler, route) => {
                 return async (req, res) => {
-                    if (res.redirected) {
+                    if (res.redirected != null) {
                         return res;
                     }
                     let params = route.matches(path);
@@ -176,7 +176,7 @@ export class Router extends Factory.Emitter {
             request.reject(err);
         }
 
-        if (response.redirected) {
+        if (response.redirected != null) {
             return response;
         }
 
@@ -187,7 +187,7 @@ export class Router extends Factory.Emitter {
                 continue;
             }
             response = await middleware.hookAfter(request, response, params) || response;
-            if (response.redirected) {
+            if (response.redirected != null) {
                 return response;
             }
         }
@@ -204,8 +204,8 @@ export class Router extends Factory.Emitter {
         path = this.preparePath(path);
 
         const response = await this.handle(path);
-        if (response.redirected) {
-            return response;
+        if (response.redirected != null) {
+            return this.navigate(response.redirected);
         }
 
         let index = this.index + 1;
@@ -231,8 +231,8 @@ export class Router extends Factory.Emitter {
         path = this.preparePath(path);
 
         const response = await this.handle(path);
-        if (response.redirected) {
-            return response;
+        if (response.redirected != null) {
+            return this.replace(response.redirected);
         }
 
         let title = response.title || window.document.title;

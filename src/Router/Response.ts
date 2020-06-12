@@ -22,7 +22,7 @@ export class Response {
     /**
      * Flag if the Response has been redirected.
      */
-    public redirected?: boolean;
+    public redirected?: string;
 
     /**
      * The data bound to the response.
@@ -100,7 +100,6 @@ export class Response {
      * @return The new navigation Promise.
      */
     redirect(path: string) {
-        this.redirected = true;
-        return this.router.navigate(path);
+        this.redirected = path;
     }
 }
