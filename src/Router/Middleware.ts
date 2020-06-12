@@ -8,7 +8,7 @@ import { Pattern, PatternRule } from './Pattern';
  * @param {Response} res The current response instance.
  * @return The Response instance.
  */
-export type MiddlewareBeforeHandler = (req: Request, res: Response, params: RequestParams) => Response|Promise<Response>;
+export type MiddlewareBeforeHandler = (req: Request, res: Response, params: RequestParams) => Response|Promise<Response>|void;
 
 /**
  * The signature of middleware handler to invoke after routing.

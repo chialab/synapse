@@ -158,7 +158,12 @@ export class Router extends Factory.Emitter {
             }
         );
 
-        response = await starter(request, response);
+        try {
+            response = await starter(request, response);
+            request.resolve(response);
+        } catch(err) {
+            request.reject(err);
+        }
 
         if (response.redirected) {
             return response;
@@ -372,6 +377,7 @@ export class Router extends Factory.Emitter {
                 document.title = state.title;
             }
             this.history.pushState({
+                id: state.id,
                 url: state.url,
                 title: state.title,
                 index: state.index,
@@ -392,6 +398,7 @@ export class Router extends Factory.Emitter {
                 document.title = state.title;
             }
             this.history.replaceState({
+                id: state.id,
                 url: state.url,
                 title: state.title,
                 index: state.index,

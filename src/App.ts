@@ -1,5 +1,6 @@
 import { Url } from '@chialab/proteins';
 import { TemplateItem, Component, window, property } from '@chialab/dna';
+import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router, PopStateData } from './Router/Router';
 
@@ -52,6 +53,11 @@ export class App extends Component {
     private previousResponse?: Response;
 
     /**
+     * The current Router Request instance.
+     */
+    @property() request?: Request;
+
+    /**
      * The current Router Response instance.
      */
     @property() response?: Response;
@@ -60,6 +66,9 @@ export class App extends Component {
 
     async start(path?: string) {
         this.onPopState = this.onPopState.bind(this);
+        this.router.middleware('*', undefined, (req, res) => {
+            this.request = req;
+        });
         this.router.on('popstate', this.onPopState);
         let response = await this.router.start(this.history, path);
         this.navigationDirection = NavigationDirection.forward;
@@ -121,7 +130,9 @@ export class App extends Component {
     }
 
     private onPopState({ state, previous }: PopStateData) {
-        this.navigationDirection = state.index < previous.index ? NavigationDirection.back : NavigationDirection.forward;
+        this.navigationDirection = state.index < previous.index ?
+            NavigationDirection.back :
+            NavigationDirection.forward;
         this.previousResponse = previous.response;
         this.response = state.response;
     }
