@@ -1,10 +1,12 @@
 import { on, Factory, off } from '@chialab/proteins';
-import { window } from '@chialab/dna';
+import { window, html } from '@chialab/dna';
 import { Request } from './Request';
-import { Response } from './Response';
+import { Response, View } from './Response';
 import { State } from './State';
 import { RouteRule, RouteHandler, Route, NextHandler } from './Route';
 import { Middleware, MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Middleware';
+
+export type ErrorHandler = (request: Request, error: Error) => Response|View;
 
 /**
  * The options to pass to the router.
@@ -12,6 +14,7 @@ import { Middleware, MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHan
 export interface RouterOptions {
     base?: string;
     prefix?: string;
+    errorHandler?: ErrorHandler;
 }
 
 /**
@@ -32,6 +35,27 @@ function trimSlash(token: string) {
         .replace(/\/*$/, '')
         .replace(/^\/*/, '');
 }
+
+/**
+ * The default error handler.
+ * @param request The request of the routing.
+ * @param error The thrown error.
+ * @return An error response object.
+ */
+const DEFAULT_ERROR_HANDLER = (request: Request, error: Error) => {
+    const response = new Response(request);
+    response.setTitle(error.message);
+    response.setView(() => html`<div>
+        <details>
+            <summary style="color: red">${error.message}</summary>
+            ${error.stack && html`<p>${error.stack
+                .split(/^(.*)$/gm)
+                .map((line) => html`<div>${line}</div>`)
+            }</p>`}
+        </details>
+    </div>`);
+    return response;
+};
 
 /**
  * A router implementation for app navigation.
@@ -56,6 +80,8 @@ export class Router extends Factory.Emitter {
      * The browser's history like implementation for state management.
      */
     private history?: History;
+
+    protected readonly errorHandler: ErrorHandler;
 
     /**
      * A list of routes connected to the router.
@@ -107,6 +133,7 @@ export class Router extends Factory.Emitter {
         this.id = Date.now();
         this.base = trimSlash(options.base || '');
         this.prefix = trimSlash(options.prefix || '');
+        this.errorHandler = options.errorHandler ?? DEFAULT_ERROR_HANDLER;
 
         if (routes) {
             routes.forEach((route) => this.connect(route));
@@ -118,23 +145,28 @@ export class Router extends Factory.Emitter {
 
     /**
      * Handle a router navigation.
-     * @param path The path to navigate.
+     * @param request The request to handle.
      * @return The final response instance.
      */
-    async handle(path: string): Promise<Response> {
+    async handle(request: Request): Promise<Response> {
         const routes = this.connectedRoutes;
         const middlewares = this.connectedMiddlewares;
-        const request = new Request(this, path);
-        let response = new Response(this, request);
+        let response = new Response(request);
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             let middleware = middlewares[i];
-            let params = middleware.matches(path);
+            let params = middleware.matches(request.path);
             if (!params) {
                 continue;
             }
-            response = await middleware.hookBefore(request, response, params) || response;
+            try {
+                response = await middleware.hookBefore(request, response, params) || response;
+            } catch (error) {
+                request.reject(error);
+                throw error;
+            }
             if (response.redirected != null) {
+                request.resolve(response);
                 return response;
             }
         }
@@ -145,22 +177,21 @@ export class Router extends Factory.Emitter {
                     if (res.redirected != null) {
                         return res;
                     }
-                    let params = route.matches(path);
+                    let params = route.matches(request.path);
                     if (params === false) {
                         return next(req, res);
                     }
                     req.set(params);
-                    try {
-                        let data = await route.exec(req, res, next) ?? res;
-                        if (data instanceof Response) {
-                            res = data;
-                        } else {
-                            res.setData(data);
-                        }
-                    } catch (error) {
-                        res.setError(error);
+                    let data = await route.exec(req, res, next);
+                    if (data instanceof Response) {
+                        res = data;
+                    } else if (data) {
+                        res.redirect(data);
+                        return res;
                     }
-                    res.setView(route.render.bind(route));
+                    if (route.view) {
+                        res.setView(route.view);
+                    }
                     return res;
                 };
             },
@@ -171,26 +202,35 @@ export class Router extends Factory.Emitter {
 
         try {
             response = await starter(request, response);
-            request.resolve(response);
-        } catch(err) {
-            request.reject(err);
+        } catch (error) {
+            request.reject(error);
+            throw error;
         }
 
         if (response.redirected != null) {
+            request.resolve(response);
             return response;
         }
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             let middleware = middlewares[i];
-            let params = middleware.matches(path);
+            let params = middleware.matches(request.path);
             if (!params) {
                 continue;
             }
-            response = await middleware.hookAfter(request, response, params) || response;
+            try {
+                response = await middleware.hookAfter(request, response, params) || response;
+            } catch (error) {
+                request.reject(error);
+                throw error;
+            }
             if (response.redirected != null) {
+                request.resolve(response);
                 return response;
             }
         }
+
+        request.resolve(response);
 
         return response;
     }
@@ -203,7 +243,13 @@ export class Router extends Factory.Emitter {
     async navigate(path: string, store: any = {}): Promise<Response> {
         path = this.preparePath(path);
 
-        const response = await this.handle(path);
+        const request = new Request(path);
+        let response: Response;
+        try {
+            response = await this.handle(request);
+        } catch (error) {
+            response = this.handleError(request, error);
+        }
         if (response.redirected != null) {
             return this.navigate(response.redirected);
         }
@@ -230,7 +276,13 @@ export class Router extends Factory.Emitter {
     async replace(path: string, store: any = {}): Promise<Response> {
         path = this.preparePath(path);
 
-        const response = await this.handle(path);
+        const request = new Request(path);
+        let response: Response;
+        try {
+            response = await this.handle(request);
+        } catch (error) {
+            response = this.handleError(request, error);
+        }
         if (response.redirected != null) {
             return this.replace(response.redirected);
         }
@@ -380,6 +432,24 @@ export class Router extends Factory.Emitter {
     reset() {
         this.states.splice(0, this.states.length);
         this.index = 0;
+    }
+
+    /**
+     * Handle thrown error during routing.
+     * @param request The request of the routing.
+     * @param error The thrown error.
+     * @return An error response.
+     */
+    private handleError(request: Request, error: Error) {
+        request.reject(error);
+        let response = this.errorHandler(request, error);
+        if (!(response instanceof Response)) {
+            let view = response;
+            response = new Response(request);
+            response.setTitle(error.message);
+            response.setView(view);
+        }
+        return response;
     }
 
     /**

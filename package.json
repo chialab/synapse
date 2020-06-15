@@ -12,8 +12,8 @@
   "main": "dist/cjs/synapse.js",
   "browser": "dist/umd/synapse.js",
   "scripts": {
-    "build": "rna build --production --typings",
-    "watch": "rna build --watch",
+    "build": "rna build --production --typings --no-jsx",
+    "watch": "rna build --watch --no-jsx",
     "test": "rna lint + unit",
     "lint": "rna lint",
     "start": "yarn install --ignore-scripts && rna build --watch",

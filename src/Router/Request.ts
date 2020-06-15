@@ -1,4 +1,3 @@
-import { Router } from './Router';
 import { Response } from './Response';
 
 /**
@@ -50,10 +49,9 @@ export class Request<T extends RequestParams = RequestParams> {
 
     /**
      * Create a Request instance.
-     * @param router The Router instance of the request.
      * @param path The path to navigate.
      */
-    constructor(protected router: Router, public path: string) {}
+    constructor(public path: string) {}
 
     /**
      * Set params to the request.

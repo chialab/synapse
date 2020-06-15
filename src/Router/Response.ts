@@ -1,23 +1,19 @@
 import { Template } from '@chialab/dna';
-import { Router } from './Router';
 import { Request } from './Request';
 
 /**
- * A function that generate a DNA template for the response.
- * @param req The Request instance.
- * @param res The current Response instance.
- * @param context The context for the render.
+ * A template factory for the response's view.
+ * @param request The request of the routing.
+ * @param response The response for the request.
+ * @param conext The app context.
+ * @return A template to render.
  */
-export type ResponseTemplateFactory = (req: Readonly<Request>, res: Readonly<Response>, context?: any) => Template;
+export type View = (request: Request, response: Response, context: any) => Template;
 
 /**
  * A class representing the response for a new page request in the app.
  */
 export class Response {
-    /**
-     * The factory that generates the Response template.
-     */
-    private templateFactory: ResponseTemplateFactory = () => undefined;
 
     /**
      * Flag if the Response has been redirected.
@@ -30,35 +26,27 @@ export class Response {
     public data: any;
 
     /**
-     * The error bound to the response.
-     */
-    public error?: Error;
-
-    /**
      * The title of the response.
      */
     public title?: string;
 
     /**
-     * Check if the response is ok.
+     * The view of the response.
      */
-    get ok() {
-        return this.error == null;
-    }
+    public view?: View;
 
     /**
-     * Create a new Response instance.
-     * @param router The Router instance of the request.
-     * @param request The Request instance.
+     * Create a Response object.
+     * @param request The request to respond.
      */
-    constructor(protected router: Router, private request: Request) { }
+    constructor(protected request: Request) {}
 
     /**
      * Set the DNA template of the Response.
-     * @param templateFactory The factory that generates the template.
+     * @param template The view to render.
      */
-    setView(templateFactory: ResponseTemplateFactory) {
-        this.templateFactory = templateFactory;
+    setView(template: View) {
+        this.view = template;
     }
 
     /**
@@ -78,20 +66,11 @@ export class Response {
     }
 
     /**
-     * Set the title of the Response.
-     * @param title The string to set.
-     */
-    setError(error: Error) {
-        this.error = error;
-    }
-
-    /**
      * Return the template to render in the app.
-     * @param context The context of the render.
-     * @return The template to render.
+     * @return The view to render.
      */
     render(context: any): Template {
-        return this.templateFactory(this.request, this, context);
+        return this.view?.(this.request, this, context);
     }
 
     /**
