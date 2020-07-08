@@ -12,7 +12,7 @@
   "main": "dist/cjs/synapse.js",
   "browser": "dist/umd/synapse.js",
   "scripts": {
-    "build": "rna build --production --typings --no-jsx",
+    "build": "rna build --production --typings --jsx.pragma 'h' --jsx.module '@chialab/dna'",
     "watch": "rna build --watch --no-jsx",
     "test": "rna lint + unit",
     "lint": "rna lint",

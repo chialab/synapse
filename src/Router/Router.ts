@@ -250,20 +250,21 @@ export class Router extends Factory.Emitter {
         } catch (error) {
             response = this.handleError(request, error);
         }
-        if (response.redirected != null) {
-            return this.navigate(response.redirected);
-        }
 
         let index = this.index + 1;
         let title = response.title || window.document.title;
         this.pushState({
             id: this.id,
-            url: path,
+            url: response.redirected || path,
             index,
             title,
             response,
             store,
         });
+
+        if (response.redirected != null) {
+            return this.replace(response.redirected, store);
+        }
 
         return response;
     }
@@ -283,19 +284,20 @@ export class Router extends Factory.Emitter {
         } catch (error) {
             response = this.handleError(request, error);
         }
-        if (response.redirected != null) {
-            return this.replace(response.redirected);
-        }
 
         let title = response.title || window.document.title;
         this.replaceState({
             id: this.id,
-            url: path,
+            url: response.redirected || path,
             index: this.index,
             title,
             response,
             store,
         });
+
+        if (response.redirected != null) {
+            return this.replace(response.redirected, store);
+        }
 
         return response;
     }

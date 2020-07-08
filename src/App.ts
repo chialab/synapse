@@ -76,8 +76,20 @@ export class App extends Component {
      */
     async start(path?: string) {
         this.onPopState = this.onPopState.bind(this);
-        this.router.middleware('*', undefined, (req, res) => {
-            this.request = req;
+        this.router.middleware({
+            pattern: '*',
+            priority: -Infinity,
+            before: (req) => {
+                this.request = req;
+            },
+        });
+        this.router.middleware({
+            pattern: '*',
+            priority: Infinity,
+            after: (req, res) => {
+                this.previousResponse = this.response;
+                return this.response = res;
+            },
         });
         this.router.on('popstate', this.onPopState);
         let response = await this.router.start(this.history, path);
@@ -115,11 +127,8 @@ export class App extends Component {
      * @return The response instance for the navigation.
      */
     async navigate(path: string): Promise<Response> {
-        let response = await this.router.navigate(path);
         this.navigationDirection = NavigationDirection.forward;
-        this.previousResponse = this.response;
-        this.response = response;
-        return response;
+        return await this.router.navigate(path);
     }
 
     /**
