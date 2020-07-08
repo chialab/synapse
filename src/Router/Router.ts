@@ -6,7 +6,7 @@ import { State } from './State';
 import { RouteRule, RouteHandler, Route, NextHandler } from './Route';
 import { Middleware, MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Middleware';
 
-export type ErrorHandler = (request: Request, error: Error) => Response|View;
+export type ErrorHandler = (request: Request, error: Error, router: Router) => Response|View;
 
 /**
  * The options to pass to the router.
@@ -160,7 +160,7 @@ export class Router extends Factory.Emitter {
                 continue;
             }
             try {
-                response = await middleware.hookBefore(request, response, params) || response;
+                response = await middleware.hookBefore(request, response, params, this) || response;
             } catch (error) {
                 request.reject(error);
                 throw error;
@@ -182,7 +182,7 @@ export class Router extends Factory.Emitter {
                         return next(req, res);
                     }
                     req.set(params);
-                    let data = await route.exec(req, res, next);
+                    let data = await route.exec(req, res, next, this);
                     if (data instanceof Response) {
                         res = data;
                     } else if (data) {
@@ -219,7 +219,7 @@ export class Router extends Factory.Emitter {
                 continue;
             }
             try {
-                response = await middleware.hookAfter(request, response, params) || response;
+                response = await middleware.hookAfter(request, response, params, this) || response;
             } catch (error) {
                 request.reject(error);
                 throw error;
@@ -444,7 +444,7 @@ export class Router extends Factory.Emitter {
      */
     private handleError(request: Request, error: Error) {
         request.reject(error);
-        let response = this.errorHandler(request, error);
+        let response = this.errorHandler(request, error, this);
         if (!(response instanceof Response)) {
             let view = response;
             response = new Response(request);

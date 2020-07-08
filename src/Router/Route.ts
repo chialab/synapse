@@ -1,11 +1,13 @@
 import { Request } from './Request';
 import { Response, View } from './Response';
 import { Pattern, PatternRule } from './Pattern';
+import { Router } from './Router';
 
 /**
  * The signature of the next route rule to invoke.
  * @param request The Request instance.
  * @param response The current Response instance.
+ * @param router The current router instance.
  * @return The next Response instance.
  */
 export type NextHandler = (request: Request, response: Response) => Response|Promise<Response>;
@@ -15,9 +17,10 @@ export type NextHandler = (request: Request, response: Response) => Response|Pro
  * @param request The Request instance.
  * @param response The current Response instance.
  * @param next The next method to invoke if the handler must not end the routing.
+ * @param router The current router instance.
  * @return The very same input Response instance or a new one.
  */
-export type RouteHandler = (request: Readonly<Request>, response: Readonly<Response>, next?: NextHandler) => Response|string|Promise<Response|string>;
+export type RouteHandler = (request: Readonly<Request>, response: Readonly<Response>, next: NextHandler, router: Router) => Response|string|Promise<Response|string>;
 
 /**
  * The interface of a route rule.
@@ -60,12 +63,13 @@ export class Route extends Pattern {
 
     /**
      * Run the route handler.
-     * @param req The Request instance.
-     * @param res The current Response instance.
+     * @param request The Request instance.
+     * @param response The current Response instance.
      * @param next The next method to invoke if the handler must not end the routing.
+     * @param router The current router instance.
      * @return The very same input Response instance or a new one.
      */
-    exec(req: Request, res: Response, next?: NextHandler) {
-        return this.handler?.(req, res, next);
+    exec(request: Request, response: Response, next: NextHandler, router: Router) {
+        return this.handler?.(request, response, next, router);
     }
 }

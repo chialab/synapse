@@ -1,22 +1,27 @@
 import { Request, RequestParams } from './Request';
 import { Response } from './Response';
 import { Pattern, PatternRule } from './Pattern';
+import { Router } from './Router';
 
 /**
  * The signature of middleware handler to invoke before routing.
- * @param req The request instance.
- * @param res The current response instance.
+ * @param request The request instance.
+ * @param response The current response instance.
+ * @param params Middleware params extracted from the Request path.
+ * @param router The current router instance.
  * @return The Response instance.
  */
-export type MiddlewareBeforeHandler = (req: Request, res: Response, params: RequestParams) => Response|Promise<Response>|void;
+export type MiddlewareBeforeHandler = (request: Request, response: Response, params: RequestParams, router: Router) => Response|Promise<Response>|void;
 
 /**
  * The signature of middleware handler to invoke after routing.
- * @param req The request instance.
- * @param res The current response instance.
+ * @param request The request instance.
+ * @param response The current response instance.
+ * @param params Middleware params extracted from the Request path.
+ * @param router The current router instance.
  * @return The Response instance.
  */
-export type MiddlewareAfterHandler = (req: Readonly<Request>, res: Response, params: RequestParams) => Response|Promise<Response>;
+export type MiddlewareAfterHandler = (request: Readonly<Request>, response: Response, params: RequestParams, router: Router) => Response|Promise<Response>;
 
 /**
  * The interface of a middleware rule.
@@ -59,23 +64,25 @@ export class Middleware extends Pattern {
 
     /**
      * Exec the before hook method.
-     * @param req The Request instance.
-     * @param res The current Response instance.
+     * @param request The Request instance.
+     * @param response The current Response instance.
      * @param params Middleware params extracted from the Request path.
+     * @param router The current router instance.
      * @return The very same input Response instance or a new one.
      */
-    hookBefore(req: Request, res: Response, params: RequestParams) {
-        return this.before?.(req, res, params);
+    hookBefore(request: Request, response: Response, params: RequestParams, router: Router) {
+        return this.before?.(request, response, params, router);
     }
 
     /**
      * Exec the after hook method.
-     * @param req The Request instance.
-     * @param res The current Response instance.
+     * @param request The Request instance.
+     * @param response The current Response instance.
      * @param params Middleware params extracted from the Request path.
+     * @param router The current router instance.
      * @return The very same input Response instance or a new one.
      */
-    hookAfter(req: Readonly<Request>, res: Response, params: RequestParams) {
-        return this.after?.(req, res, params);
+    hookAfter(request: Readonly<Request>, response: Response, params: RequestParams, router: Router) {
+        return this.after?.(request, response, params, router);
     }
 }
