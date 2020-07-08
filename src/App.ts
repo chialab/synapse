@@ -68,7 +68,7 @@ export class App extends Component {
     @property({
         type: String,
         attribute: 'navigation',
-    }) navigationDirection: NavigationDirection = NavigationDirection.forward;
+    }) navigationDirection?: NavigationDirection;
 
     /**
      * Start the routing of the application.
@@ -76,6 +76,7 @@ export class App extends Component {
      */
     async start(path?: string) {
         this.onPopState = this.onPopState.bind(this);
+        this.navigationDirection = NavigationDirection.forward;
         this.router.middleware({
             pattern: '*',
             priority: -Infinity,
@@ -83,15 +84,9 @@ export class App extends Component {
                 this.request = req;
             },
         });
-        this.router.middleware({
-            pattern: '*',
-            priority: Infinity,
-            after: (req, res) => {
-                this.previousResponse = this.response;
-                return this.response = res;
-            },
-        });
         this.router.on('popstate', this.onPopState);
+        this.router.on('pushstate', this.onPopState);
+        this.router.on('replacestate', this.onPopState);
         let response = await this.router.start(this.history, path);
         this.navigationDirection = NavigationDirection.forward;
         this.response = response;
@@ -126,9 +121,8 @@ export class App extends Component {
      * @param path The route path to navigate.
      * @return The response instance for the navigation.
      */
-    async navigate(path: string): Promise<Response> {
-        this.navigationDirection = NavigationDirection.forward;
-        return await this.router.navigate(path);
+    navigate(path: string): Promise<Response> {
+        return this.router.navigate(path);
     }
 
     /**
@@ -152,10 +146,15 @@ export class App extends Component {
      * @param event The event triggered by the router.
      */
     private onPopState({ state, previous }: PopStateData) {
-        this.navigationDirection = state.index < previous.index ?
-            NavigationDirection.back :
-            NavigationDirection.forward;
-        this.previousResponse = previous.response;
+        if (previous) {
+            this.navigationDirection = state.index < previous.index ?
+                NavigationDirection.back :
+                NavigationDirection.forward;
+            this.previousResponse = previous.response;
+        } else {
+            this.navigationDirection = NavigationDirection.forward;
+        }
+        console.log(previous, this.previousResponse);
         this.response = state.response;
     }
 

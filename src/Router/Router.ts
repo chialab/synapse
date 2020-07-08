@@ -240,7 +240,7 @@ export class Router extends Factory.Emitter {
      * @param path The path to navigate.
      * @return The final response instance.
      */
-    async navigate(path: string, store: any = {}): Promise<Response> {
+    async navigate(path: string, store: any = {}, trigger = true): Promise<Response> {
         path = this.preparePath(path);
 
         const request = new Request(path);
@@ -253,17 +253,17 @@ export class Router extends Factory.Emitter {
 
         let index = this.index + 1;
         let title = response.title || window.document.title;
-        this.pushState({
+        await this.pushState({
             id: this.id,
             url: response.redirected || path,
             index,
             title,
             response,
             store,
-        });
+        }, trigger);
 
         if (response.redirected != null) {
-            return this.replace(response.redirected, store);
+            return this.replace(response.redirected, store, trigger);
         }
 
         return response;
@@ -274,7 +274,7 @@ export class Router extends Factory.Emitter {
      * @param path The path to navigate.
      * @return The final response instance.
      */
-    async replace(path: string, store: any = {}): Promise<Response> {
+    async replace(path: string, store: any = {}, trigger = true): Promise<Response> {
         path = this.preparePath(path);
 
         const request = new Request(path);
@@ -286,17 +286,17 @@ export class Router extends Factory.Emitter {
         }
 
         let title = response.title || window.document.title;
-        this.replaceState({
+        await this.replaceState({
             id: this.id,
             url: response.redirected || path,
             index: this.index,
             title,
             response,
             store,
-        });
+        }, trigger);
 
         if (response.redirected != null) {
-            return this.replace(response.redirected, store);
+            return this.replace(response.redirected, store, trigger);
         }
 
         return response;
@@ -459,8 +459,9 @@ export class Router extends Factory.Emitter {
      * It updates History if bound.
      * @param state The state to add.
      */
-    private pushState(state: State) {
+    private async pushState(state: State, trigger = true) {
         let url = this.buildFullUrl(state.url);
+        let previous = this.states[this.index];
         this.index = state.index;
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
@@ -474,6 +475,13 @@ export class Router extends Factory.Emitter {
                 index: state.index,
             }, state.title, url);
         }
+
+        if (trigger) {
+            await this.trigger('pushstate', {
+                previous,
+                state,
+            });
+        }
     }
 
     /**
@@ -481,8 +489,9 @@ export class Router extends Factory.Emitter {
      * It updates History if bound.
      * @param state The state to use as replacement.
      */
-    private replaceState(state: State) {
+    private async replaceState(state: State, trigger = true) {
         let url = this.buildFullUrl(state.url);
+        let previous = this.states[this.index];
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
             if (this.history === window.history) {
@@ -495,6 +504,13 @@ export class Router extends Factory.Emitter {
                 index: state.index,
             }, state.title, url);
         }
+
+        if (trigger) {
+            await this.trigger('replacestate', {
+                previous,
+                state,
+            });
+        }
     }
 
     /**
@@ -506,7 +522,7 @@ export class Router extends Factory.Emitter {
         let previous = this.states[this.index];
         let state: State;
         if (typeof path === 'string') {
-            await this.replace(path || '/', newState && newState.store);
+            await this.replace(path || '/', newState && newState.store, false);
             state = this.state;
         } else {
             state = this.states[newState.index];
