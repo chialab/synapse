@@ -1,3 +1,4 @@
+import { Url } from '@chialab/proteins';
 import { Response } from './Response';
 
 /**
@@ -13,6 +14,8 @@ export interface RequestParams {
 export class Request<T extends RequestParams = RequestParams> {
     private _response?: Response;
     private _error?: Error;
+
+    public readonly url: Url.Url;
 
     /**
      * A set of params extracted from the request path.
@@ -51,7 +54,9 @@ export class Request<T extends RequestParams = RequestParams> {
      * Create a Request instance.
      * @param path The path to navigate.
      */
-    constructor(public path: string) {}
+    constructor(path: string) {
+        this.url = Url.parse(path);
+    }
 
     /**
      * Set params to the request.

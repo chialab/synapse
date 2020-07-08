@@ -155,7 +155,7 @@ export class Router extends Factory.Emitter {
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             let middleware = middlewares[i];
-            let params = middleware.matches(request.path);
+            let params = middleware.matches(request.url.pathname);
             if (!params) {
                 continue;
             }
@@ -177,7 +177,7 @@ export class Router extends Factory.Emitter {
                     if (res.redirected != null) {
                         return res;
                     }
-                    let params = route.matches(request.path);
+                    let params = route.matches(request.url.pathname);
                     if (params === false) {
                         return next(req, res);
                     }
@@ -214,7 +214,7 @@ export class Router extends Factory.Emitter {
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             let middleware = middlewares[i];
-            let params = middleware.matches(request.path);
+            let params = middleware.matches(request.url.pathname);
             if (!params) {
                 continue;
             }
