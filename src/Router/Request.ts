@@ -26,14 +26,14 @@ export class Request<T extends RequestParams = RequestParams> {
      * The resolving state of the request.
      */
     get resolving() {
-        return !this.response;
+        return !this.response && !this.error;
     }
 
     /**
      * The resolved state of the request.
      */
     get resolved() {
-        return !!this.response;
+        return !!this.response || !!this.error;
     }
 
     /**
