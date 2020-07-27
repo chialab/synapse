@@ -568,7 +568,7 @@ export class Router extends Factory.Emitter {
      * @return The path to navigate.
      */
     private getPathFromLocation() {
-        let path = trimSlash(`${window.location.pathname}${window.location.hash}`);
+        let path = trimSlash(`${window.location.pathname}${window.location.search}${window.location.hash}`);
         if (this.base && path.indexOf(this.base) === 0) {
             path = trimSlash(path.replace(this.base, ''));
             if (this.prefix && path.indexOf(this.prefix) === 0) {
