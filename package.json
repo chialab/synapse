@@ -1,6 +1,6 @@
 {
   "name": "@chialab/synapse",
-  "version": "3.0.0-alpha.11",
+  "version": "3.0.0-alpha.12",
   "description": "Application framework built on the top of DNA Web Components.",
   "directories": {
     "src": "src",
