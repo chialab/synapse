@@ -1,4 +1,4 @@
-import { on, Factory, off } from '@chialab/proteins';
+import { on, Factory, off, Url } from '@chialab/proteins';
 import { window, html } from '@chialab/dna';
 import { Request } from './Request';
 import { Response, View } from './Response';
@@ -14,6 +14,7 @@ export type ErrorHandler = (request: Request, error: Error, router: Router) => R
 export interface RouterOptions {
     base?: string;
     prefix?: string;
+    origin?: string;
     errorHandler?: ErrorHandler;
 }
 
@@ -94,6 +95,11 @@ export class Router extends Factory.Emitter {
     protected readonly connectedMiddlewares: Middleware[] = [];
 
     /**
+     * The origin of the router.
+     */
+    readonly origin: string;
+
+    /**
      * The base routing path.
      */
     readonly base: string;
@@ -131,6 +137,7 @@ export class Router extends Factory.Emitter {
         super();
 
         this.id = Date.now();
+        this.origin = trimSlash(options.origin || '');
         this.base = trimSlash(options.base || '');
         this.prefix = trimSlash(options.prefix || '');
         this.errorHandler = options.errorHandler ?? DEFAULT_ERROR_HANDLER;
@@ -179,7 +186,7 @@ export class Router extends Factory.Emitter {
                     }
                     let params = route.matches(request.url.pathname);
                     if (params === false) {
-                        return next(req, res);
+                        return next(req, res, this);
                     }
                     req.set(params);
                     let data = await route.exec(req, res, next, this);
@@ -201,7 +208,7 @@ export class Router extends Factory.Emitter {
         );
 
         try {
-            response = await starter(request, response);
+            response = await starter(request, response, this);
         } catch (error) {
             request.reject(error);
             throw error;
@@ -434,6 +441,16 @@ export class Router extends Factory.Emitter {
     reset() {
         this.states.splice(0, this.states.length);
         this.index = 0;
+    }
+
+    /**
+     * Resolve a path to full url using origin and base.
+     * @param path The path to resolve.
+     *
+     * @return The full url.
+     */
+    resolve(path: string) {
+        return Url.join(this.origin, this.base || '/', trimSlash(path));
     }
 
     /**

@@ -154,7 +154,6 @@ export class App extends Component {
         } else {
             this.navigationDirection = NavigationDirection.forward;
         }
-        console.log(previous, this.previousResponse);
         this.response = state.response;
     }
 

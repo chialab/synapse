@@ -5,7 +5,7 @@ import { Request } from './Request';
  * A template factory for the response's view.
  * @param request The request of the routing.
  * @param response The response for the request.
- * @param conext The app context.
+ * @param context The app context.
  * @return A template to render.
  */
 export type View = (request: Request, response: Response, context: any) => Template;

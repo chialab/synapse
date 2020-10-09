@@ -10,7 +10,7 @@ import { Router } from './Router';
  * @param router The current router instance.
  * @return The next Response instance.
  */
-export type NextHandler = (request: Request, response: Response) => Response|Promise<Response>;
+export type NextHandler = (request: Request, response: Response, router: Router) => Response|Promise<Response>;
 
 /**
  * The signature of a Route handler method.
