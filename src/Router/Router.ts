@@ -16,6 +16,7 @@ export interface RouterOptions {
     prefix?: string;
     origin?: string;
     errorHandler?: ErrorHandler;
+    listenHashChanges?: boolean;
 }
 
 /**
@@ -115,6 +116,11 @@ export class Router extends Factory.Emitter {
     readonly id: number;
 
     /**
+     * Should navigate on hash changes.
+     */
+    readonly listenHashChanges: boolean;
+
+    /**
      * The current router state.
      */
     get state() {
@@ -141,6 +147,7 @@ export class Router extends Factory.Emitter {
         this.base = trimSlash(options.base || '');
         this.prefix = trimSlash(options.prefix || '');
         this.errorHandler = options.errorHandler ?? DEFAULT_ERROR_HANDLER;
+        this.listenHashChanges = !!options.listenHashChanges;
 
         if (routes) {
             routes.forEach((route) => this.connect(route));
@@ -321,6 +328,16 @@ export class Router extends Factory.Emitter {
     }
 
     /**
+     * Update page hash.
+     * @param hash The hash to set.
+     */
+    fragment(hash: string) {
+        if (window.history === this.history) {
+            window.location.hash = hash;
+        }
+    }
+
+    /**
      * Connect a middleware.
      * @param middleware A MiddlewareRule object.
      * @param path The path of the middleware rule.
@@ -409,7 +426,16 @@ export class Router extends Factory.Emitter {
                     return this.onPopState(state, state.id !== this.id ? state.url : undefined);
                 }
 
-                return this.onPopState(state, this.getPathFromLocation());
+                let location = trimSlash(this.getPathFromLocation());
+                if (!this.listenHashChanges && this.current) {
+                    let current = trimSlash(this.current);
+                    if (current.split('#')[0] === location.split('#')[0]) {
+                        event.preventDefault();
+                        return;
+                    }
+                }
+
+                return this.onPopState(state, location);
             };
             window.addEventListener('popstate', this.onPopStateCallback);
             if (!path) {

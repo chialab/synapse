@@ -142,13 +142,14 @@ export class App extends Component {
             return;
         }
 
-        let prefix = this.router.prefix;
-        if (href[0] === '#' && (!prefix || href.indexOf(prefix) !== 0)) {
-            return;
-        }
-
         event.preventDefault();
         event.stopPropagation();
+
+        let prefix = this.router.prefix;
+        if (href[0] === '#' && (!prefix || href.indexOf(prefix) !== 0)) {
+            return this.router.fragment(href);
+        }
+
         this.navigate(href);
     }
 
