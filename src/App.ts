@@ -133,12 +133,23 @@ export class App extends Component {
     handleLink(event: Event, node?: Node) {
         let anchor = node as HTMLAnchorElement;
         let href = anchor.getAttribute('href');
-        let target = anchor.getAttribute('target') || '_self';
-        if (href && target === '_self' && !Url.isAbsoluteUrl(href)) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.navigate(href);
+        if (!href || Url.isAbsoluteUrl(href)) {
+            return;
         }
+
+        let target = anchor.getAttribute('target') || '_self';
+        if (target !== '_self') {
+            return;
+        }
+
+        let prefix = this.router.prefix;
+        if (href[0] === '#' && (!prefix || href.indexOf(prefix) !== 0)) {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        this.navigate(href);
     }
 
     /**
