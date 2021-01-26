@@ -1,19 +1,9 @@
-# RNA
-# NPM
 /node_modules
 npm-debug.log
 yarn-error.log
-
-# LINT
 .eslintcache
 .stylelintcache
-
-# TEST
-/test/__coverage__
-/test/__generated__
-
-# BUILD
+/coverage
 /dist
 /public
-
-# RNA
+/types

@@ -11,8 +11,10 @@
   "module": "dist/esm/synapse.js",
   "main": "dist/cjs/synapse.js",
   "browser": "dist/umd/synapse.js",
+  "types": "types/index.d.ts",
   "scripts": {
-    "build": "rna build --production --typings --jsx.pragma 'h' --jsx.module '@chialab/dna'",
+    "build": "rm -rf dist types && yarn types && rna build --production --jsx.pragma 'h' --jsx.module '@chialab/dna'",
+    "types": "tsc --declaration --emitDeclarationOnly --declarationDir 'types'",
     "watch": "rna build --watch --no-jsx",
     "test": "rna lint + unit",
     "lint": "rna lint",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "@chialab/eslint-config": "^2.0.2",
-    "eslint": "^7.0.0"
+    "eslint": "^7.0.0",
+    "typescript": "^4.1.3"
   }
 }

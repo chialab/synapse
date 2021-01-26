@@ -8,7 +8,7 @@ import { Request } from './Request';
  * @param context The app context.
  * @return A template to render.
  */
-export type View = (request: Request, response: Response, context: any) => Template;
+export type View = (request: Request, response: Response) => Template;
 
 /**
  * A class representing the response for a new page request in the app.
@@ -69,8 +69,8 @@ export class Response {
      * Return the template to render in the app.
      * @return The view to render.
      */
-    render(context: any): Template {
-        return this.view?.(this.request, this, context);
+    render(): Template {
+        return this.view?.(this.request, this);
     }
 
     /**

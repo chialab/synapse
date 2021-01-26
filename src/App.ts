@@ -111,8 +111,8 @@ export class App extends Component {
      */
     render() {
         return [
-            this.previousResponse?.render(this.$) as TemplateItem,
-            this.response?.render(this.$) as TemplateItem,
+            this.previousResponse?.render() as TemplateItem,
+            this.response?.render() as TemplateItem,
         ];
     }
 
