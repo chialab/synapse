@@ -21,17 +21,13 @@
   },
   "license": "MIT",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
-  "devDependencies": {
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.0.0",
-    "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-mocha": "^7.0.0",
-    "eslint-plugin-mocha-no-only": "^1.1.0"
-  },
   "dependencies": {
-    "@chialab/dna": "^3.0.0-rc.7",
+    "@chialab/dna": "^3.0.0",
     "@chialab/proteins": "^3.2.2",
     "tslib": "^2.0.0"
+  },
+  "devDependencies": {
+    "@chialab/eslint-config": "^2.0.2",
+    "eslint": "^7.0.0"
   }
 }
