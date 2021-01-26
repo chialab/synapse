@@ -254,8 +254,13 @@ export class Router extends Factory.Emitter {
      * @param path The path to navigate.
      * @return The final response instance.
      */
-    async navigate(path: string, store: any = {}, trigger = true): Promise<Response> {
+    async navigate(path: string, store: any = {}, trigger = true, force = false): Promise<Response|null> {
         path = this.preparePath(path);
+        if (!this.shouldNavigate(path) && !force) {
+            let hash = new Url.Url(path, this.base).hash;
+            this.fragment(hash || '');
+            return null;
+        }
 
         const request = new Request(path);
         let response: Response;
@@ -333,7 +338,9 @@ export class Router extends Factory.Emitter {
      */
     fragment(hash: string) {
         if (window.history === this.history) {
-            window.location.hash = hash;
+            if (window.location.hash || hash) {
+                window.location.hash = hash;
+            }
         }
     }
 
@@ -427,12 +434,9 @@ export class Router extends Factory.Emitter {
                 }
 
                 let location = trimSlash(this.getPathFromLocation());
-                if (!this.listenHashChanges && this.current) {
-                    let current = trimSlash(this.current);
-                    if (current.split('#')[0] === location.split('#')[0]) {
-                        event.preventDefault();
-                        return;
-                    }
+                if (!this.shouldNavigate(location)) {
+                    event.preventDefault();
+                    return;
                 }
 
                 return this.onPopState(state, location);
@@ -619,5 +623,28 @@ export class Router extends Factory.Emitter {
             }
         }
         return path;
+    }
+
+    /**
+     * Check if the requested path should be navigated.
+     * @param path The requested path.
+     */
+    private shouldNavigate(path: string) {
+        if (!this.current) {
+            return true;
+        }
+
+        path = trimSlash(path);
+        let current = trimSlash(this.current);
+        if (!this.listenHashChanges) {
+            if (path[0] === '#') {
+                return false;
+            }
+
+            path = path.split('#')[0];
+            current = current.split('#')[0];
+        }
+
+        return path !== current;
     }
 }

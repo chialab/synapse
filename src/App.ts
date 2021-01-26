@@ -121,7 +121,7 @@ export class App extends Component {
      * @param path The route path to navigate.
      * @return The response instance for the navigation.
      */
-    navigate(path: string): Promise<Response> {
+    navigate(path: string): Promise<Response|null> {
         return this.router.navigate(path);
     }
 
@@ -130,7 +130,7 @@ export class App extends Component {
      * @param event The click event.
      * @param node The anchor node.
      */
-    handleLink(event: Event, node?: Node) {
+    async handleLink(event: Event, node?: Node) {
         let anchor = node as HTMLAnchorElement;
         let href = anchor.getAttribute('href');
         if (!href || Url.isAbsoluteUrl(href)) {
@@ -144,12 +144,6 @@ export class App extends Component {
 
         event.preventDefault();
         event.stopPropagation();
-
-        let prefix = this.router.prefix;
-        if (href[0] === '#' && (!prefix || href.indexOf(prefix) !== 0)) {
-            return this.router.fragment(href);
-        }
-
         this.navigate(href);
     }
 
