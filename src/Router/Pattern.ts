@@ -50,7 +50,7 @@ export class Pattern {
             })
             .join('');
 
-        let regex = new RegExp(`^${chunks}$`, 'i');
+        let regex = new RegExp(`^${chunks || '\\/'}$`, 'i');
         return [regex, names];
     }
 
