@@ -36,10 +36,17 @@ export class Response {
     public view?: View;
 
     /**
+     * The request to respond.
+     */
+    protected request: Request;
+
+    /**
      * Create a Response object.
      * @param request The request to respond.
      */
-    constructor(protected request: Request) {}
+    constructor(request: Request) {
+        this.request = request;
+    }
 
     /**
      * Set the DNA template of the Response.

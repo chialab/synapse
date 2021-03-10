@@ -23,8 +23,8 @@ export interface RouterOptions {
  * Describe the popstate data.
  */
 export interface PopStateData {
-    state: State,
-    previous: State,
+    state: State;
+    previous: State;
 }
 
 /**
@@ -36,6 +36,16 @@ function trimSlash(token: string) {
     return token
         .replace(/\/*$/, '')
         .replace(/^\/*/, '');
+}
+
+function formatStack(error: Error) {
+    if (!error.stack) {
+        return;
+    }
+    return html`<p>${error.stack
+        .split(/^(.*)$/gm)
+        .map((line) => html`<div>${line}</div>`)
+    }</p>`;
 }
 
 /**
@@ -50,10 +60,7 @@ const DEFAULT_ERROR_HANDLER = (request: Request, error: Error) => {
     response.setView(() => html`<div>
         <details>
             <summary style="color: red">${error.message}</summary>
-            ${error.stack && html`<p>${error.stack
-                .split(/^(.*)$/gm)
-                .map((line) => html`<div>${line}</div>`)
-            }</p>`}
+            ${formatStack(error)}
         </details>
     </div>`);
     return response;
@@ -186,28 +193,26 @@ export class Router extends Factory.Emitter {
         }
 
         const starter: NextHandler = routes.reduceRight(
-            (next: NextHandler, route) => {
-                return async (req, res) => {
-                    if (res.redirected != null) {
-                        return res;
-                    }
-                    let params = route.matches(request.url.pathname);
-                    if (params === false) {
-                        return next(req, res, this);
-                    }
-                    req.set(params);
-                    let data = await route.exec(req, res, next, this);
-                    if (data instanceof Response) {
-                        res = data;
-                    } else if (data) {
-                        res.redirect(data);
-                        return res;
-                    }
-                    if (route.view) {
-                        res.setView(route.view);
-                    }
+            (next: NextHandler, route) => async (req, res) => {
+                if (res.redirected != null) {
                     return res;
-                };
+                }
+                let params = route.matches(request.url.pathname);
+                if (params === false) {
+                    return next(req, res, this);
+                }
+                req.set(params);
+                let data = await route.exec(req, res, next, this);
+                if (data instanceof Response) {
+                    res = data;
+                } else if (data) {
+                    res.redirect(data);
+                    return res;
+                }
+                if (route.view) {
+                    res.setView(route.view);
+                }
+                return res;
             },
             () => {
                 throw new Error('Not found');
@@ -446,7 +451,6 @@ export class Router extends Factory.Emitter {
                 path = this.getPathFromLocation();
             }
         } else {
-            this.onPopStateCallback = this.onPopState.bind(this);
             on(history, 'popstate', this.onPopStateCallback);
         }
 

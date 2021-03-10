@@ -1,5 +1,5 @@
 import { Url } from '@chialab/proteins';
-import { TemplateItem, Component, window, property } from '@chialab/dna';
+import { Component, window, property, HyperNode } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router, PopStateData } from './Router/Router';
@@ -18,13 +18,13 @@ export class App extends Component {
      */
     static get listeners() {
         return {
-            'click a': function(this: App, event: Event, node?: Node) {
+            'click a'(this: App, event: Event, node?: Node) {
                 return this.handleLink(event, node);
             },
-            'animationstart': function(this: App) {
+            'animationstart'(this: App) {
                 this.activeAnimations++;
             },
-            'animationend': function(this: App) {
+            'animationend'(this: App) {
                 this.activeAnimations--;
                 this.removePreviousResponse();
             },
@@ -48,9 +48,14 @@ export class App extends Component {
     public router: Router = new Router();
 
     /**
-     * The previous Router Response instance.
+     * The previous Router Response render result.
      */
-    private previousResponse?: Response;
+    private previousPage?: HyperNode;
+
+    /**
+     * The current Router Response render result.
+     */
+    private currentPage?: HyperNode;
 
     /**
      * The current Router Request instance.
@@ -75,7 +80,6 @@ export class App extends Component {
      * @param path The initial path to navigate.
      */
     async start(path?: string) {
-        this.onPopState = this.onPopState.bind(this);
         this.navigationDirection = NavigationDirection.forward;
         this.router.middleware({
             pattern: '*',
@@ -111,8 +115,8 @@ export class App extends Component {
      */
     render() {
         return [
-            this.previousResponse?.render() as TemplateItem,
-            this.response?.render() as TemplateItem,
+            this.previousPage,
+            this.currentPage,
         ];
     }
 
@@ -151,12 +155,19 @@ export class App extends Component {
      * Handle popstate event from the router.
      * @param event The event triggered by the router.
      */
-    private onPopState({ state, previous }: PopStateData) {
+    private onPopState = ({ state, previous }: PopStateData) => {
+        let previousPage = this.currentPage;
+        let currentPage = state.response?.render() as HyperNode;
+        if ((previousPage?.key || currentPage.key) && previousPage?.key === currentPage?.key) {
+            this.previousPage = undefined;
+        } else {
+            this.previousPage = currentPage;
+        }
+        this.currentPage = currentPage;
         if (previous) {
             this.navigationDirection = state.index < previous.index ?
                 NavigationDirection.back :
                 NavigationDirection.forward;
-            this.previousResponse = previous.response;
         } else {
             this.navigationDirection = NavigationDirection.forward;
         }
@@ -170,8 +181,8 @@ export class App extends Component {
         if (this.activeAnimations !== 0) {
             return;
         }
-        if (this.previousResponse) {
-            this.previousResponse = undefined;
+        if (this.previousPage) {
+            this.previousPage = undefined;
             this.forceUpdate();
         }
     }

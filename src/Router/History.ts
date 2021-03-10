@@ -8,7 +8,7 @@ interface HistoryState {
     state: State;
     title: string;
     url: string;
-    type: 'push'|'replace',
+    type: 'push' | 'replace';
 }
 
 /**

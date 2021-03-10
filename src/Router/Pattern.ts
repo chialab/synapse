@@ -30,15 +30,25 @@ export class Pattern {
             return [/.*/, []];
         }
         let names: string[] = [];
-        let chunks = pattern.split('/')
+        let chunks = pattern
+            .split('/')
             .map((chunk) => {
-                if (chunk.indexOf(':') !== 0) {
-                    return chunk.replace(/[\(\)\[\]\{\}\\\-\+\.\*\?\^\$]/g, '\\$0');
+                if (!chunk) {
+                    return '';
                 }
-                names.push(chunk.substr(1));
-                return '([^\\/]+?)';
+                if (chunk.indexOf(':') !== 0) {
+                    return `\\/${chunk.replace(/[()[\]{}\\\-+.*?^$]/g, '\\$0')}`;
+                }
+                let name = chunk.substr(1);
+                let pattern = '\\/([^\\/]+?)';
+                if (name.endsWith('*')) {
+                    name = name.substr(0, name.length - 1);
+                    pattern = '(\\/.*?)?';
+                }
+                names.push(name);
+                return pattern;
             })
-            .join('\\/');
+            .join('');
 
         let regex = new RegExp(`^${chunks}$`, 'i');
         return [regex, names];
