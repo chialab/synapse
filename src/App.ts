@@ -160,7 +160,9 @@ export class App extends Component {
     private onPopState = ({ state, previous }: PopStateData) => {
         let previousPage = this.currentPage;
         let currentPage = state.response?.render() as HyperNode;
-        if ((previousPage?.key || currentPage.key) && previousPage?.key === currentPage?.key) {
+        let previousKey = previousPage?.key;
+        let currentKey = currentPage?.key;
+        if ((previousKey || currentKey) && previousKey === currentKey) {
             this.previousPage = undefined;
         } else {
             this.previousPage = currentPage;
