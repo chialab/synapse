@@ -1,4 +1,4 @@
-import { Template } from '@chialab/dna';
+import type { Template } from '@chialab/dna';
 import { Request } from './Request';
 
 /**

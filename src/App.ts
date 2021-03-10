@@ -1,8 +1,10 @@
+import type { PopStateData } from './Router/Router';
+import type { HyperNode } from '@chialab/dna';
 import { Url } from '@chialab/proteins';
-import { Component, window, property, HyperNode } from '@chialab/dna';
+import { Component, window, property } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
-import { Router, PopStateData } from './Router/Router';
+import { Router } from './Router/Router';
 
 enum NavigationDirection {
     back = 'back',

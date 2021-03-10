@@ -1,5 +1,5 @@
+import type { Response } from './Response';
 import { Url } from '@chialab/proteins';
-import { Response } from './Response';
 
 /**
  * A set of params extracted from the request path.

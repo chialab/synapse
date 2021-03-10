@@ -1,7 +1,9 @@
-import { Request, RequestParams } from './Request';
+import type { PatternRule } from './Pattern';
+import type { RequestParams } from './Request';
+import type { Router } from './Router';
+import { Request } from './Request';
 import { Response } from './Response';
-import { Pattern, PatternRule } from './Pattern';
-import { Router } from './Router';
+import { Pattern } from './Pattern';
 
 /**
  * The signature of middleware handler to invoke before routing.

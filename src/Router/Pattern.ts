@@ -1,4 +1,4 @@
-import { RequestParams } from './Request';
+import type { RequestParams } from './Request';
 
 /**
  * The interface of a pattern rule.

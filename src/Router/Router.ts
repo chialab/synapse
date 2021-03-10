@@ -1,10 +1,13 @@
+import type { MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Middleware';
+import type { View } from './Response';
+import type { RouteRule, RouteHandler, NextHandler } from './Route';
+import type { State } from './State';
 import { on, Factory, off, Url } from '@chialab/proteins';
 import { window, html } from '@chialab/dna';
 import { Request } from './Request';
-import { Response, View } from './Response';
-import { State } from './State';
-import { RouteRule, RouteHandler, Route, NextHandler } from './Route';
-import { Middleware, MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Middleware';
+import { Response } from './Response';
+import { Route } from './Route';
+import { Middleware } from './Middleware';
 
 export type ErrorHandler = (request: Request, error: Error, router: Router) => Response|View;
 

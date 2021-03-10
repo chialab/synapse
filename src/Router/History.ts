@@ -1,5 +1,5 @@
+import type { State } from './State';
 import { Factory } from '@chialab/proteins';
-import { State } from './State';
 
 /**
  * A history state representation.
