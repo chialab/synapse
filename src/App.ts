@@ -165,7 +165,7 @@ export class App extends Component {
         if ((previousKey || currentKey) && previousKey === currentKey) {
             this.previousPage = undefined;
         } else {
-            this.previousPage = currentPage;
+            this.previousPage = previousPage;
         }
         this.currentPage = currentPage;
         if (previous) {
