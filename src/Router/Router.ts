@@ -454,7 +454,7 @@ export class Router extends Factory.Emitter {
                 path = this.getPathFromLocation();
             }
         } else {
-            on(history, 'popstate', this.onPopStateCallback);
+            on(this.history, 'popstate', this.onPopStateCallback);
         }
 
         return this.replace(path as string);
@@ -468,7 +468,7 @@ export class Router extends Factory.Emitter {
             return;
         }
         window.removeEventListener('popstate', this.onPopStateCallback);
-        off(history, 'popstate', this.onPopStateCallback);
+        off(this.history, 'popstate', this.onPopStateCallback);
         delete this.history;
     }
 
