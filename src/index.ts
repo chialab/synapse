@@ -5,3 +5,4 @@ export { Route } from './Router/Route';
 export { History } from './Router/History';
 export { Router } from './Router/Router';
 export { App } from './App';
+export * from './helpers';

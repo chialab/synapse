@@ -5,6 +5,7 @@ import { Component, window, property } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router } from './Router/Router';
+import { requestAnimationFrame } from './helpers';
 
 enum NavigationDirection {
     back = 'back',
@@ -70,19 +71,11 @@ export class App extends Component {
     @property() response?: Response;
 
     /**
-     * The direction of the navigation.
-     */
-    @property({
-        type: String,
-        attribute: 'navigation',
-    }) navigationDirection?: NavigationDirection;
-
-    /**
      * Start the routing of the application.
      * @param path The initial path to navigate.
      */
     async start(path?: string) {
-        this.navigationDirection = NavigationDirection.forward;
+        this.setNavigation(NavigationDirection.forward);
         this.router.middleware({
             pattern: '*',
             priority: -Infinity,
@@ -94,7 +87,6 @@ export class App extends Component {
         this.router.on('pushstate', this.onPopState);
         this.router.on('replacestate', this.onPopState);
         let response = await this.router.start(this.history, path);
-        this.navigationDirection = NavigationDirection.forward;
         this.response = response;
         return response;
     }
@@ -103,9 +95,8 @@ export class App extends Component {
      * @inheritdoc
      */
     forceUpdate() {
-        super.forceUpdate();
-        window.requestAnimationFrame(() => {
-            window.requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
                 // after 2 raf, we are sure that animations started
                 this.removePreviousResponse();
             });
@@ -169,13 +160,21 @@ export class App extends Component {
         }
         this.currentPage = currentPage;
         if (previous) {
-            this.navigationDirection = state.index < previous.index ?
+            this.setNavigation(state.index < previous.index ?
                 NavigationDirection.back :
-                NavigationDirection.forward;
+                NavigationDirection.forward);
         } else {
-            this.navigationDirection = NavigationDirection.forward;
+            this.setNavigation(NavigationDirection.forward);
         }
         this.response = state.response;
+    }
+
+    /**
+     * Set navigation attribute.
+     * @param direction Navigation direction.
+     */
+    private setNavigation(direction: NavigationDirection) {
+        this.setAttribute(':navigation', direction);
     }
 
     /**

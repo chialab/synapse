@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "module": "es2015",
+    "module": "esnext",
     "lib": ["es2017", "dom"],
     "sourceMap": true,
     "inlineSources": true,

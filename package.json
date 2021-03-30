@@ -1,6 +1,7 @@
 {
   "name": "@chialab/synapse",
   "version": "3.0.0-alpha.19",
+  "type": "module",
   "description": "Application framework built on the top of DNA Web Components.",
   "directories": {
     "src": "src",
@@ -10,8 +11,11 @@
   "lib": "src/index.ts",
   "module": "dist/esm/synapse.js",
   "main": "dist/cjs/synapse.js",
-  "browser": "dist/umd/synapse.js",
   "types": "types/index.d.ts",
+  "exports": {
+    "require": "./dist/cjs/synapse.js",
+    "default": "./dist/esm/synapse.js"
+  },
   "scripts": {
     "build": "rm -rf dist types && yarn types && rna build --production --jsx.pragma 'h' --jsx.module '@chialab/dna'",
     "types": "tsc --declaration --emitDeclarationOnly --declarationDir 'types'",
@@ -26,6 +30,7 @@
   "dependencies": {
     "@chialab/dna": "^3.0.0",
     "@chialab/proteins": "^3.2.2",
+    "node-fetch": "^2.6.1",
     "tslib": "^2.0.0"
   },
   "devDependencies": {

@@ -520,7 +520,7 @@ export class Router extends Factory.Emitter {
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
             if (this.history === window.history) {
-                document.title = state.title;
+                window.document.title = state.title;
             }
             this.history.pushState({
                 id: state.id,
@@ -549,7 +549,7 @@ export class Router extends Factory.Emitter {
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
             if (this.history === window.history) {
-                document.title = state.title;
+                window.document.title = state.title;
             }
             this.history.replaceState({
                 id: state.id,
@@ -583,7 +583,7 @@ export class Router extends Factory.Emitter {
             this.index = newState.index;
         }
         if (this.history === window.history) {
-            document.title = state.title;
+            window.document.title = state.title;
         }
         await this.trigger('popstate', {
             previous,
