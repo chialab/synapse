@@ -95,6 +95,7 @@ export class App extends Component {
      * @inheritdoc
      */
     forceUpdate() {
+        super.forceUpdate();
         requestAnimationFrame(() => {
             requestAnimationFrame(() => {
                 // after 2 raf, we are sure that animations started
