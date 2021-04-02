@@ -1,4 +1,4 @@
-import { window } from '@chialab/dna';
+import { DOM, window } from '@chialab/dna';
 
 /**
  * requestAnimationFrame wrapper for support in Node environments.
@@ -38,4 +38,33 @@ export async function fetch(input: RequestInfo, init?: RequestInit | undefined):
 
     let { default: factory } = await import('node-fetch');
     return factory(input, init);
+}
+
+/**
+ * Cache links promises.
+ */
+const LINKS_MAP = new Map();
+
+/**
+ * Load a stylesheet using a link element.
+ * @param url Url to load.
+ * @return A promise that resolves on link load.
+ */
+export function loadStyleSheet(url: string | URL) {
+    let href = typeof url === 'string' ? url : url.href;
+    if (!LINKS_MAP.has(href)) {
+        let promise = new Promise((resolve, reject) => {
+            let link = DOM.createElement('link');
+            link.type = 'text/css';
+            link.rel = 'stylesheet';
+            link.addEventListener('load', () => resolve(link));
+            link.addEventListener('error', () => reject(link));
+            link.addEventListener('abort', () => reject(link));
+            link.href = href;
+            window.document.head.appendChild(link);
+        });
+        LINKS_MAP.set(href, promise);
+    }
+
+    return LINKS_MAP.get(href);
 }
