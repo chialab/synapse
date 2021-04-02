@@ -43,14 +43,14 @@ export async function fetch(input: RequestInfo, init?: RequestInit | undefined):
 /**
  * Cache links promises.
  */
-const LINKS_MAP = new Map();
+const LINKS_MAP: Map<string, Promise<HTMLLinkElement>> = new Map();
 
 /**
  * Load a stylesheet using a link element.
  * @param url Url to load.
  * @return A promise that resolves on link load.
  */
-export function loadStyleSheet(url: string | URL) {
+export function loadStyleSheet(url: string | URL): Promise<HTMLLinkElement> {
     let href = typeof url === 'string' ? url : url.href;
     if (!LINKS_MAP.has(href)) {
         let promise = new Promise((resolve, reject) => {
@@ -62,9 +62,9 @@ export function loadStyleSheet(url: string | URL) {
             link.addEventListener('abort', () => reject(link));
             link.href = href;
             window.document.head.appendChild(link);
-        });
+        }) as Promise<HTMLLinkElement>;
         LINKS_MAP.set(href, promise);
     }
 
-    return LINKS_MAP.get(href);
+    return LINKS_MAP.get(href) as Promise<HTMLLinkElement>;
 }
