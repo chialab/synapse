@@ -36,8 +36,14 @@ export async function fetch(input: RequestInfo, init?: RequestInit | undefined):
         return window.fetch(input, init);
     }
 
-    let { default: factory } = await import('node-fetch');
-    return factory(input, init);
+    try {
+        let { default: factory } = await import('node-fetch');
+        return factory(input, init);
+    } catch {
+        //
+    }
+
+    throw new Error('Missing fetch implementation');
 }
 
 /**
