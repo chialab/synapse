@@ -11,6 +11,9 @@
   "lib": "src/index.ts",
   "module": "dist/esm/synapse.js",
   "main": "dist/cjs/synapse.js",
+  "browser": {
+    "node-fetch": "fetch"
+  },
   "types": "types/index.d.ts",
   "exports": {
     "require": "./dist/cjs/synapse.js",
