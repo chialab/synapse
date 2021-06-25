@@ -25,6 +25,12 @@
     "prepack": "npm run build",
     "release": "source .env && semantic-release --no-ci"
   },
+  "files": [
+    "dist",
+    "types",
+    "LICENSE",
+    "README.md"
+  ],
   "license": "MIT",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "dependencies": {
