@@ -86,7 +86,7 @@ export class Router extends Factory.Emitter {
     /**
      * The callback bound to popstate event.
      */
-    private onPopStateCallback = (event: any) => {};
+    private onPopStateCallback: (event: PopStateEvent) => unknown = () => {};
 
     /**
      * The browser's history like implementation for state management.
@@ -262,6 +262,7 @@ export class Router extends Factory.Emitter {
      * @param path The path to navigate.
      * @return The final response instance.
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async navigate(path: string, store: any = {}, trigger = true, force = false): Promise<Response|null> {
         path = this.preparePath(path);
         if (!this.shouldNavigate(path) && !force) {
@@ -301,6 +302,7 @@ export class Router extends Factory.Emitter {
      * @param path The path to navigate.
      * @return The final response instance.
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async replace(path: string, store: any = {}, trigger = true): Promise<Response> {
         path = this.preparePath(path);
 

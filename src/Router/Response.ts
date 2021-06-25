@@ -23,6 +23,7 @@ export class Response {
     /**
      * The data bound to the response.
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public data: any;
 
     /**
@@ -57,9 +58,17 @@ export class Response {
     }
 
     /**
+     * Get stored data.
+     */
+    getData() {
+        return this.data;
+    }
+
+    /**
      * Set data for the Response.
      * @param data Data to set.
      */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setData(data: any) {
         this.data = data;
     }
