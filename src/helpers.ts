@@ -37,7 +37,7 @@ export async function fetch(input: RequestInfo, init?: RequestInit | undefined):
     }
 
     try {
-        let { default: factory } = await import('node-fetch');
+        const { default: factory } = await import('node-fetch');
         return factory(input, init);
     } catch {
         //
@@ -57,10 +57,10 @@ const LINKS_MAP: Map<string, Promise<HTMLLinkElement>> = new Map();
  * @return A promise that resolves on link load.
  */
 export function loadStyleSheet(url: string | URL): Promise<HTMLLinkElement> {
-    let href = typeof url === 'string' ? url : url.href;
+    const href = typeof url === 'string' ? url : url.href;
     if (!LINKS_MAP.has(href)) {
-        let promise = new Promise((resolve, reject) => {
-            let link = DOM.createElement('link');
+        const promise = new Promise((resolve, reject) => {
+            const link = DOM.createElement('link');
             link.type = 'text/css';
             link.rel = 'stylesheet';
             link.addEventListener('load', () => resolve(link));

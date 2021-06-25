@@ -9,11 +9,7 @@
 </p>
 
 <p align="center">
-    <a href="https://www.chialab.io/p/synapse"><img alt="Documentation link" src="https://img.shields.io/badge/Docs-chialab.io-lightgrey.svg?style=flat-square"></a>
-    <a href="https://github.com/chialab/synapse"><img alt="Source link" src="https://img.shields.io/badge/Source-GitHub-lightgrey.svg?style=flat-square"></a>
-    <a href="https://www.chialab.it"><img alt="Authors link" src="https://img.shields.io/badge/Authors-Chialab-lightgrey.svg?style=flat-square"></a>
-    <a href="https://www.npmjs.com/package/@chialab/synapse"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/synapse.svg?style=flat-square"></a>
-    <a href="https://github.com/chialab/synapse/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@chialab/synapse.svg?style=flat-square"></a>
+    <a href="https://www.npmjs.com/package/@chialab/synapse"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/synapse.svg"></a>
 </p>
 
 ---
@@ -21,6 +17,7 @@
 ## Get the library
 
 Usage via [unpkg.com](https://unpkg.com/), as UMD package:
+
 ```html
 <script src="https://unpkg.com/@chialab/synapse" type="text/javascript"></script>
 ```
@@ -32,8 +29,10 @@ import { App, Router, ... } from 'https://unpkg.com/@chialab/synapse?module';
 ```
 
 Install via NPM:
+
 ```sh
 $ npm i @chialab/synapse
+$ yarn add @chialab/synapse
 ```
 
 ```ts
@@ -102,20 +101,12 @@ app.navigate('/');
 [![Build status](https://github.com/chialab/synapse/workflows/Main/badge.svg)](https://github.com/chialab/synapse/actions?query=workflow%3ABuild)
 [![codecov](https://codecov.io/gh/chialab/synapse/branch/3.0.0/graph/badge.svg)](https://codecov.io/gh/chialab/synapse)
 
-
-### Requirements
-
-In order to build and test Synapse, the following requirements are needed:
-* [NodeJS](https://nodejs.org/) (>= 10.0.0)
-* [Yarn](https://yarnpkg.com)
-* [RNA](https://github.com/chialab/rna-cli) (>= 3.0.0)
-
 ### Build the project
 
 Install the dependencies and run the `build` script:
 ```
-$ yarn install
-$ yarn build
+$ npm run install
+$ npm run build
 ```
 
 This will generate the UMD and ESM bundles in the `dist` folder, as well as the declaration file.
@@ -125,7 +116,23 @@ This will generate the UMD and ESM bundles in the `dist` folder, as well as the 
 Run the `test` script:
 
 ```
-$ yarn test
+$ npm run test
+```
+
+### Release
+
+The `release` script uses [Semantic Release](https://github.com/semantic-release/semantic-release) to update package version, create a Github release and publish to the NPM registry.
+
+An environment variable named `GH_TOKEN` with a [generated Github Access Token](https://github.com/settings/tokens/new?scopes=repo) needs to be defined in a local `.env` file.
+
+```sh
+$ echo 'export GH_TOKEN="abcxyz"' > .env
+```
+
+Now you are ready to run the `release` command:
+
+```sh
+$ npm run release
 ```
 
 ---

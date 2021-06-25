@@ -86,7 +86,7 @@ export class App extends Component {
         this.router.on('popstate', this.onPopState);
         this.router.on('pushstate', this.onPopState);
         this.router.on('replacestate', this.onPopState);
-        let response = await this.router.start(this.history, path);
+        const response = await this.router.start(this.history, path);
         this.response = response;
         return response;
     }
@@ -129,13 +129,13 @@ export class App extends Component {
      * @param node The anchor node.
      */
     async handleLink(event: Event, node?: Node) {
-        let anchor = node as HTMLAnchorElement;
-        let href = anchor.getAttribute('href');
+        const anchor = node as HTMLAnchorElement;
+        const href = anchor.getAttribute('href');
         if (!href || Url.isAbsoluteUrl(href)) {
             return;
         }
 
-        let target = anchor.getAttribute('target') || '_self';
+        const target = anchor.getAttribute('target') || '_self';
         if (target !== '_self') {
             return;
         }
@@ -150,10 +150,10 @@ export class App extends Component {
      * @param event The event triggered by the router.
      */
     private onPopState = ({ state, previous }: PopStateData) => {
-        let previousPage = this.currentPage;
-        let currentPage = state.response?.render() as HyperNode;
-        let previousKey = previousPage?.key;
-        let currentKey = currentPage?.key;
+        const previousPage = this.currentPage;
+        const currentPage = state.response?.render() as HyperNode;
+        const previousKey = previousPage?.key;
+        const currentKey = currentPage?.key;
         if ((previousKey || currentKey) && previousKey === currentKey) {
             this.previousPage = undefined;
         } else {

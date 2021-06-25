@@ -29,8 +29,8 @@ export class Pattern {
         if (pattern === '*') {
             return [/.*/, []];
         }
-        let names: string[] = [];
-        let chunks = pattern
+        const names: string[] = [];
+        const chunks = pattern
             .split('/')
             .map((chunk) => {
                 if (!chunk) {
@@ -50,7 +50,7 @@ export class Pattern {
             })
             .join('');
 
-        let regex = new RegExp(`^${chunks || '\\/'}$`, 'i');
+        const regex = new RegExp(`^${chunks || '\\/'}$`, 'i');
         return [regex, names];
     }
 
@@ -87,7 +87,7 @@ export class Pattern {
     constructor(rule: PatternRule) {
         this.pattern = rule.pattern || '*';
         this.priority = typeof rule.priority !== 'undefined' ? rule.priority : 20;
-        let [regex, names] = (this.constructor as typeof Pattern).patternToRegex(this.pattern);
+        const [regex, names] = (this.constructor as typeof Pattern).patternToRegex(this.pattern);
         this.regex = regex;
         this.names = names;
     }

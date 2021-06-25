@@ -55,7 +55,7 @@ export class Request<T extends RequestParams = RequestParams> {
      * @param path The path to navigate.
      */
     constructor(path: string) {
-        this.url = new Url.Url(path, null);
+        this.url = new Url.Url(path);
     }
 
     /**

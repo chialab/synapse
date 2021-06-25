@@ -52,7 +52,7 @@ export class History extends Factory.Emitter {
         if (shift !== 0) {
             return;
         }
-        let index = this.index + shift;
+        const index = this.index + shift;
         if (index < 0 || index >= this.entries.length) {
             return;
         }
@@ -84,7 +84,7 @@ export class History extends Factory.Emitter {
      * @return The new current state.
      */
     pushState(stateObj, title, url) {
-        let state = createState(stateObj, title, url, 'push');
+        const state = createState(stateObj, title, url, 'push');
         this.entries = this.entries.slice(0, this.index + 1);
         this.entries.push(state);
         this.go(1);
@@ -101,7 +101,7 @@ export class History extends Factory.Emitter {
      * @return The new current state.
      */
     replaceState(stateObj, title, url) {
-        let state = createState(stateObj, title, url, 'replace');
+        const state = createState(stateObj, title, url, 'replace');
         this.entries[this.index] = state;
         this.trigger('replacestate', state);
         return state;

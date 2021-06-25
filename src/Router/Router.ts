@@ -178,8 +178,8 @@ export class Router extends Factory.Emitter {
         let response = new Response(request);
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
-            let middleware = middlewares[i];
-            let params = middleware.matches(request.url.pathname);
+            const middleware = middlewares[i];
+            const params = middleware.matches(request.url.pathname as string);
             if (!params) {
                 continue;
             }
@@ -200,12 +200,12 @@ export class Router extends Factory.Emitter {
                 if (res.redirected != null) {
                     return res;
                 }
-                let params = route.matches(request.url.pathname);
+                const params = route.matches(request.url.pathname as string);
                 if (params === false) {
                     return next(req, res, this);
                 }
                 req.set(params);
-                let data = await route.exec(req, res, next, this);
+                const data = await route.exec(req, res, next, this);
                 if (data instanceof Response) {
                     res = data;
                 } else if (data) {
@@ -235,8 +235,8 @@ export class Router extends Factory.Emitter {
         }
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
-            let middleware = middlewares[i];
-            let params = middleware.matches(request.url.pathname);
+            const middleware = middlewares[i];
+            const params = middleware.matches(request.url.pathname as string);
             if (!params) {
                 continue;
             }
@@ -265,7 +265,7 @@ export class Router extends Factory.Emitter {
     async navigate(path: string, store: any = {}, trigger = true, force = false): Promise<Response|null> {
         path = this.preparePath(path);
         if (!this.shouldNavigate(path) && !force) {
-            let hash = new Url.Url(path, this.base).hash;
+            const hash = new Url.Url(path, this.base).hash;
             this.fragment(hash || '');
             return null;
         }
@@ -278,8 +278,8 @@ export class Router extends Factory.Emitter {
             response = this.handleError(request, error);
         }
 
-        let index = this.index + 1;
-        let title = response.title || window.document.title;
+        const index = this.index + 1;
+        const title = response.title || window.document.title;
         await this.pushState({
             id: this.id,
             url: response.redirected || path,
@@ -312,7 +312,7 @@ export class Router extends Factory.Emitter {
             response = this.handleError(request, error);
         }
 
-        let title = response.title || window.document.title;
+        const title = response.title || window.document.title;
         await this.replaceState({
             id: this.id,
             url: response.redirected || path,
@@ -409,13 +409,13 @@ export class Router extends Factory.Emitter {
      */
     disconnect(routeOrMiddleare: Route | Middleware): boolean {
         if (routeOrMiddleare instanceof Route) {
-            let io = this.connectedRoutes.indexOf(routeOrMiddleare);
+            const io = this.connectedRoutes.indexOf(routeOrMiddleare);
             if (io !== -1) {
                 this.connectedRoutes.splice(io, 1);
                 return true;
             }
         } else if (routeOrMiddleare instanceof Middleware) {
-            let io = this.connectedMiddlewares.indexOf(routeOrMiddleare);
+            const io = this.connectedMiddlewares.indexOf(routeOrMiddleare);
             if (io !== -1) {
                 this.connectedMiddlewares.splice(io, 1);
                 return true;
@@ -434,14 +434,14 @@ export class Router extends Factory.Emitter {
         this.history = history;
         if (history === window.history) {
             this.onPopStateCallback = (event: PopStateEvent) => {
-                let state = event.state as unknown as State;
+                const state = event.state as unknown as State;
                 if (event.state &&
                     typeof event.state === 'object' &&
                     typeof event.state.index === 'number') {
                     return this.onPopState(state, state.id !== this.id ? state.url : undefined);
                 }
 
-                let location = trimSlash(this.getPathFromLocation());
+                const location = trimSlash(this.getPathFromLocation());
                 if (!this.shouldNavigate(location)) {
                     event.preventDefault();
                     return;
@@ -500,7 +500,7 @@ export class Router extends Factory.Emitter {
         request.reject(error);
         let response = this.errorHandler(request, error, this);
         if (!(response instanceof Response)) {
-            let view = response;
+            const view = response;
             response = new Response(request);
             response.setTitle(error.message);
             response.setView(view);
@@ -514,8 +514,8 @@ export class Router extends Factory.Emitter {
      * @param state The state to add.
      */
     private async pushState(state: State, trigger = true) {
-        let url = this.buildFullUrl(state.url);
-        let previous = this.states[this.index];
+        const url = this.buildFullUrl(state.url);
+        const previous = this.states[this.index];
         this.index = state.index;
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
@@ -544,8 +544,8 @@ export class Router extends Factory.Emitter {
      * @param state The state to use as replacement.
      */
     private async replaceState(state: State, trigger = true) {
-        let url = this.buildFullUrl(state.url);
-        let previous = this.states[this.index];
+        const url = this.buildFullUrl(state.url);
+        const previous = this.states[this.index];
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
             if (this.history === window.history) {
@@ -573,7 +573,7 @@ export class Router extends Factory.Emitter {
      * @param path The path to navigate.
      */
     private async onPopState(newState: State, path?: string) {
-        let previous = this.states[this.index];
+        const previous = this.states[this.index];
         let state: State;
         if (typeof path === 'string') {
             await this.replace(path || '/', newState && newState.store, false);

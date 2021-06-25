@@ -3,42 +3,43 @@
   "version": "3.0.0-alpha.29",
   "type": "module",
   "description": "Application framework built on the top of DNA Web Components.",
-  "directories": {
-    "src": "src",
-    "test": "test",
-    "dist": "dist"
-  },
-  "lib": "src/index.ts",
+  "main": "dist/cjs/synapse.cjs",
   "module": "dist/esm/synapse.js",
-  "main": "dist/cjs/synapse.js",
   "browser": {
-    "node-fetch": "fetch"
+    "node-fetch": false
   },
   "types": "types/index.d.ts",
   "exports": {
-    "require": "./dist/cjs/synapse.js",
+    "require": "./dist/cjs/synapse.cjs",
+    "node": "./dist/node/synapse.js",
     "default": "./dist/esm/synapse.js"
   },
   "scripts": {
-    "build": "rm -rf dist types && yarn types && rna build --production --jsx.pragma 'h' --jsx.module '@chialab/dna'",
-    "types": "tsc --declaration --emitDeclarationOnly --declarationDir 'types'",
-    "watch": "rna build --watch --no-jsx",
-    "test": "rna lint + unit",
-    "lint": "rna lint",
-    "start": "yarn install --ignore-scripts && rna build --watch",
-    "prepublish": "yarn run build"
+    "build": "npm run types && rimraf dist && npm run build:esm && npm run build:cjs && npm run build:node",
+    "build:esm": "rimraf dist/esm && rna build src/index.ts --output dist/esm/synapse.js --format esm --minify --platform browser",
+    "build:node": "rimraf dist/node && rna build src/index.ts --output dist/node/synapse.js --format esm --minify --platform node",
+    "build:cjs": "rimraf dist/cjs && rna build src/index.ts --output dist/cjs/synapse.cjs --format cjs --minify --platform node",
+    "types": "rimraf types && tsc --declaration --emitDeclarationOnly --declarationDir 'types'",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "prepack": "npm run build",
+    "release": "source .env && semantic-release --no-ci"
   },
   "license": "MIT",
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "dependencies": {
-    "@chialab/dna": "^3.0.0",
+    "@chialab/dna": "^3.0.0 || ^4.0.0",
     "@chialab/proteins": "^3.2.2",
     "node-fetch": "^2.6.1",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@chialab/eslint-config": "^2.0.2",
+    "@chialab/rna": "^0.8.1",
+    "@chialab/rna-bundler": "^0.8.6",
     "eslint": "^7.0.0",
+    "rimraf": "^3.0.2",
+    "semantic-release": "^17.4.4",
     "typescript": "^4.1.3"
   }
 }
