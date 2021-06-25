@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://www.chialab.io/p/synapse">
-        <img alt="Synapse logo" width="144" height="144" src="https://raw.githack.com/chialab/synapse/3.0.0/logo.svg" />
+        <img alt="Synapse logo" width="144" height="144" src="https://raw.githack.com/chialab/synapse/main/logo.svg" />
     </a>
 </p>
 
@@ -99,7 +99,7 @@ app.navigate('/');
 ## Development
 
 [![Build status](https://github.com/chialab/synapse/workflows/Main/badge.svg)](https://github.com/chialab/synapse/actions?query=workflow%3ABuild)
-[![codecov](https://codecov.io/gh/chialab/synapse/branch/3.0.0/graph/badge.svg)](https://codecov.io/gh/chialab/synapse)
+[![codecov](https://codecov.io/gh/chialab/synapse/branch/main/graph/badge.svg)](https://codecov.io/gh/chialab/synapse)
 
 ### Build the project
 
