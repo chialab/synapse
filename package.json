@@ -1,6 +1,6 @@
 {
   "name": "@chialab/synapse",
-  "version": "3.0.0-alpha.30",
+  "version": "3.0.0-alpha.31",
   "type": "module",
   "description": "Application framework built on the top of DNA Web Components.",
   "main": "dist/cjs/synapse.cjs",
@@ -38,7 +38,7 @@
   },
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "dependencies": {
-    "@chialab/dna": "^3.0.0 || ^4.0.0",
+    "@chialab/dna": "^3.0.0",
     "@chialab/proteins": "^3.2.2",
     "node-fetch": "^2.6.1",
     "tslib": "^2.0.0"
