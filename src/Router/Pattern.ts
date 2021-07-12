@@ -37,7 +37,7 @@ export class Pattern {
                     return '';
                 }
                 if (chunk.indexOf(':') !== 0) {
-                    return `\\/${chunk.replace(/[()[\]{}\\\-+.*?^$]/g, '\\$0')}`;
+                    return `\\/${chunk.replace(/([()[\]{}\\\-+.*?^$])/g, '\\$1')}`;
                 }
                 let name = chunk.substr(1);
                 let pattern = '\\/([^\\/]+?)';
