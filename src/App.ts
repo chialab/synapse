@@ -1,5 +1,5 @@
 import type { PopStateData } from './Router/Router';
-import type { HyperNode } from '@chialab/dna';
+import type { Template } from '@chialab/dna';
 import { Url } from '@chialab/proteins';
 import { Component, window, property } from '@chialab/dna';
 import { Request } from './Router/Request';
@@ -53,12 +53,12 @@ export class App extends Component {
     /**
      * The previous Router Response render result.
      */
-    private previousPage?: HyperNode;
+    private previousPage?: Template;
 
     /**
      * The current Router Response render result.
      */
-    private currentPage?: HyperNode;
+    private currentPage?: Template;
 
     /**
      * The current Router Request instance.
@@ -151,15 +151,10 @@ export class App extends Component {
      */
     private onPopState = ({ state, previous }: PopStateData) => {
         const previousPage = this.currentPage;
-        const currentPage = state.response?.render() as HyperNode;
-        const previousKey = previousPage?.key;
-        const currentKey = currentPage?.key;
-        if ((previousKey || currentKey) && previousKey === currentKey) {
-            this.previousPage = undefined;
-        } else {
+        if (previous && !previous.request.isSubRouteRequest(state.request)) {
             this.previousPage = previousPage;
         }
-        this.currentPage = currentPage;
+        this.currentPage = state.response?.render();
         if (previous) {
             this.setNavigation(state.index < previous.index ?
                 NavigationDirection.back :

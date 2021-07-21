@@ -36,6 +36,10 @@ export class Pattern {
                 if (!chunk) {
                     return '';
                 }
+                if (chunk === '*') {
+                    names.push('_');
+                    return '(\\/.*?)?';
+                }
                 if (chunk.indexOf(':') !== 0) {
                     return `\\/${chunk.replace(/([()[\]{}\\\-+.*?^$])/g, '\\$1')}`;
                 }

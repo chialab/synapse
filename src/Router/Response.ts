@@ -14,6 +14,19 @@ export type View = (request: Request, response: Response) => Template;
  * A class representing the response for a new page request in the app.
  */
 export class Response {
+    private _childResponse?: Response | null;
+
+    /**
+     * The child response in case of subrouting.
+     */
+    get childResponse() {
+        return this._childResponse;
+    }
+
+    /**
+     * The parent response in case of subrouting.
+     */
+    public readonly parent?: Response;
 
     /**
      * Flag if the Response has been redirected.
@@ -45,8 +58,20 @@ export class Response {
      * Create a Response object.
      * @param request The request to respond.
      */
-    constructor(request: Request) {
+    constructor(request: Request, parent?: Response) {
         this.request = request;
+        if (parent) {
+            this.parent = parent;
+            this.setData(parent.getData());
+        }
+    }
+
+    /**
+     * Set the child response in case of subrouting.
+     * @param child The child response.
+     */
+    child(child: Response | null) {
+        return this._childResponse = child;
     }
 
     /**

@@ -37,6 +37,11 @@ export interface RouteRule extends PatternRule {
      * A factory that generates the template to use when matched.
      */
     render?: View;
+
+    /**
+     * The child router.
+     */
+    router?: Router;
 }
 
 /**
@@ -54,6 +59,11 @@ export class Route extends Pattern {
     readonly view?: View;
 
     /**
+     * The child router.
+     */
+    readonly router?: Router;
+
+    /**
      * Create a Route instance.
      * @param rule A RouteRule object.
      */
@@ -61,6 +71,7 @@ export class Route extends Pattern {
         super(rule);
         this.handler = rule.handler;
         this.view = rule.render;
+        this.router = rule.router;
     }
 
     /**
@@ -71,7 +82,20 @@ export class Route extends Pattern {
      * @param router The current router instance.
      * @return The very same input Response instance or a new one.
      */
-    exec(request: Request, response: Response, next: NextHandler, router: Router) {
-        return this.handler?.(request, response, next, router);
+    async exec(request: Request, response: Response, next: NextHandler, router: Router) {
+        const data = await this.handler?.(request, response, next, router);
+        if (data instanceof Response) {
+            if (data !== response) {
+                return data;
+            }
+        } else if (data) {
+            response.redirect(data);
+            return response;
+        }
+        if (this.router) {
+            response.child(await this.router.navigate(request.params?._ || '/', {}, false, false, request, response));
+        }
+
+        return response;
     }
 }

@@ -172,10 +172,10 @@ export class Router extends Factory.Emitter {
      * @param request The request to handle.
      * @return The final response instance.
      */
-    async handle(request: Request): Promise<Response> {
+    async handle(request: Request, parentResponse?: Response): Promise<Response> {
         const routes = this.connectedRoutes;
         const middlewares = this.connectedMiddlewares;
-        let response = new Response(request);
+        let response = new Response(request, parentResponse);
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             const middleware = middlewares[i];
@@ -204,14 +204,13 @@ export class Router extends Factory.Emitter {
                 if (params === false) {
                     return next(req, res, this);
                 }
-                req.set(params);
-                const data = await route.exec(req, res, next, this);
-                if (data instanceof Response) {
-                    res = data;
-                } else if (data) {
-                    res.redirect(data);
-                    return res;
+                req.setMatcher(route);
+                req.setParams(params);
+                const newResponse = await route.exec(req, res, next, this);
+                if (newResponse.redirected) {
+                    return newResponse;
                 }
+                res = newResponse;
                 if (route.view) {
                     res.setView(route.view);
                 }
@@ -263,7 +262,7 @@ export class Router extends Factory.Emitter {
      * @return The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async navigate(path: string, store: any = {}, trigger = true, force = false): Promise<Response|null> {
+    async navigate(path: string, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response|null> {
         path = this.preparePath(path);
         if (!this.shouldNavigate(path) && !force) {
             const hash = new Url.Url(path, this.base).hash;
@@ -271,10 +270,10 @@ export class Router extends Factory.Emitter {
             return null;
         }
 
-        const request = new Request(path);
+        const request = parentRequest ? parentRequest.child(path) : new Request(path);
         let response: Response;
         try {
-            response = await this.handle(request);
+            response = await this.handle(request, parentResponse);
         } catch (error) {
             response = this.handleError(request, error);
         }
@@ -286,12 +285,13 @@ export class Router extends Factory.Emitter {
             url: response.redirected || path,
             index,
             title,
+            request,
             response,
             store,
         }, trigger);
 
         if (response.redirected != null) {
-            return this.replace(response.redirected, store, trigger);
+            return this.replace(response.redirected, store, trigger, parentRequest, parentResponse);
         }
 
         return response;
@@ -303,13 +303,13 @@ export class Router extends Factory.Emitter {
      * @return The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async replace(path: string, store: any = {}, trigger = true): Promise<Response> {
+    async replace(path: string, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
         path = this.preparePath(path);
 
-        const request = new Request(path);
+        const request = parentRequest ? parentRequest.child(path) : new Request(path);
         let response: Response;
         try {
-            response = await this.handle(request);
+            response = await this.handle(request, parentResponse);
         } catch (error) {
             response = this.handleError(request, error);
         }
@@ -320,6 +320,7 @@ export class Router extends Factory.Emitter {
             url: response.redirected || path,
             index: this.index,
             title,
+            request,
             response,
             store,
         }, trigger);
