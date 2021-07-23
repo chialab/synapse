@@ -640,6 +640,10 @@ export class Router extends Factory.Emitter {
      * @param path The requested path.
      */
     private shouldNavigate(path: string) {
+        if (!this.history) {
+            return true;
+        }
+
         if (!this.current) {
             return true;
         }
