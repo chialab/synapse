@@ -11,6 +11,11 @@ import { Request } from './Request';
 export type View = (request: Request, response: Response) => Template;
 
 /**
+ * A set of metatags to be set on the page.
+ */
+export type Meta = { [key: string]: string };
+
+/**
  * A class representing the response for a new page request in the app.
  */
 export class Response {
@@ -39,10 +44,39 @@ export class Response {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public data: any;
 
+    protected _title?: string|undefined;
+
     /**
      * The title of the response.
      */
-    public title?: string;
+    public get title(): string|undefined {
+        return this._childResponse?.title ?? this._title;
+    }
+
+    /**
+     * Set the title of the response.
+     * @deprecated Use setTitle() instead.
+     */
+    public set title(title: string|undefined) {
+        this.setTitle(title);
+    }
+
+    protected _meta?: Meta|undefined;
+
+    /**
+     * The metadata associated to the response.
+     */
+    public get meta(): Meta|undefined {
+        return this._childResponse?.meta ?? this._meta;
+    }
+
+    /**
+     * Set the metadata associated to the response.
+     * @deprecated Use setMeta() instead.
+     */
+    public set meta(meta: Meta|undefined) {
+        this.setMeta(meta);
+    }
 
     /**
      * The view of the response.
@@ -102,8 +136,22 @@ export class Response {
      * Set the title of the Response.
      * @param title The string to set.
      */
-    setTitle(title: string) {
-        this.title = title;
+    setTitle(title: string|undefined) {
+        this._title = title;
+        if (this._childResponse) {
+            this._childResponse.setTitle(title);
+        }
+    }
+
+    /**
+     * Set metadata to be associated to the response.
+     * @param meta The metadata to set.
+     */
+    setMeta(meta: Meta|undefined) {
+        this._meta = meta;
+        if (this._childResponse) {
+            this._childResponse.setMeta(meta);
+        }
     }
 
     /**
