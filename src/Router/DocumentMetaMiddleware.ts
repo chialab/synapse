@@ -1,6 +1,6 @@
 import { Middleware } from './Middleware';
-import { Request } from './Request';
-import { Meta, Response } from './Response';
+import type { Request } from './Request';
+import type { Meta, Response } from './Response';
 
 export type TitleBuilder = (title: string | undefined, response: Response) => string;
 export type MetaBuilder = (meta: Meta|undefined, response: Response) => Meta;
@@ -8,7 +8,7 @@ export type MetaBuilder = (meta: Meta|undefined, response: Response) => Meta;
 /**
  * Middleware to set the document title and meta tags upon navigation.
  */
-export class DocumentMetaMiddleware extends Middleware{
+export class DocumentMetaMiddleware extends Middleware {
     /**
      * Get the owner document.
      */
