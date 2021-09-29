@@ -186,7 +186,7 @@ export class Router extends Factory.Emitter {
             try {
                 response = await middleware.hookBefore(request, response, params, this) || response;
             } catch (error) {
-                request.reject(error);
+                request.reject(error as Error);
                 throw error;
             }
             if (response.redirected != null) {
@@ -224,7 +224,7 @@ export class Router extends Factory.Emitter {
         try {
             response = await starter(request, response, this);
         } catch (error) {
-            request.reject(error);
+            request.reject(error as Error);
             throw error;
         }
 
@@ -242,7 +242,7 @@ export class Router extends Factory.Emitter {
             try {
                 response = await middleware.hookAfter(request, response, params, this) || response;
             } catch (error) {
-                request.reject(error);
+                request.reject(error as Error);
                 throw error;
             }
             if (response.redirected != null) {
@@ -275,7 +275,7 @@ export class Router extends Factory.Emitter {
         try {
             response = await this.handle(request, parentResponse);
         } catch (error) {
-            response = this.handleError(request, error);
+            response = this.handleError(request, error as Error);
         }
 
         const index = this.index + 1;
@@ -311,7 +311,7 @@ export class Router extends Factory.Emitter {
         try {
             response = await this.handle(request, parentResponse);
         } catch (error) {
-            response = this.handleError(request, error);
+            response = this.handleError(request, error as Error);
         }
 
         const title = response.title || window.document.title;

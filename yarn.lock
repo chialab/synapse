@@ -914,9 +914,11 @@
     "@chialab/estransform" "^0.9.6"
 
 "@chialab/dna@^3.0.0":
-  version "3.10.0"
-  resolved "https://registry.npmjs.org/@chialab/dna/-/dna-3.10.0.tgz#657ab67397d815595440d35bab615f94bfe8f2b7"
-  integrity sha512-h/ktQxnWWKI/gYA+KwnDN/5GXVUHSnY3mqXTG8gwFHCxKbpawkHpkmSinBhunKtbDo2otPGza46TZpodYE38KA==
+  version "3.10.1"
+  resolved "https://registry.npmjs.org/@chialab/dna/-/dna-3.10.1.tgz#dfb6783144a03b4f343fd9b8cef8da7c8d418fb6"
+  integrity sha512-6Np6LvcsgFbC9/NhkGggKw5xbgEqBV/gIT8cQBMtGMQSkUzPSxHsPYGxQLVNqTXd4+xFt3nwUYyT14vvQDrRfw==
+  dependencies:
+    "@types/jsdom" "^16.0.0"
 
 "@chialab/esbuild-plugin-alias@^0.9.0":
   version "0.9.0"
@@ -1486,6 +1488,15 @@
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==
 
+"@types/jsdom@^16.0.0":
+  version "16.2.13"
+  resolved "https://registry.npmjs.org/@types/jsdom/-/jsdom-16.2.13.tgz#126c8b7441b159d6234610a48de77b6066f1823f"
+  integrity sha512-8JQCjdeAidptSsOcRWk2iTm9wCcwn9l+kRG6k5bzUacrnm1ezV4forq0kWjUih/tumAeoG+OspOvQEbbRucBTw==
+  dependencies:
+    "@types/node" "*"
+    "@types/parse5" "*"
+    "@types/tough-cookie" "*"
+
 "@types/json-schema@^7.0.7":
   version "7.0.9"
   resolved "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.9.tgz#97edc9037ea0c38585320b28964dde3b39e4660d"
@@ -1511,6 +1522,11 @@
   resolved "https://registry.npmjs.org/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
+"@types/parse5@*":
+  version "6.0.1"
+  resolved "https://registry.npmjs.org/@types/parse5/-/parse5-6.0.1.tgz#f8ae4fbcd2b9ba4ff934698e28778961f9cb22ca"
+  integrity sha512-ARATsLdrGPUnaBvxLhUlnltcMgn7pQG312S8ccdYlnyijabrX9RN/KN/iGj9Am96CoW8e/K9628BA7Bv4XHdrA==
+
 "@types/parse5@^2.2.34":
   version "2.2.34"
   resolved "https://registry.npmjs.org/@types/parse5/-/parse5-2.2.34.tgz#e3870a10e82735a720f62d71dcd183ba78ef3a9d"
@@ -1522,6 +1538,11 @@
   version "0.12.1"
   resolved "https://registry.npmjs.org/@types/retry/-/retry-0.12.1.tgz#d8f1c0d0dc23afad6dc16a9e993a0865774b4065"
   integrity sha512-xoDlM2S4ortawSWORYqsdU+2rxdh4LRW9ytc3zmT37RIKQh6IHyKwwtKhKis9ah8ol07DCkZxPt8BBvPjC6v4g==
+
+"@types/tough-cookie@*":
+  version "4.0.1"
+  resolved "https://registry.npmjs.org/@types/tough-cookie/-/tough-cookie-4.0.1.tgz#8f80dd965ad81f3e1bc26d6f5c727e132721ff40"
+  integrity sha512-Y0K95ThC3esLEYD6ZuqNek29lNX2EM1qxV8y2FTLUB0ff5wWrk7az+mLrnNFUnaXcgKye22+sFBRXOgpPILZNg==
 
 "@typescript-eslint/eslint-plugin@^4.8.2":
   version "4.32.0"
