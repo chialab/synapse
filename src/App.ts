@@ -1,7 +1,7 @@
 import type { PopStateData } from './Router/Router';
 import type { Template } from '@chialab/dna';
 import { Url } from '@chialab/proteins';
-import { Component, window, property } from '@chialab/dna';
+import { Component, window, property, observe } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router } from './Router/Router';
@@ -164,6 +164,38 @@ export class App extends Component {
         }
         this.response = state.response;
     }
+
+    /**
+     * Trigger `onRequest` hook.
+     */
+    @observe('request')
+    private _onRequestChanged(oldValue: Request|undefined, newValue: Request) {
+        this.onRequest(oldValue, newValue);
+    }
+
+    /**
+     * Trigger `onRequest` hook.
+     */
+    @observe('response')
+    private _onResponseChanged(oldValue: Response|undefined, newValue: Response) {
+        this.onResponse(oldValue, newValue);
+    }
+
+    /**
+     * Request changed hook.
+     * @param oldValue The previous request object.
+     * @param newValue The new request object.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onRequest(oldValue: Request|undefined, newValue: Request) {}
+
+    /**
+     * Response changed hook.
+     * @param oldValue The previous response object.
+     * @param newValue The new response object.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onResponse(oldValue: Response|undefined, newValue: Response) {}
 
     /**
      * Set navigation attribute.
