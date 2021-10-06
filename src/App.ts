@@ -169,7 +169,7 @@ export class App extends Component {
      * Trigger `onRequest` hook.
      */
     @observe('request')
-    private _onRequestChanged(oldValue: Request|undefined, newValue: Request) {
+    protected _onRequestChanged(oldValue: Request|undefined, newValue: Request) {
         this.onRequest(oldValue, newValue);
     }
 
@@ -177,7 +177,7 @@ export class App extends Component {
      * Trigger `onRequest` hook.
      */
     @observe('response')
-    private _onResponseChanged(oldValue: Response|undefined, newValue: Response) {
+    protected _onResponseChanged(oldValue: Response|undefined, newValue: Response) {
         this.onResponse(oldValue, newValue);
     }
 
