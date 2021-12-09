@@ -25,7 +25,9 @@ export class App extends Component {
                 return this.handleLink(event, node);
             },
             'animationstart'(this: App) {
-                this.activeAnimations++;
+                if (this.currentPage !== this.previousPage) {
+                    this.activeAnimations++;
+                }
             },
             'animationend'(this: App) {
                 this.activeAnimations--;
@@ -58,7 +60,7 @@ export class App extends Component {
     /**
      * The current Router Response render result.
      */
-    private currentPage?: Template;
+    protected currentPage?: Template;
 
     /**
      * The current Router Request instance.
