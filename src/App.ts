@@ -109,7 +109,7 @@ export class App extends Component {
     /**
      * @inheritdoc
      */
-    render() {
+    render(): Template {
         return [
             this.previousPage,
             this.currentPage,
