@@ -12,7 +12,7 @@ import { Pattern } from './Pattern';
  * @param router The current router instance.
  * @return The next Response instance.
  */
-export type NextHandler = (request: Request, response: Response, router: Router) => Response|Promise<Response>;
+export type NextHandler = (request: Request, response: Response, router: Router) => Response|void|Promise<Response|void>;
 
 /**
  * The signature of a Route handler method.
@@ -22,7 +22,7 @@ export type NextHandler = (request: Request, response: Response, router: Router)
  * @param router The current router instance.
  * @return The very same input Response instance or a new one.
  */
-export type RouteHandler = (request: Readonly<Request>, response: Readonly<Response>, next: NextHandler, router: Router) => Response|string|Promise<Response|string>;
+export type RouteHandler = (request: Readonly<Request>, response: Readonly<Response>, next: NextHandler, router: Router) => Response|string|void|Promise<Response|string|void>;
 
 /**
  * The interface of a route rule.

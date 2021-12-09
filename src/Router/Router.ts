@@ -222,7 +222,7 @@ export class Router extends Factory.Emitter {
         );
 
         try {
-            response = await starter(request, response, this);
+            response = (await starter(request, response, this)) ?? response;
         } catch (error) {
             request.reject(error as Error);
             throw error;
