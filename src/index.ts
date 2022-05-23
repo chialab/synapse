@@ -16,5 +16,6 @@ export { App } from './App';
 export * from './Helpers/Env';
 export * from './Helpers/Network';
 export * from './Helpers/Animations';
+export * from './Helpers/Scripts';
 export * from './Helpers/StyleSheets';
 export { DocumentMetaMiddleware } from './Router/DocumentMetaMiddleware';
