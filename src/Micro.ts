@@ -121,9 +121,7 @@ export class Micro extends Component {
      * Popstate listener.
      * @param data Popstate data.
      */
-    protected _onPopState(data: PopStateData) {
-        return this.onPopState(data);
-    }
+    protected _onPopState = (data: PopStateData) => this.onPopState(data);
 
     /**
      * Handle popstate event from the router.
