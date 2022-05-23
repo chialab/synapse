@@ -1,94 +1,173 @@
 import type { PopStateData } from './Router/Router';
-import type { Template } from '@chialab/dna';
-import { listen } from '@chialab/dna';
-import { requestAnimationFrame } from './Helpers/Animations';
-import { Micro } from './Micro';
+import { Url } from '@chialab/proteins';
+import { Component, window, property, state, observe, listen } from '@chialab/dna';
+import { Request } from './Router/Request';
+import { Response } from './Router/Response';
+import { Router } from './Router/Router';
+
+enum NavigationDirection {
+    back = 'back',
+    forward = 'forward',
+}
 
 /**
  * A Web Component which handles routing.
  */
-export class App extends Micro {
+export class App extends Component {
     /**
-     * The number of active animations.
-     * Remove the previous Response only when its value is 0.
+     * The History instance for the application.
      */
-    private activeAnimations: number = 0;
+    public history: History = window.history;
 
     /**
-     * The previous Router Response render result.
+     * The Router instance for the application.
      */
-    private previousPage?: Template;
+    public router: Router = new Router();
 
     /**
-     * The current Router Response render result.
+     * The base url of the application.
      */
-    protected currentPage?: Template;
+    @property({
+        type: String,
+    }) base?: string;
 
     /**
-     * @inheritdoc
+     * The current Router Request instance.
      */
-    forceUpdate() {
-        super.forceUpdate();
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                // after 2 raf, we are sure that animations started
-                this.removePreviousResponse();
-            });
+    @property({
+        type: Request,
+    }) request?: Request;
+
+    /**
+     * The current Router Response instance.
+     */
+    @property({
+        type: Response,
+    }) response?: Response;
+
+    /**
+     * The navigation direction.
+     */
+    @state({
+        type: String,
+        attribute: ':navigation',
+        update: false,
+    }) navigationDirection: NavigationDirection = NavigationDirection.forward;
+
+    /**
+     * Start the routing of the application.
+     * @param path The initial path to navigate.
+     */
+    async start(path?: string) {
+        if (this.base) {
+            this.router.setBase(this.base);
+        }
+        this.router.middleware({
+            pattern: '*',
+            priority: -Infinity,
+            before: (req) => {
+                this.request = req;
+            },
         });
+        this.router.on('popstate', this._onPopState);
+        this.router.on('pushstate', this._onPopState);
+        this.router.on('replacestate', this._onPopState);
+        const response = await this.router.start(this.history, path);
+        this.response = response;
+        return response;
     }
 
     /**
-     * @inheritdoc
+     * Trigger a routing navition.
+     * @param path The route path to navigate.
+     * @return The response instance for the navigation.
      */
-    render(): Template {
-        return [
-            this.previousPage,
-            this.currentPage,
-        ];
+    navigate(path: string): Promise<Response|null> {
+        return this.router.navigate(path);
     }
 
     /**
-     * @inheritdoc
+     * Anchors click listener.
+     * @param event The click event.
+     * @param node The anchor node.
+     */
+    @listen('click', 'a')
+    protected _handleLink(event: Event, node?: Node) {
+        return this.handleLink(event, node as HTMLElement);
+    }
+
+    /**
+     * Handle click on anchors.
+     * @param event The click event.
+     * @param node The anchor node.
+     */
+    async handleLink(event: Event, node: HTMLElement) {
+        const href = node.getAttribute('href');
+        if (!href || Url.isAbsoluteUrl(href)) {
+            return;
+        }
+
+        const target = node.getAttribute('target') || '_self';
+        if (target !== '_self') {
+            return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+        this.navigate(href);
+    }
+
+    /**
+     * Popstate listener.
+     * @param data Popstate data.
+     */
+    protected _onPopState = (data: PopStateData) => this.onPopState(data);
+
+    /**
+     * Handle popstate event from the router.
+     * @param data The event triggered by the router.
      */
     onPopState(data: PopStateData) {
         const { state, previous } = data;
-        const previousPage = this.currentPage;
-        if (previous && !previous.request.isSubRouteRequest(state.request)) {
-            this.previousPage = previousPage;
+        if (previous) {
+            this.navigationDirection = state.index < previous.index ?
+                NavigationDirection.back :
+                NavigationDirection.forward;
+        } else {
+            this.navigationDirection = NavigationDirection.forward;
         }
-        this.currentPage = state.response?.render();
-        super.onPopState(data);
+        this.response = state.response;
     }
 
     /**
-     * Remove the previous page if all animations ended.
+     * Trigger `onRequest` hook.
      */
-    private removePreviousResponse() {
-        if (this.activeAnimations !== 0) {
-            return;
-        }
-        if (this.previousPage) {
-            this.previousPage = undefined;
-            this.forceUpdate();
-        }
+    @observe('request')
+    protected _onRequestChanged(oldValue: Request|undefined, newValue: Request) {
+        this.onRequest(oldValue, newValue);
     }
 
     /**
-     * Animation start listener.
+     * Trigger `onRequest` hook.
      */
-    @listen('animationstart')
-    protected _onAnimationStart() {
-        if (this.currentPage !== this.previousPage) {
-            this.activeAnimations++;
-        }
+    @observe('response')
+    protected _onResponseChanged(oldValue: Response|undefined, newValue: Response) {
+        this.onResponse(oldValue, newValue);
     }
 
     /**
-     * Animation end listener.
+     * Request changed hook.
+     * @param oldValue The previous request object.
+     * @param newValue The new request object.
      */
-    @listen('animationend')
-    protected _onAnimationEnd() {
-        this.activeAnimations--;
-        this.removePreviousResponse();
-    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onRequest(oldValue: Request|undefined, newValue: Request) {}
+
+    /**
+     * Response changed hook.
+     * @param oldValue The previous response object.
+     * @param newValue The new response object.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onResponse(oldValue: Response|undefined, newValue: Response) {}
 }

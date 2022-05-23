@@ -86,7 +86,7 @@ export class Response {
     /**
      * The request to respond.
      */
-    protected request: Request;
+    readonly request: Request;
 
     /**
      * Create a Response object.

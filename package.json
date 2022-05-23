@@ -16,8 +16,8 @@
   },
   "scripts": {
     "build": "yarn types && rimraf dist && yarn build:esm && yarn build:cjs && yarn build:node",
-    "build:esm": "rimraf dist/esm && rna build src/index.ts --output dist/esm/synapse.js --format esm --minify --platform browser",
-    "build:node": "rimraf dist/node && rna build src/index.ts --output dist/node/synapse.js --format esm --minify --platform node",
+    "build:esm": "rimraf dist/esm && rna build src/index.ts --output dist/esm/synapse.js --format esm --minify --jsxFactory h --jsxFragment Fragment --jsxModule '@chialab/dna' --platform browser",
+    "build:node": "rimraf dist/node && rna build src/index.ts --output dist/node/synapse.js --format esm --minify --jsxFactory h --jsxFragment Fragment --jsxModule '@chialab/dna' --platform node",
     "build:cjs": "rimraf dist/cjs && rna build src/index.ts --output dist/cjs/synapse.cjs --format cjs --minify --platform node",
     "types": "rimraf types && tsc --declaration --emitDeclarationOnly --declarationDir 'types'",
     "lint": "eslint src",
