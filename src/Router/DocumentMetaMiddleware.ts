@@ -1,6 +1,7 @@
-import { Middleware } from './Middleware';
 import type { Request } from './Request';
 import type { Meta, Response } from './Response';
+import { document } from '@chialab/dna';
+import { Middleware } from './Middleware';
 
 export type TitleBuilder = (title: string | undefined, response: Response) => string;
 export type MetaBuilder = (meta: Meta|undefined, response: Response) => Meta;
@@ -31,14 +32,14 @@ export class DocumentMetaMiddleware extends Middleware {
 
     /**
      * Middleware rule constructor.
-     * @param document The owner document.
+     * @param doc The owner document.
      * @param titleBuilder The title builder function.
      * @param metaBuilder The meta builder function.
      */
-    public constructor(document: Document | undefined = window.document, titleBuilder?: TitleBuilder, metaBuilder?: MetaBuilder) {
+    public constructor(doc: Document | undefined = document, titleBuilder?: TitleBuilder, metaBuilder?: MetaBuilder) {
         super({});
 
-        this.document = document;
+        this.document = doc;
         this.titleBuilder = titleBuilder || ((title) => title || '');
         this.metaBuilder = metaBuilder || ((meta) => meta || {});
     }

@@ -1,8 +1,7 @@
 import type { PatternRule } from './Pattern';
-import type { RequestParams } from './Request';
 import type { Router } from './Router';
-import { Request } from './Request';
-import { Response } from './Response';
+import type { Request, RequestParams } from './Request';
+import type { Response } from './Response';
 import { Pattern } from './Pattern';
 
 /**

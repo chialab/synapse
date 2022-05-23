@@ -1,7 +1,7 @@
+import type { Request } from './Request';
 import type { View } from './Response';
 import type { PatternRule } from './Pattern';
 import type { Router } from './Router';
-import { Request } from './Request';
 import { Response } from './Response';
 import { Pattern } from './Pattern';
 
