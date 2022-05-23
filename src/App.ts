@@ -1,7 +1,7 @@
 import type { PopStateData } from './Router/Router';
 import type { Template } from '@chialab/dna';
 import { listen } from '@chialab/dna';
-import { requestAnimationFrame } from './helpers';
+import { requestAnimationFrame } from './Helpers/Animations';
 import { Micro } from './Micro';
 
 /**
