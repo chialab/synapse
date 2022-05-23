@@ -11,6 +11,7 @@ export { Route } from './Router/Route';
 export { Middleware } from './Router/Middleware';
 export { History } from './Router/History';
 export { Router } from './Router/Router';
+export { Micro } from './Micro';
 export { App } from './App';
 export * from './helpers';
 export { DocumentMetaMiddleware } from './Router/DocumentMetaMiddleware';
