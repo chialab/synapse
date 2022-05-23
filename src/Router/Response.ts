@@ -1,5 +1,5 @@
 import type { Template } from '@chialab/dna';
-import { Request } from './Request';
+import type { Request } from './Request';
 
 /**
  * A template factory for the response's view.

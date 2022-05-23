@@ -82,7 +82,7 @@ export class Pattern {
     /**
      * Cache results of regex executions.
      */
-    private readonly cache: { [key: string]: RequestParams|false } = {}
+    private readonly cache: { [key: string]: RequestParams | false } = {};
 
     /**
      * Create a Pattern instance.

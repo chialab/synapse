@@ -93,7 +93,10 @@ export class Router extends Factory.Emitter {
      */
     private history?: History;
 
-    protected readonly errorHandler: ErrorHandler;
+    /**
+     * The router error handler.
+     */
+    protected errorHandler: ErrorHandler = DEFAULT_ERROR_HANDLER;
 
     /**
      * A list of routes connected to the router.
@@ -108,27 +111,55 @@ export class Router extends Factory.Emitter {
     /**
      * The origin of the router.
      */
-    readonly origin: string;
+    #origin: string = '';
+
+    /**
+     * The origin of the router.
+     */
+    get origin() {
+        return this.#origin;
+    }
 
     /**
      * The base routing path.
      */
-    readonly base: string;
+    #base: string = '';
+
+    /**
+     * The base routing path.
+     */
+    get base() {
+        return this.#base;
+    }
 
     /**
      * The prefix for routing path such as hasbang.
      */
-    readonly prefix: string;
+    #prefix: string = '';
+
+    /**
+     * The prefix for routing path such as hasbang.
+     */
+    get prefix() {
+        return this.#prefix;
+    }
+
+    /**
+     * Should navigate on hash changes.
+     */
+    #listeningHashChanges: boolean = false;
+
+    /**
+     * Should navigate on hash changes.
+     */
+    get listeningHashChanges() {
+        return this.#listeningHashChanges;
+    }
 
     /**
      * The id of the router.
      */
     readonly id: number;
-
-    /**
-     * Should navigate on hash changes.
-     */
-    readonly listenHashChanges: boolean;
 
     /**
      * The current router state.
@@ -153,18 +184,88 @@ export class Router extends Factory.Emitter {
         super();
 
         this.id = Date.now();
-        this.origin = trimSlash(options.origin || '');
-        this.base = trimSlash(options.base || '');
-        this.prefix = trimSlash(options.prefix || '');
-        this.errorHandler = options.errorHandler ?? DEFAULT_ERROR_HANDLER;
-        this.listenHashChanges = !!options.listenHashChanges;
-
+        if (options.origin) {
+            this.setOrigin(options.origin);
+        }
+        if (options.base) {
+            this.setBase(options.base);
+        }
+        if (options.prefix) {
+            this.setPrefix(options.prefix);
+        }
+        if (options.listenHashChanges) {
+            this.listenHashChanges();
+        }
+        if (options.errorHandler) {
+            this.setErrorHandler(options.errorHandler);
+        }
         if (routes) {
             routes.forEach((route) => this.connect(route));
         }
         if (middlewares) {
             middlewares.forEach((middleware) => this.middleware(middleware));
         }
+    }
+
+    /**
+     * Set the location origin of the router.
+     * @param origin The origin value.
+     */
+    setOrigin(origin: string) {
+        if (this.history) {
+            throw new Error('Cannot set origin after router is started.');
+        }
+        this.#origin = trimSlash(origin);
+    }
+
+    /**
+     * Set the routing url base.
+     * @param base The base value.
+     */
+    setBase(base: string) {
+        if (this.history) {
+            throw new Error('Cannot set base after router is started.');
+        }
+        this.#base = trimSlash(base);
+    }
+
+    /**
+     * Set the routing url prefix.
+     * @param prefix The prefix value.
+     */
+    setPrefix(prefix: string) {
+        if (this.history) {
+            throw new Error('Cannot set prefix after router is started.');
+        }
+        this.#prefix = trimSlash(prefix);
+    }
+
+    /**
+     * Configure the router to listen for hash changes.
+     */
+    listenHashChanges() {
+        if (this.history) {
+            throw new Error('Cannot change hash listener after router is started.');
+        }
+        this.#listeningHashChanges = true;
+    }
+
+    /**
+     * Configure the router to not listen for hash changes.
+     */
+    unlistenHashChanges() {
+        if (this.history) {
+            throw new Error('Cannot change hash listener after router is started.');
+        }
+        this.#listeningHashChanges = false;
+    }
+
+    /**
+     * Set the error handler of the router.
+     * @param errorHandler The error handler or undefined to restore the default error handler.
+     */
+    setErrorHandler(errorHandler?: ErrorHandler) {
+        this.errorHandler = errorHandler ?? DEFAULT_ERROR_HANDLER;
     }
 
     /**
@@ -222,7 +323,7 @@ export class Router extends Factory.Emitter {
         );
 
         try {
-            response = await starter(request, response, this);
+            response = (await starter(request, response, this)) ?? response;
         } catch (error) {
             request.reject(error as Error);
             throw error;
@@ -641,7 +742,7 @@ export class Router extends Factory.Emitter {
 
         path = trimSlash(path);
         let current = trimSlash(this.current);
-        if (!this.listenHashChanges) {
+        if (!this.listeningHashChanges) {
             if (path[0] === '#') {
                 return false;
             }
