@@ -1,6 +1,6 @@
-import type { Context, FunctionComponent } from '@chialab/dna';
-import type { Response } from '../Router/Response';
-import { Page } from './Page';
+import type { Context, FunctionComponent, Template } from '@chialab/dna';
+import type { State } from '../Router/State';
+import type { Router } from '../Router/Router';
 
 /**
  * A callback for animation listeners.
@@ -11,7 +11,7 @@ type AnimationListener = (event: AnimationEvent) => void;
  * Transition component properties.
  */
 type TransitionProps = {
-    response?: Response;
+    router: Router;
     timeout?: number;
 };
 
@@ -52,7 +52,7 @@ function createStartListener(context: TransitionContext, timeout = 100): Animati
     const { store, requestUpdate } = context;
 
     const noAnimationTimeout = setTimeout(() => {
-        store.set('previous', null);
+        store.set('previousChildren', null);
         requestUpdate?.();
     }, timeout);
 
@@ -85,7 +85,7 @@ function createEndListener(context: TransitionContext): AnimationListener {
         store.set('counter', counter);
 
         if (counter === 0) {
-            store.set('previous', null);
+            store.delete('previousChildren');
             requestUpdate?.();
         }
     };
@@ -97,10 +97,14 @@ function createEndListener(context: TransitionContext): AnimationListener {
  * @param context The render context.
  * @returns A template of pages to animate.
  */
-export const Transition: FunctionComponent<TransitionProps> = function Transition({ response, timeout }, context) {
+export const Transition: FunctionComponent<TransitionProps> = function Transition({ router, children, timeout }, context) {
+    if (!router) {
+        throw new Error('Transition router is required');
+    }
+
     const { node, store } = context;
 
-    const currentResponse = store.get('response') as Response | undefined;
+    const currentState = store.get('state') as State | undefined;
     const previousRoot = store.get('root') as HTMLElement|undefined;
     const root = node.parentElement;
     if (root !== previousRoot) {
@@ -122,20 +126,17 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
         store.set('listeners', listeners);
     }
 
-    let previousResponse = store.get('previous') as Response | undefined;
-    if (currentResponse !== response) {
-        previousResponse = currentResponse;
+    let previousChildren = store.get('previousChildren') as Template[] | undefined;
+    if (currentState !== router.state) {
+        previousChildren = store.get('children') as Template[] | undefined;
         store.set('counter', 0);
-        store.set('previous', currentResponse);
-        store.set('response', response);
+        store.set('previousChildren', previousChildren);
+        store.set('children', children);
+        store.set('state', router.state);
     }
 
-    if (previousResponse) {
-        return <>
-            {previousResponse && <Page key={previousResponse} response={previousResponse} />}
-            {response && <Page key={response} response={response} />}
-        </>;
-    }
-
-    return <Page key={response} response={response} />;
+    return <>
+        {previousChildren}
+        {children}
+    </>;
 };
