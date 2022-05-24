@@ -14,10 +14,12 @@
     "allowJs": false,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "jsx": "preserve",
     "moduleResolution": "node",
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx"
   ],
   "exclude": []
 }

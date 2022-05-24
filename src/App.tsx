@@ -4,6 +4,7 @@ import { Component, window, property, state, observe, listen } from '@chialab/dn
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router } from './Router/Router';
+import { Page } from './Components/Page';
 
 enum NavigationDirection {
     back = 'back',
@@ -13,7 +14,7 @@ enum NavigationDirection {
 /**
  * A Web Component which handles routing.
  */
-export class Micro extends Component {
+export class App extends Component {
     /**
      * The History instance for the application.
      */
@@ -53,6 +54,17 @@ export class Micro extends Component {
         attribute: ':navigation',
         update: false,
     }) navigationDirection: NavigationDirection = NavigationDirection.forward;
+
+    /**
+     * @inheritdoc
+     */
+    render() {
+        if (!this.response) {
+            return null;
+        }
+
+        return <Page key={this.response} response={this.response} />;
+    }
 
     /**
      * Start the routing of the application.
