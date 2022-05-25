@@ -63,7 +63,7 @@ export class App extends Component {
             return null;
         }
 
-        return <Page key={this.response} response={this.response} />;
+        return <Page response={this.response} />;
     }
 
     /**

@@ -4,10 +4,20 @@ import type { Router } from '../Router/Router';
 import { window, Node } from '@chialab/dna';
 
 /**
+ * Transition page renderer.
+ * @param data Page children.
+ * @returns The page template.
+ */
+const TransitionPage: FunctionComponent = function Transition({ children }) {
+    return children;
+};
+
+/**
  * Transition component properties.
  */
 type TransitionProps = {
     router: Router;
+    renderer?: FunctionComponent;
 };
 
 /**
@@ -16,7 +26,7 @@ type TransitionProps = {
  * @param context The render context.
  * @returns A template of pages to animate.
  */
-export const Transition: FunctionComponent<TransitionProps> = function Transition({ router, children }, context) {
+export const Transition: FunctionComponent<TransitionProps> = function Transition({ router, children, renderer: Renderer = TransitionPage }, context) {
     if (!router) {
         throw new Error('Transition router is required');
     }
@@ -25,6 +35,7 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
     const currentState = store.get('state') as State | undefined;
     const root = node.parentElement;
 
+    let previousState = store.get('previousState') as State | undefined;
     let previousChildren = store.get('previousChildren') as Template[] | undefined;
     if (currentState !== router.state) {
         if (root) {
@@ -53,6 +64,7 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
             const flush = function() {
                 root.removeEventListener('animationstart', start);
                 root.removeEventListener('animationend', end);
+                store.delete('previousState');
                 store.delete('previousChildren');
                 requestUpdate?.();
             };
@@ -77,15 +89,17 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
             });
         }
 
+        previousState = currentState;
         previousChildren = store.get('children') as Template[] | undefined;
-        store.set('counter', 0);
+        store.set('previousState', previousState);
         store.set('previousChildren', previousChildren);
+        store.set('counter', 0);
         store.set('children', children);
         store.set('state', router.state);
     }
 
     return <>
-        {previousChildren}
-        {children}
+        {previousState && <Renderer key={previousState}>{previousChildren}</Renderer>}
+        <Renderer key={router.state}>{children}</Renderer>
     </>;
 };
