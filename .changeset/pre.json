@@ -4,5 +4,8 @@
   "initialVersions": {
     "@chialab/synapse": "3.0.0-beta.1"
   },
-  "changesets": []
+  "changesets": [
+    "fresh-toes-deliver",
+    "selfish-suns-film"
+  ]
 }
