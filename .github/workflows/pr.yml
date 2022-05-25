@@ -1,9 +1,7 @@
-name: Main
+name: Pull Request
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   check:
@@ -53,31 +51,3 @@ jobs:
         with:
           name: Synapse
           path: dist
-
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs:
-      - build
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: yarn
-
-      - name: Install project dependencies
-        run: yarn install
-
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          version: yarn changeset pre enter beta
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
