@@ -16,9 +16,8 @@
   },
   "scripts": {
     "build": "rimraf dist && yarn types && rna build",
-    "types": "rimraf types && tsc --declaration --emitDeclarationOnly --declarationDir 'types'",
+    "types": "rimraf types && tsc",
     "lint": "eslint src",
-    "typecheck": "tsc --noEmit",
     "prepack": "yarn build"
   },
   "files": [

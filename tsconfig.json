@@ -6,6 +6,9 @@
     "sourceMap": true,
     "inlineSources": true,
     "strict": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "types",
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
@@ -18,8 +21,7 @@
     "moduleResolution": "node",
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
+    "src"
   ],
   "exclude": []
 }
