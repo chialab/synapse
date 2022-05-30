@@ -1,6 +1,6 @@
 import { mix } from '../helpers/mixin.js';
 import { internal } from '../helpers/internal.js';
-import { CallbackManager } from 'chialab-callback-manager/src/callback-manager.js';
+import { CallbackManager } from '../helpers/callback-manager.js';
 
 export const CallbackMixin =
     (superClass) => class extends mix(superClass).with(CallbackManager.mixin) {

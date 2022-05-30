@@ -13,6 +13,7 @@ export * from './mixins/injectable.js';
 export * from './mixins/ownable.js';
 export * from './mixins/pluggable.js';
 // helpers
+export * from './helpers/callback-manager.js';
 export * from './helpers/configure.js';
 export * from './helpers/css.js';
 export * from './helpers/db.js';
@@ -31,4 +32,5 @@ export * from './models/sync.js';
 // views
 export * from './components/page.js';
 // dispatcher
+export * from './router/router.js';
 export * from './app.js';
