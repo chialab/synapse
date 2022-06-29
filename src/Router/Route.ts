@@ -93,7 +93,7 @@ export class Route extends Pattern {
             return response;
         }
         if (this.router) {
-            response.child(await this.router.navigate(request.params?._ || '/', {}, false, false, request, response));
+            response.child(await this.router.navigate(request.params?._ || '/', { method: request.method, data: request.data }, {}, false, false, request, response));
         }
 
         return response;
