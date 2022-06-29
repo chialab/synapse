@@ -2,7 +2,8 @@ export type { RequestParams } from './Router/Request';
 export type { View, Meta } from './Router/Response';
 export type { RouteRule, NextHandler, RouteHandler } from './Router/Route';
 export type { MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Router/Middleware';
-export type { ErrorHandler, RouterOptions, PopStateData } from './Router/Router';
+export type { RouterOptions, PopStateData } from './Router/Router';
+export type { ErrorHandler } from './Router/ErrorHandler';
 
 export * from '@chialab/dna';
 export { Request } from './Router/Request';

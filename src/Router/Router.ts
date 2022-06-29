@@ -1,16 +1,15 @@
 import type { MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Middleware';
 import type { RequestInit } from './Request';
-import type { View } from './Response';
+import type { ErrorHandler } from './ErrorHandler';
 import type { RouteRule, RouteHandler, NextHandler } from './Route';
 import type { State } from './State';
 import { on, Factory, off } from '@chialab/proteins';
-import { window, html } from '@chialab/dna';
+import { window } from '@chialab/dna';
 import { Request } from './Request';
 import { Response } from './Response';
 import { Route } from './Route';
 import { Middleware } from './Middleware';
-
-export type ErrorHandler = (request: Request, error: Error, router: Router) => Response|View;
+import DEFAULT_ERROR_HANDLER from './ErrorHandler';
 
 /**
  * The options to pass to the router.
@@ -41,34 +40,6 @@ function trimSlash(token: string) {
         .replace(/\/*$/, '')
         .replace(/^\/*/, '');
 }
-
-function formatStack(error: Error) {
-    if (!error.stack) {
-        return;
-    }
-    return html`<p>${error.stack
-        .split(/^(.*)$/gm)
-        .map((line) => html`<div>${line}</div>`)
-    }</p>`;
-}
-
-/**
- * The default error handler.
- * @param request The request of the routing.
- * @param error The thrown error.
- * @return An error response object.
- */
-const DEFAULT_ERROR_HANDLER = (request: Request, error: Error) => {
-    const response = new Response(request);
-    response.setTitle(error.message);
-    response.setView(() => html`<div>
-        <details>
-            <summary style="color: red">${error.message}</summary>
-            ${formatStack(error)}
-        </details>
-    </div>`);
-    return response;
-};
 
 /**
  * A router implementation for app navigation.
