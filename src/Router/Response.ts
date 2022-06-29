@@ -1,5 +1,5 @@
 import type { Template } from '@chialab/dna';
-import type { Request } from './Request';
+import type { RequestInit, Request } from './Request';
 
 /**
  * A template factory for the response's view.
@@ -37,6 +37,11 @@ export class Response {
      * Flag if the Response has been redirected.
      */
     public redirected?: string;
+
+    /**
+     * Redirection request init options.
+     */
+    public redirectInit?: RequestInit;
 
     /**
      * The data bound to the response.
@@ -167,7 +172,8 @@ export class Response {
      * @param path The new path to navigate.
      * @return The new navigation Promise.
      */
-    redirect(path: string) {
+    redirect(path: string, init?: RequestInit) {
         this.redirected = path;
+        this.redirectInit = init;
     }
 }
