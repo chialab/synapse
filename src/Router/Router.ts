@@ -549,6 +549,11 @@ export class Router extends Factory.Emitter {
         if (!path) {
             return;
         }
+
+        if (history === window.history) {
+            return this.replace(path === true ? (this.pathFromUrl(window.location.href) || '/') : path);
+        }
+
         return this.replace(path === true ? '/' : path);
     }
 
@@ -710,8 +715,8 @@ export class Router extends Factory.Emitter {
      * @param url The requested url.
      */
     private shouldNavigate(url: URL) {
-        if (!this.started) {
-            return false;
+        if (!this.current) {
+            return true;
         }
 
         return this.current !== url.href;
