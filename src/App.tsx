@@ -226,7 +226,7 @@ export class App extends Component {
         event.stopPropagation();
         if (method === 'get') {
             const params = new URLSearchParams(data as unknown as Record<string, string>);
-            this.navigate(`${path}?${params}`);
+            this.navigate(`${path.split('?')[0]}?${params}`);
         } else {
             this.navigate(path, {
                 method,

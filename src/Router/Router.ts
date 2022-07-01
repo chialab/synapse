@@ -208,7 +208,7 @@ export class Router extends Factory.Emitter {
         if (this.started) {
             throw new Error('Cannot set base after router is started.');
         }
-        this.#base = `/${trimSlash(base)}`;
+        this.#base = `/${trimSlash(base.split('?')[0])}`;
     }
 
     /**

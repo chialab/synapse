@@ -13,6 +13,7 @@ describe('Router', () => {
         expect(new Router({ base: '/' }).base).to.be.equal('/');
         expect(new Router({ base: '' }).base).to.be.equal('/');
         expect(new Router({ base: 'base' }).base).to.be.equal('/base');
+        expect(new Router({ base: 'base?test' }).base).to.be.equal('/base');
         expect(new Router({ base: 'base/' }).base).to.be.equal('/base');
         expect(new Router({ base: '/base' }).base).to.be.equal('/base');
         expect(new Router({ base: '/base/' }).base).to.be.equal('/base');
