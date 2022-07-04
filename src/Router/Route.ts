@@ -69,7 +69,7 @@ export class Route extends Pattern {
      */
     constructor(rule: RouteRule) {
         super(rule);
-        this.handler = rule.handler;
+        this.handler = rule.handler || (() => {});
         this.view = rule.render;
         this.router = rule.router;
     }
@@ -93,7 +93,7 @@ export class Route extends Pattern {
             return response;
         }
         if (this.router) {
-            response.child(await this.router.navigate(request.params?._ || '/', {}, false, false, request, response));
+            response.child(await this.router.navigate(request.params?._ || '/', { method: request.method, data: request.data }, {}, false, false, request, response));
         }
 
         return response;

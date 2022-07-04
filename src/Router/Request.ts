@@ -1,6 +1,5 @@
 import type { Response } from './Response';
 import type { Route } from './Route';
-import { Url } from '@chialab/proteins';
 
 /**
  * A set of params extracted from the request path.
@@ -8,6 +7,13 @@ import { Url } from '@chialab/proteins';
 export interface RequestParams {
     _?: string;
     [key: string]: string | undefined;
+}
+
+export type RequestMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options';
+
+export interface RequestInit {
+    method?: RequestMethod | Uppercase<RequestMethod>;
+    data?: FormData|File;
 }
 
 /**
@@ -22,12 +28,22 @@ export class Request<T extends RequestParams = RequestParams> {
     /**
      * The requested url.
      */
-    public readonly url: Url.Url;
+    public readonly url: URL;
 
     /**
      * The parent request in case of subrouting.
      */
     public readonly parent?: Request;
+
+    /**
+     * The request method.
+     */
+    public readonly method: RequestMethod;
+
+    /**
+     * The request data.
+     */
+    public readonly data?: FormData|File;
 
     /**
      * A set of params extracted from the request path.
@@ -78,20 +94,22 @@ export class Request<T extends RequestParams = RequestParams> {
 
     /**
      * Create a Request instance.
-     * @param path The path to navigate.
+     * @param url The url to navigate.
      * @param parent The parent request.
      */
-    constructor(path: string, parent?: Request) {
-        this.url = new Url.Url(path);
+    constructor(url: URL, init?: RequestInit, parent?: Request) {
+        this.url = url;
+        this.method = init?.method?.toLowerCase() as RequestMethod || 'get';
+        this.data = init?.data;
         this.parent = parent;
     }
 
     /**
      * Create a child request for subrouting.
-     * @param path The child request path.
+     * @param url The child request url.
      */
-    child(path: string) {
-        return this._childRequest = new Request(path, this);
+    child(url: URL, init?: RequestInit) {
+        return this._childRequest = new Request(url, init, this);
     }
 
     /**

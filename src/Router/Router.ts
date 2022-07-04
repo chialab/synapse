@@ -1,15 +1,15 @@
 import type { MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Middleware';
-import type { View } from './Response';
+import type { RequestInit } from './Request';
+import type { ErrorHandler } from './ErrorHandler';
 import type { RouteRule, RouteHandler, NextHandler } from './Route';
 import type { State } from './State';
-import { on, Factory, off, Url } from '@chialab/proteins';
-import { window, html } from '@chialab/dna';
+import { on, Factory, off } from '@chialab/proteins';
+import { window } from '@chialab/dna';
 import { Request } from './Request';
 import { Response } from './Response';
 import { Route } from './Route';
 import { Middleware } from './Middleware';
-
-export type ErrorHandler = (request: Request, error: Error, router: Router) => Response|View;
+import DEFAULT_ERROR_HANDLER from './ErrorHandler';
 
 /**
  * The options to pass to the router.
@@ -41,34 +41,6 @@ function trimSlash(token: string) {
         .replace(/^\/*/, '');
 }
 
-function formatStack(error: Error) {
-    if (!error.stack) {
-        return;
-    }
-    return html`<p>${error.stack
-        .split(/^(.*)$/gm)
-        .map((line) => html`<div>${line}</div>`)
-    }</p>`;
-}
-
-/**
- * The default error handler.
- * @param request The request of the routing.
- * @param error The thrown error.
- * @return An error response object.
- */
-const DEFAULT_ERROR_HANDLER = (request: Request, error: Error) => {
-    const response = new Response(request);
-    response.setTitle(error.message);
-    response.setView(() => html`<div>
-        <details>
-            <summary style="color: red">${error.message}</summary>
-            ${formatStack(error)}
-        </details>
-    </div>`);
-    return response;
-};
-
 /**
  * A router implementation for app navigation.
  */
@@ -86,7 +58,7 @@ export class Router extends Factory.Emitter {
     /**
      * The callback bound to popstate event.
      */
-    private onPopStateCallback: (event: PopStateEvent) => unknown = () => {};
+    private onPopStateCallback: (event: PopStateEvent) => unknown = () => { };
 
     /**
      * The browser's history like implementation for state management.
@@ -109,9 +81,14 @@ export class Router extends Factory.Emitter {
     protected readonly connectedMiddlewares: Middleware[] = [];
 
     /**
+     * Current navigation promise.
+     */
+    #navigationPromise?: Promise<Response | null>;
+
+    /**
      * The origin of the router.
      */
-    #origin: string = '';
+    #origin: string = 'http://local';
 
     /**
      * The origin of the router.
@@ -123,7 +100,7 @@ export class Router extends Factory.Emitter {
     /**
      * The base routing path.
      */
-    #base: string = '';
+    #base: string = '/';
 
     /**
      * The base routing path.
@@ -162,6 +139,13 @@ export class Router extends Factory.Emitter {
     readonly id: number;
 
     /**
+     * The router is started.
+     */
+    get started() {
+        return !!this.history;
+    }
+
+    /**
      * The current router state.
      */
     get state() {
@@ -172,7 +156,10 @@ export class Router extends Factory.Emitter {
      * The current router path.
      */
     get current() {
-        return this.state?.url;
+        if (!this.state) {
+            return null;
+        }
+        return this.pathFromUrl(this.state.url);
     }
 
     /**
@@ -223,10 +210,10 @@ export class Router extends Factory.Emitter {
      * @param base The base value.
      */
     setBase(base: string) {
-        if (this.history) {
+        if (this.started) {
             throw new Error('Cannot set base after router is started.');
         }
-        this.#base = trimSlash(base);
+        this.#base = `/${trimSlash(base.split('?')[0])}`;
     }
 
     /**
@@ -234,7 +221,7 @@ export class Router extends Factory.Emitter {
      * @param prefix The prefix value.
      */
     setPrefix(prefix: string) {
-        if (this.history) {
+        if (this.started) {
             throw new Error('Cannot set prefix after router is started.');
         }
         this.#prefix = trimSlash(prefix);
@@ -276,11 +263,12 @@ export class Router extends Factory.Emitter {
     async handle(request: Request, parentResponse?: Response): Promise<Response> {
         const routes = this.connectedRoutes;
         const middlewares = this.connectedMiddlewares;
+        const path = this.pathFromUrl(request.url.href) as string;
         let response = new Response(request, parentResponse);
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             const middleware = middlewares[i];
-            const params = middleware.matches(request.url.pathname as string);
+            const params = middleware.matches(path);
             if (!params) {
                 continue;
             }
@@ -301,7 +289,7 @@ export class Router extends Factory.Emitter {
                 if (res.redirected != null) {
                     return res;
                 }
-                const params = route.matches(request.url.pathname as string);
+                const params = route.matches(path);
                 if (params === false) {
                     return next(req, res, this);
                 }
@@ -336,7 +324,7 @@ export class Router extends Factory.Emitter {
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             const middleware = middlewares[i];
-            const params = middleware.matches(request.url.pathname as string);
+            const params = middleware.matches(path);
             if (!params) {
                 continue;
             }
@@ -363,39 +351,41 @@ export class Router extends Factory.Emitter {
      * @return The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async navigate(path: string, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response|null> {
-        path = this.preparePath(path);
-        if (!this.shouldNavigate(path) && !force) {
-            const hash = new Url.Url(path, this.base).hash;
-            this.fragment(hash || '');
-            return null;
-        }
+    async navigate(path: string, init?: RequestInit, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
+        return this.setCurrentNavigation(async () => {
+            const url = new URL(this.resolve(path, true));
+            if (!this.shouldNavigate(url) && !force) {
+                const hash = url.hash;
+                this.fragment(hash || '');
+                return null;
+            }
 
-        const request = parentRequest ? parentRequest.child(path) : new Request(path);
-        let response: Response;
-        try {
-            response = await this.handle(request, parentResponse);
-        } catch (error) {
-            response = this.handleError(request, error as Error);
-        }
+            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            let response: Response;
+            try {
+                response = await this.handle(request, parentResponse);
+            } catch (error) {
+                response = this.handleError(request, error as Error);
+            }
 
-        const index = this.index + 1;
-        const title = response.title || window.document.title;
-        await this.pushState({
-            id: this.id,
-            url: response.redirected || path,
-            index,
-            title,
-            request,
-            response,
-            store,
-        }, trigger);
+            const index = this.index + 1;
+            const title = response.title || window.document.title;
+            await this.pushState({
+                id: this.id,
+                url: response.redirected || url.href,
+                index,
+                title,
+                request,
+                response,
+                store,
+            }, trigger);
 
-        if (response.redirected != null) {
-            return this.replace(response.redirected, store, trigger, parentRequest, parentResponse);
-        }
+            if (response.redirected != null) {
+                return this.replace(response.redirected, response.redirectInit, store, trigger, parentRequest, parentResponse);
+            }
 
-        return response;
+            return response;
+        });
     }
 
     /**
@@ -404,33 +394,34 @@ export class Router extends Factory.Emitter {
      * @return The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async replace(path: string, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
-        path = this.preparePath(path);
+    async replace(path: string, init?: RequestInit, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
+        return this.setCurrentNavigation(async () => {
+            const url = new URL(this.resolve(path, true));
+            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            let response: Response;
+            try {
+                response = await this.handle(request, parentResponse);
+            } catch (error) {
+                response = this.handleError(request, error as Error);
+            }
 
-        const request = parentRequest ? parentRequest.child(path) : new Request(path);
-        let response: Response;
-        try {
-            response = await this.handle(request, parentResponse);
-        } catch (error) {
-            response = this.handleError(request, error as Error);
-        }
+            const title = response.title || window.document.title;
+            await this.replaceState({
+                id: this.id,
+                url: response.redirected || url.href,
+                index: this.index,
+                title,
+                request,
+                response,
+                store,
+            }, trigger);
 
-        const title = response.title || window.document.title;
-        await this.replaceState({
-            id: this.id,
-            url: response.redirected || path,
-            index: this.index,
-            title,
-            request,
-            response,
-            store,
-        }, trigger);
+            if (response.redirected != null) {
+                return this.replace(response.redirected, response.redirectInit, store, trigger);
+            }
 
-        if (response.redirected != null) {
-            return this.replace(response.redirected, store, trigger);
-        }
-
-        return response;
+            return response;
+        }) as Promise<Response>;
     }
 
     /**
@@ -439,9 +430,9 @@ export class Router extends Factory.Emitter {
      * @param path The path to use to restart the router.
      * @return Resolve the navigation response.
      */
-    refresh(path: string = this.current) {
+    refresh(path?: string) {
         this.reset();
-        return this.replace(path);
+        return this.replace(path || this.current || '/');
     }
 
     /**
@@ -487,7 +478,7 @@ export class Router extends Factory.Emitter {
      * @param handler The callback to exec when matched.
      * @return The Route instance.
      */
-    connect(route: Route|RouteRule): Route;
+    connect(route: Route | RouteRule): Route;
     connect(path: string, handler: RouteHandler): Route;
     connect(routeOrPath: Route | RouteRule | string, handler?: RouteHandler): Route {
         let route: Route;
@@ -532,10 +523,14 @@ export class Router extends Factory.Emitter {
      * Bind the Router to a History model.
      * @param history The history model to bind.
      */
-    start(history: History, path?: string): Promise<Response> {
+    async start(history: History, path: true): Promise<Response>;
+    async start(history: History, path: false): Promise<void>;
+    async start(history: History, path: string): Promise<Response>;
+    async start(history: History, path: string | boolean = true): Promise<Response|void> {
         this.reset();
         this.end();
         this.history = history;
+
         if (history === window.history) {
             this.onPopStateCallback = (event: PopStateEvent) => {
                 const state = event.state as unknown as State;
@@ -545,23 +540,30 @@ export class Router extends Factory.Emitter {
                     return this.onPopState(state, state.id !== this.id ? state.url : undefined);
                 }
 
-                const location = trimSlash(this.getPathFromLocation());
-                if (!this.shouldNavigate(location)) {
+                const location = new URL(window.location.href);
+                const path = this.pathFromUrl(location.href);
+                if (!path || !this.shouldNavigate(location)) {
                     event.preventDefault();
                     return;
                 }
 
-                return this.onPopState(state, location);
+                return this.onPopState(state, path);
             };
+
             window.addEventListener('popstate', this.onPopStateCallback);
-            if (!path) {
-                path = this.getPathFromLocation();
-            }
         } else {
-            on(this.history, 'popstate', this.onPopStateCallback);
+            on(history, 'popstate', this.onPopStateCallback);
         }
 
-        return this.replace(path as string);
+        if (!path) {
+            return;
+        }
+
+        if (history === window.history) {
+            return this.replace(path === true ? (this.pathFromUrl(window.location.href) || '/') : path);
+        }
+
+        return this.replace(path === true ? '/' : path);
     }
 
     /**
@@ -590,8 +592,46 @@ export class Router extends Factory.Emitter {
      *
      * @return The full url.
      */
-    resolve(path: string) {
-        return Url.join(this.origin, this.base || '/', trimSlash(path));
+    resolve(path: string, full = false) {
+        const uri = new URL(this.buildFullUrl(path), this.origin);
+        if (full) {
+            return uri.href;
+        }
+
+        return `${uri.pathname}${uri.search}${uri.hash}`;
+    }
+
+    /**
+     * Extract the path from a full url.
+     * @param uri The full url.
+     * @return The path to navigate.
+     */
+    pathFromUrl(uri: string) {
+        const url = new URL(uri, this.origin);
+        if (url.origin !== this.origin) {
+            return null;
+        }
+        if (url.pathname !== this.base && url.pathname.indexOf(this.base) !== 0) {
+            return null;
+        }
+        return `/${trimSlash(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
+    }
+
+    /**
+     * Get the latest navigation promise.
+     * @returns The navigation promise.
+     */
+    waitNavigation() {
+        return this.#navigationPromise;
+    }
+
+    /**
+     * Set the current navigation promise.
+     * @param callback The navigation function.
+     * @returns The navigation response.
+     */
+    private setCurrentNavigation(callback: () => Promise<Response | null>) {
+        return this.#navigationPromise = callback();
     }
 
     /**
@@ -618,7 +658,6 @@ export class Router extends Factory.Emitter {
      * @param state The state to add.
      */
     private async pushState(state: State, trigger = true) {
-        const url = this.buildFullUrl(state.url);
         const previous = this.states[this.index];
         this.index = state.index;
         this.states.splice(state.index, this.states.length, state);
@@ -628,7 +667,7 @@ export class Router extends Factory.Emitter {
                 url: state.url,
                 title: state.title,
                 index: state.index,
-            }, state.title, url);
+            }, state.title, state.url);
         }
 
         if (trigger) {
@@ -645,7 +684,6 @@ export class Router extends Factory.Emitter {
      * @param state The state to use as replacement.
      */
     private async replaceState(state: State, trigger = true) {
-        const url = this.buildFullUrl(state.url);
         const previous = this.states[this.index];
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
@@ -654,7 +692,7 @@ export class Router extends Factory.Emitter {
                 url: state.url,
                 title: state.title,
                 index: state.index,
-            }, state.title, url);
+            }, state.title, state.url);
         }
 
         if (trigger) {
@@ -692,65 +730,21 @@ export class Router extends Factory.Emitter {
      * @return The full url of the routing.
      */
     private buildFullUrl(path: string) {
-        let url = '/';
-        if (this.base) {
-            url += `${trimSlash(this.base)}/`;
-        }
-        if (this.prefix) {
-            url += `${trimSlash(this.prefix)}/`;
-        }
-        url += trimSlash(path);
-        return url;
-    }
-
-    /**
-     * Prepare the path for the routing rule.
-     * @param path The path to navigate.
-     * @return The path ready for the navigation.
-     */
-    private preparePath(path: string) {
-        return `/${trimSlash(path)}`;
-    }
-
-    /**
-     * Extract the path from the browser location.
-     * @return The path to navigate.
-     */
-    private getPathFromLocation() {
-        let path = trimSlash(`${window.location.pathname}${window.location.search}${window.location.hash}`);
-        if (this.base && path.indexOf(this.base) === 0) {
-            path = trimSlash(path.replace(this.base, ''));
-            if (this.prefix && path.indexOf(this.prefix) === 0) {
-                path = trimSlash(path.replace(this.prefix, ''));
-            }
-        }
-        return path;
+        return `/${[this.base, this.prefix, path]
+            .map((chunk) => trimSlash(chunk))
+            .filter((chunk) => !!chunk)
+            .join('/')}`;
     }
 
     /**
      * Check if the requested path should be navigated.
-     * @param path The requested path.
+     * @param url The requested url.
      */
-    private shouldNavigate(path: string) {
-        if (!this.history) {
-            return true;
-        }
-
+    private shouldNavigate(url: URL) {
         if (!this.current) {
             return true;
         }
 
-        path = trimSlash(path);
-        let current = trimSlash(this.current);
-        if (!this.listeningHashChanges) {
-            if (path[0] === '#') {
-                return false;
-            }
-
-            path = path.split('#')[0];
-            current = current.split('#')[0];
-        }
-
-        return path !== current;
+        return this.current !== url.href;
     }
 }

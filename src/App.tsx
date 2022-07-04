@@ -1,5 +1,5 @@
 import type { PopStateData } from './Router/Router';
-import { Url } from '@chialab/proteins';
+import type { RequestInit, RequestMethod } from './Router/Request';
 import { Component, window, property, state, observe, listen } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
@@ -16,21 +16,30 @@ enum NavigationDirection {
  */
 export class App extends Component {
     /**
-     * The History instance for the application.
+     * The origin of the application.
      */
-    public history: History = window.history;
-
-    /**
-     * The Router instance for the application.
-     */
-    public router: Router = new Router();
+    @property({
+        type: String,
+    })
+    get origin(): string {
+        return this.getInnerPropertyValue('origin') || window.location?.origin;
+    }
+    set origin(value: string) {
+        this.setInnerPropertyValue('origin', value);
+    }
 
     /**
      * The base url of the application.
      */
     @property({
         type: String,
-    }) base?: string;
+    })
+    get base(): string {
+        return this.getInnerPropertyValue('base') || '/';
+    }
+    set base(value: string) {
+        this.setInnerPropertyValue('base', value);
+    }
 
     /**
      * The current Router Request instance.
@@ -47,6 +56,20 @@ export class App extends Component {
     }) response?: Response;
 
     /**
+     * Should auto start on connect.
+     */
+    @property({
+        type: [Boolean, String],
+    }) autostart: boolean | string = false;
+
+    /**
+     * Hydrated state of the app.
+     */
+    @property({
+        type: Boolean,
+    }) hydrated: boolean = false;
+
+    /**
      * The navigation direction.
      */
     @state({
@@ -54,6 +77,29 @@ export class App extends Component {
         attribute: ':navigation',
         update: false,
     }) navigationDirection: NavigationDirection = NavigationDirection.forward;
+
+    /**
+     * The History instance for the application.
+     */
+    public history: History = window.history;
+
+    /**
+     * The Router instance for the application.
+     */
+    public router: Router = new Router({
+        origin: this.origin,
+        base: this.base,
+    });
+
+    /**
+     * @inheritdoc
+     */
+    connectedCallback() {
+        super.connectedCallback();
+        if (this.autostart) {
+            this.start(typeof this.autostart === 'string' ? this.autostart : undefined);
+        }
+    }
 
     /**
      * @inheritdoc
@@ -70,32 +116,44 @@ export class App extends Component {
      * Start the routing of the application.
      * @param path The initial path to navigate.
      */
-    async start(path?: string) {
-        if (this.base) {
-            this.router.setBase(this.base);
-        }
-        this.router.middleware({
+    async start(path?: string): Promise<Response | void> {
+        const { router, history, hydrated, _onPopState } = this;
+        router.middleware({
             pattern: '*',
             priority: -Infinity,
             before: (req) => {
                 this.request = req;
             },
         });
-        this.router.on('popstate', this._onPopState);
-        this.router.on('pushstate', this._onPopState);
-        this.router.on('replacestate', this._onPopState);
-        const response = await this.router.start(this.history, path);
-        this.response = response;
-        return response;
+        router.on('popstate', _onPopState);
+        router.on('pushstate', _onPopState);
+        router.on('replacestate', _onPopState);
+
+        const response = await (path ?
+            router.start(history, path) :
+            router.start(history, !hydrated as true));
+        if (response) {
+            this.response = response;
+            return response;
+        }
     }
 
     /**
-     * Trigger a routing navition.
+     * Trigger a routing navigation.
      * @param path The route path to navigate.
      * @return The response instance for the navigation.
      */
-    navigate(path: string): Promise<Response|null> {
-        return this.router.navigate(path);
+    navigate(path: string, init?: RequestInit): Promise<Response|null> {
+        return this.router.navigate(path, init);
+    }
+
+    /**
+     * Replace current navigation.
+     * @param path The route path to navigate.
+     * @return The response instance for the navigation.
+     */
+    replace(path: string, init?: RequestInit): Promise<Response|null> {
+        return this.router.replace(path, init);
     }
 
     /**
@@ -105,7 +163,23 @@ export class App extends Component {
      */
     @listen('click', 'a')
     protected _handleLink(event: Event, node?: Node) {
+        if (!this.router.started) {
+            return;
+        }
         return this.handleLink(event, node as HTMLElement);
+    }
+
+    /**
+     * Forms submit listener.
+     * @param event The submit event.
+     * @param node The form node.
+     */
+    @listen('submit', 'form')
+    protected _handleSubmit(event: Event, node?: Node) {
+        if (!this.router.started) {
+            return;
+        }
+        return this.handleSubmit(event, node as HTMLFormElement);
     }
 
     /**
@@ -115,7 +189,7 @@ export class App extends Component {
      */
     async handleLink(event: Event, node: HTMLElement) {
         const href = node.getAttribute('href');
-        if (!href || Url.isAbsoluteUrl(href)) {
+        if (!href) {
             return;
         }
 
@@ -124,9 +198,51 @@ export class App extends Component {
             return;
         }
 
+        const path = this.router.pathFromUrl(href);
+        if (!path) {
+            return;
+        }
+
         event.preventDefault();
         event.stopPropagation();
-        this.navigate(href);
+        this.navigate(path);
+    }
+
+    /**
+     * Handle submit on forms.
+     * @param event The click event.
+     * @param node The anchor node.
+     */
+    async handleSubmit(event: Event, node: HTMLFormElement) {
+        const action = node.getAttribute('action');
+        if (!action) {
+            return;
+        }
+
+        const target = node.getAttribute('target') || '_self';
+        if (target !== '_self') {
+            return;
+        }
+
+        const path = this.router.pathFromUrl(action);
+        if (!path) {
+            return;
+        }
+
+        const method = node.getAttribute('method')?.toLowerCase() as RequestMethod;
+        const data = new window.FormData(node);
+
+        event.preventDefault();
+        event.stopPropagation();
+        if (method === 'get') {
+            const params = new URLSearchParams(data as unknown as Record<string, string>);
+            this.navigate(`${path.split('?')[0]}?${params}`);
+        } else {
+            this.navigate(path, {
+                method,
+                data,
+            });
+        }
     }
 
     /**
@@ -165,6 +281,26 @@ export class App extends Component {
     @observe('response')
     protected _onResponseChanged(oldValue: Response|undefined, newValue: Response) {
         this.onResponse(oldValue, newValue);
+    }
+
+    /**
+     * Hook for origin property changes.
+     */
+    @observe('origin')
+    protected _onOriginChanged() {
+        if (this.router) {
+            this.router.setOrigin(this.origin);
+        }
+    }
+
+    /**
+     * Hook for base property changes.
+     */
+    @observe('base')
+    protected _onBaseChanged() {
+        if (this.router) {
+            this.router.setBase(this.base);
+        }
     }
 
     /**
