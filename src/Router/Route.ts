@@ -69,7 +69,7 @@ export class Route extends Pattern {
      */
     constructor(rule: RouteRule) {
         super(rule);
-        this.handler = rule.handler;
+        this.handler = rule.handler || (() => {});
         this.view = rule.render;
         this.router = rule.router;
     }

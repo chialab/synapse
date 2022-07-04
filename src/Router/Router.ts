@@ -81,6 +81,11 @@ export class Router extends Factory.Emitter {
     protected readonly connectedMiddlewares: Middleware[] = [];
 
     /**
+     * Current navigation promise.
+     */
+    #navigationPromise?: Promise<Response | null>;
+
+    /**
      * The origin of the router.
      */
     #origin: string = 'http://local';
@@ -347,38 +352,40 @@ export class Router extends Factory.Emitter {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async navigate(path: string, init?: RequestInit, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
-        const url = new URL(this.resolve(path, true));
-        if (!this.shouldNavigate(url) && !force) {
-            const hash = url.hash;
-            this.fragment(hash || '');
-            return null;
-        }
+        return this.setCurrentNavigation(async () => {
+            const url = new URL(this.resolve(path, true));
+            if (!this.shouldNavigate(url) && !force) {
+                const hash = url.hash;
+                this.fragment(hash || '');
+                return null;
+            }
 
-        const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
-        let response: Response;
-        try {
-            response = await this.handle(request, parentResponse);
-        } catch (error) {
-            response = this.handleError(request, error as Error);
-        }
+            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            let response: Response;
+            try {
+                response = await this.handle(request, parentResponse);
+            } catch (error) {
+                response = this.handleError(request, error as Error);
+            }
 
-        const index = this.index + 1;
-        const title = response.title || window.document.title;
-        await this.pushState({
-            id: this.id,
-            url: response.redirected || url.href,
-            index,
-            title,
-            request,
-            response,
-            store,
-        }, trigger);
+            const index = this.index + 1;
+            const title = response.title || window.document.title;
+            await this.pushState({
+                id: this.id,
+                url: response.redirected || url.href,
+                index,
+                title,
+                request,
+                response,
+                store,
+            }, trigger);
 
-        if (response.redirected != null) {
-            return this.replace(response.redirected, response.redirectInit, store, trigger, parentRequest, parentResponse);
-        }
+            if (response.redirected != null) {
+                return this.replace(response.redirected, response.redirectInit, store, trigger, parentRequest, parentResponse);
+            }
 
-        return response;
+            return response;
+        });
     }
 
     /**
@@ -388,31 +395,33 @@ export class Router extends Factory.Emitter {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async replace(path: string, init?: RequestInit, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
-        const url = new URL(this.resolve(path, true));
-        const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
-        let response: Response;
-        try {
-            response = await this.handle(request, parentResponse);
-        } catch (error) {
-            response = this.handleError(request, error as Error);
-        }
+        return this.setCurrentNavigation(async () => {
+            const url = new URL(this.resolve(path, true));
+            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            let response: Response;
+            try {
+                response = await this.handle(request, parentResponse);
+            } catch (error) {
+                response = this.handleError(request, error as Error);
+            }
 
-        const title = response.title || window.document.title;
-        await this.replaceState({
-            id: this.id,
-            url: response.redirected || url.href,
-            index: this.index,
-            title,
-            request,
-            response,
-            store,
-        }, trigger);
+            const title = response.title || window.document.title;
+            await this.replaceState({
+                id: this.id,
+                url: response.redirected || url.href,
+                index: this.index,
+                title,
+                request,
+                response,
+                store,
+            }, trigger);
 
-        if (response.redirected != null) {
-            return this.replace(response.redirected, response.redirectInit, store, trigger);
-        }
+            if (response.redirected != null) {
+                return this.replace(response.redirected, response.redirectInit, store, trigger);
+            }
 
-        return response;
+            return response;
+        }) as Promise<Response>;
     }
 
     /**
@@ -606,6 +615,23 @@ export class Router extends Factory.Emitter {
             return null;
         }
         return `/${trimSlash(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
+    }
+
+    /**
+     * Get the latest navigation promise.
+     * @returns The navigation promise.
+     */
+    waitNavigation() {
+        return this.#navigationPromise;
+    }
+
+    /**
+     * Set the current navigation promise.
+     * @param callback The navigation function.
+     * @returns The navigation response.
+     */
+    private setCurrentNavigation(callback: () => Promise<Response | null>) {
+        return this.#navigationPromise = callback();
     }
 
     /**

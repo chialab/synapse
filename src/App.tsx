@@ -16,28 +16,30 @@ enum NavigationDirection {
  */
 export class App extends Component {
     /**
-     * The History instance for the application.
-     */
-    public history: History = window.history;
-
-    /**
-     * The Router instance for the application.
-     */
-    public router: Router = new Router();
-
-    /**
      * The origin of the application.
      */
     @property({
         type: String,
-    }) origin: string = window.location?.origin;
+    })
+    get origin(): string {
+        return this.getInnerPropertyValue('origin') || window.location?.origin;
+    }
+    set origin(value: string) {
+        this.setInnerPropertyValue('origin', value);
+    }
 
     /**
      * The base url of the application.
      */
     @property({
         type: String,
-    }) base: string = '/';
+    })
+    get base(): string {
+        return this.getInnerPropertyValue('base') || '/';
+    }
+    set base(value: string) {
+        this.setInnerPropertyValue('base', value);
+    }
 
     /**
      * The current Router Request instance.
@@ -77,6 +79,19 @@ export class App extends Component {
     }) navigationDirection: NavigationDirection = NavigationDirection.forward;
 
     /**
+     * The History instance for the application.
+     */
+    public history: History = window.history;
+
+    /**
+     * The Router instance for the application.
+     */
+    public router: Router = new Router({
+        origin: this.origin,
+        base: this.base,
+    });
+
+    /**
      * @inheritdoc
      */
     connectedCallback() {
@@ -101,27 +116,22 @@ export class App extends Component {
      * Start the routing of the application.
      * @param path The initial path to navigate.
      */
-    async start(path?: string): Promise<Response|void> {
-        if (this.origin) {
-            this.router.setOrigin(this.origin);
-        }
-        if (this.base) {
-            this.router.setBase(this.base);
-        }
-        this.router.middleware({
+    async start(path?: string): Promise<Response | void> {
+        const { router, history, hydrated, _onPopState } = this;
+        router.middleware({
             pattern: '*',
             priority: -Infinity,
             before: (req) => {
                 this.request = req;
             },
         });
-        this.router.on('popstate', this._onPopState);
-        this.router.on('pushstate', this._onPopState);
-        this.router.on('replacestate', this._onPopState);
+        router.on('popstate', _onPopState);
+        router.on('pushstate', _onPopState);
+        router.on('replacestate', _onPopState);
 
         const response = await (path ?
-            this.router.start(this.history, path) :
-            this.router.start(this.history, !this.hydrated as true));
+            router.start(history, path) :
+            router.start(history, !hydrated as true));
         if (response) {
             this.response = response;
             return response;
@@ -271,6 +281,26 @@ export class App extends Component {
     @observe('response')
     protected _onResponseChanged(oldValue: Response|undefined, newValue: Response) {
         this.onResponse(oldValue, newValue);
+    }
+
+    /**
+     * Hook for origin property changes.
+     */
+    @observe('origin')
+    protected _onOriginChanged() {
+        if (this.router) {
+            this.router.setOrigin(this.origin);
+        }
+    }
+
+    /**
+     * Hook for base property changes.
+     */
+    @observe('base')
+    protected _onBaseChanged() {
+        if (this.router) {
+            this.router.setBase(this.base);
+        }
     }
 
     /**
