@@ -63,13 +63,6 @@ export class App extends Component {
     }) autostart: boolean | string = false;
 
     /**
-     * Hydrated state of the app.
-     */
-    @property({
-        type: Boolean,
-    }) hydrated: boolean = false;
-
-    /**
      * The navigation direction.
      */
     @state({
@@ -117,7 +110,7 @@ export class App extends Component {
      * @param path The initial path to navigate.
      */
     async start(path?: string): Promise<Response | void> {
-        const { router, history, hydrated, _onPopState } = this;
+        const { router, history, _onPopState } = this;
         router.middleware({
             pattern: '*',
             priority: -Infinity,
@@ -129,9 +122,7 @@ export class App extends Component {
         router.on('pushstate', _onPopState);
         router.on('replacestate', _onPopState);
 
-        const response = await (path ?
-            router.start(history, path) :
-            router.start(history, !hydrated as true));
+        const response = await router.start(history, path);
         if (response) {
             this.response = response;
             return response;
@@ -249,7 +240,11 @@ export class App extends Component {
      * Popstate listener.
      * @param data Popstate data.
      */
-    protected _onPopState = (data: PopStateData) => this.onPopState(data);
+    protected _onPopState = (data: PopStateData) => {
+        this.request = data.state.request;
+        this.onPopState(data);
+        this.response = data.state.response;
+    };
 
     /**
      * Handle popstate event from the router.
@@ -264,7 +259,6 @@ export class App extends Component {
         } else {
             this.navigationDirection = NavigationDirection.forward;
         }
-        this.response = state.response;
     }
 
     /**

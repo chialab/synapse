@@ -523,10 +523,7 @@ export class Router extends Factory.Emitter {
      * Bind the Router to a History model.
      * @param history The history model to bind.
      */
-    async start(history: History, path: true): Promise<Response>;
-    async start(history: History, path: false): Promise<void>;
-    async start(history: History, path: string): Promise<Response>;
-    async start(history: History, path: string | boolean = true): Promise<Response|void> {
+    async start(history: History, path?: string): Promise<Response> {
         this.reset();
         this.end();
         this.history = history;
@@ -537,12 +534,17 @@ export class Router extends Factory.Emitter {
                 if (event.state &&
                     typeof event.state === 'object' &&
                     typeof event.state.index === 'number') {
-                    return this.onPopState(state, state.id !== this.id ? state.url : undefined);
+                    return this.onPopState(state, state.id !== this.id && this.pathFromUrl(state.url) || undefined);
                 }
 
                 const location = new URL(window.location.href);
                 const path = this.pathFromUrl(location.href);
-                if (!path || !this.shouldNavigate(location)) {
+                if (!path) {
+                    event.preventDefault();
+                    return;
+                }
+
+                if (!this.shouldNavigate(location)) {
                     event.preventDefault();
                     return;
                 }
@@ -555,15 +557,11 @@ export class Router extends Factory.Emitter {
             on(history, 'popstate', this.onPopStateCallback);
         }
 
-        if (!path) {
-            return;
-        }
-
         if (history === window.history) {
-            return this.replace(path === true ? (this.pathFromUrl(window.location.href) || '/') : path);
+            return this.replace(path || this.pathFromUrl(window.location.href) || '/');
         }
 
-        return this.replace(path === true ? '/' : path);
+        return this.replace(path || '/');
     }
 
     /**
