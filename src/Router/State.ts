@@ -5,7 +5,7 @@ import type { Response } from './Response';
  * The router state representation.
  */
 export interface State {
-    id: number;
+    id: string|number;
     url: string;
     index: number;
     title: string;

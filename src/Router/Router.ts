@@ -42,6 +42,15 @@ function trimSlash(token: string) {
 }
 
 /**
+ * Router instances counter.
+ */
+let instances = 0;
+
+function generateId() {
+    return `${Date.now()}-${instances++}`;
+}
+
+/**
  * A router implementation for app navigation.
  */
 export class Router extends Factory.Emitter {
@@ -134,11 +143,6 @@ export class Router extends Factory.Emitter {
     }
 
     /**
-     * The id of the router.
-     */
-    readonly id: number;
-
-    /**
      * The router is started.
      */
     get started() {
@@ -163,6 +167,11 @@ export class Router extends Factory.Emitter {
     }
 
     /**
+     * The unique id of the router.
+     */
+    #id?: string;
+
+    /**
      * Create a Router instance.
      * @param routes A list of routes to connect.
      * @param middlewares A list of middlewares to connect.
@@ -170,7 +179,6 @@ export class Router extends Factory.Emitter {
     constructor(options: RouterOptions = {}, routes: (Route | RouteRule)[] = [], middlewares: (Middleware | MiddlewareRule)[] = []) {
         super();
 
-        this.id = Date.now();
         if (options.origin) {
             this.setOrigin(options.origin);
         }
@@ -371,7 +379,7 @@ export class Router extends Factory.Emitter {
             const index = this.index + 1;
             const title = response.title || window.document.title;
             await this.pushState({
-                id: this.id,
+                id: this.#id as string,
                 url: response.redirected || url.href,
                 index,
                 title,
@@ -407,7 +415,7 @@ export class Router extends Factory.Emitter {
 
             const title = response.title || window.document.title;
             await this.replaceState({
-                id: this.id,
+                id: this.#id as string,
                 url: response.redirected || url.href,
                 index: this.index,
                 title,
@@ -534,13 +542,17 @@ export class Router extends Factory.Emitter {
                 if (event.state &&
                     typeof event.state === 'object' &&
                     typeof event.state.index === 'number') {
-                    return this.onPopState(state, state.id !== this.id && this.pathFromUrl(state.url) || undefined);
+                    let path: string|undefined;
+                    if (state.id !== this.#id) {
+                        this.reset();
+                        path = this.pathFromUrl(state.url) || undefined;
+                    }
+                    return this.onPopState(state, path);
                 }
 
                 const location = new URL(window.location.href);
                 const path = this.pathFromUrl(location.href);
                 if (!path) {
-                    event.preventDefault();
                     return;
                 }
 
@@ -580,6 +592,7 @@ export class Router extends Factory.Emitter {
      * Reset the router states stack.
      */
     reset() {
+        this.#id = generateId();
         this.states.splice(0, this.states.length);
         this.index = 0;
     }
