@@ -65,13 +65,6 @@ describe('Router', () => {
         expect(new Router({ base: '/base' }).resolve('/test?query')).to.be.equal('/base/test?query');
     });
 
-    it('should start with a history', async () => {
-        const history = new History();
-        const router = new Router();
-
-        expect(await router.start(history, false)).to.be.undefined;
-    });
-
     it('should navigate', async () => {
         const history = new History();
         const router = new Router({}, [{
@@ -81,7 +74,7 @@ describe('Router', () => {
             },
         }]);
 
-        await router.start(history, false);
+        await router.start(history);
 
         const response = await router.navigate('/');
         expect(response.data.href).to.be.equal('http://local/');
@@ -99,7 +92,7 @@ describe('Router', () => {
             },
         }]);
 
-        await router.start(history, false);
+        await router.start(history);
 
         const response = await router.navigate('/');
         expect(response.data.href).to.be.equal('http://local/base');
