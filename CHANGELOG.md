@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 3.0.0-beta.3
+
+### Patch Changes
+
+- Increment version
+
 ## 3.0.0-beta.2
 
 ### Patch Changes
