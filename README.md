@@ -24,7 +24,7 @@ Usage via [unpkg.com](https://unpkg.com/), as UMD package:
 
 or as ES6 module:
 
-```js
+```tsx
 import { App, Router, ... } from 'https://unpkg.com/@chialab/synapse?module';
 ```
 
@@ -35,23 +35,25 @@ $ npm i @chialab/synapse
 $ yarn add @chialab/synapse
 ```
 
-```ts
+```tsx
 import { App, Router, ... } from '@chialab/synapse';
 ```
 
 ## Create an application
 
-```ts
+```tsx
 import { html, customElements, render } from '@chialab/dna';
-import { App } from '@chialab/synapse';
+import { App, Router } from '@chialab/synapse';
 
-const routes = [
+const router = new Router({
+    base: '/',
+}, [
     {
         pattern: '/',
         render(req, res) {
-            return html`<div>
+            return <main>
                 <h1>Home</h1>
-            </div>`;
+            </main>;
         },
     },
     {
@@ -59,39 +61,41 @@ const routes = [
             res.data = new Error('not found');
         },
         render(req, res) {
-            return html`<div>
+            return <main>
                 <details>
                     <summary>${res.data.message}</summary>
                     <pre>${res.data.stack}</pre>
                 </details>
-            </div>`;
+            </main>;
+        },
     },
-}];
+]);
 
 class DemoApp extends App {
+    router = router;
+
     render() {
-        return html`
+        return <>
             <header>
                 <h1>Synapse 3.0</h1>
             </header>
             <nav>
                 <ul>
                     <li>
-                        <a href="/">Home</a>
+                        <a href={router.resolve('/')}>Home</a>
                     </li>
                 </ul>
             </nav>
-            <main>
-                ${super.render()}
-            </main>
-        `;
+            {super.render()}
+        </>;
     }
 }
 
 customElements.define('demo-app', DemoApp);
 
-const app = render(document.getElementById('app'), html`<${DemoApp} routes=${routes} />`);
-app.navigate('/');
+const app = render(<DemoApp />, document.getElementById('app'));
+
+app.start('/');
 ```
 
 ---
