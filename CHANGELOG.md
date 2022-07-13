@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 3.0.0-rc.4
+
+### Patch Changes
+
+- 9c35391: Route patterns matching
+
 ## 3.0.0-beta.3
 
 ### Patch Changes
