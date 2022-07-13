@@ -34,6 +34,11 @@ describe('App', () => {
 
     afterEach(() => {
         DOM.removeChild(document.body, wrapper);
+        if (typeof window._jsdom !== 'undefined') {
+            window._jsdom.reconfigure({
+                url: 'about:blank',
+            });
+        }
     });
 
     it('should initialize a router', () => {

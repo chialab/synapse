@@ -98,4 +98,51 @@ describe('Router', () => {
         expect(response.data.href).to.be.equal('http://local/base');
         expect(history.entries[0].url).to.be.equal('http://local/base');
     });
+
+    describe('patterns', () => {
+        let router;
+        before(() => {
+            router = new Router({
+                base: '/base',
+            }, [
+                {
+                    pattern: '/params/:action/:id',
+                },
+                {
+                    pattern: '/params/:id',
+                },
+                {
+                    pattern: '/params',
+                },
+            ]);
+        });
+
+        it('should match empty params', async () => {
+            const { request: { params } } = await router.navigate('/params');
+
+            expect(Object.keys(params)).to.have.lengthOf(0);
+        });
+
+        it('should match single param', async () => {
+            const { request: { params } } = await router.navigate('/params/123');
+
+            expect(Object.keys(params)).to.have.lengthOf(1);
+            expect(params.id).to.be.equal('123');
+        });
+
+        it('should match single param with query string', async () => {
+            const { request: { params } } = await router.navigate('/params/123?test');
+
+            expect(Object.keys(params)).to.have.lengthOf(1);
+            expect(params.id).to.be.equal('123');
+        });
+
+        it('should match multiple params', async () => {
+            const { request: { params } } = await router.navigate('/params/view/123');
+
+            expect(Object.keys(params)).to.have.lengthOf(2);
+            expect(params.action).to.be.equal('view');
+            expect(params.id).to.be.equal('123');
+        });
+    });
 });

@@ -3,7 +3,7 @@ import type { RequestInit, RequestMethod } from './Router/Request';
 import { Component, window, property, state, observe, listen } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
-import { Router } from './Router/Router';
+import { Router, DEFAULT_ORIGIN } from './Router/Router';
 import { Page } from './Components/Page';
 
 enum NavigationDirection {
@@ -22,7 +22,14 @@ export class App extends Component {
         type: String,
     })
     get origin(): string {
-        return this.getInnerPropertyValue('origin') || window.location?.origin;
+        if (this.getInnerPropertyValue('origin')) {
+            return this.getInnerPropertyValue('origin');
+        }
+        if (window.location.origin && window.location.origin !== 'null') {
+            return window.location.origin;
+        }
+
+        return DEFAULT_ORIGIN;
     }
     set origin(value: string) {
         this.setInnerPropertyValue('origin', value);
