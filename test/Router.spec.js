@@ -10,64 +10,66 @@ describe('Router', () => {
     });
 
     it('should normalize base', () => {
-        expect(new Router({ base: '/' }).base).to.be.equal('/');
-        expect(new Router({ base: '' }).base).to.be.equal('/');
-        expect(new Router({ base: 'base' }).base).to.be.equal('/base');
-        expect(new Router({ base: 'base?test' }).base).to.be.equal('/base');
-        expect(new Router({ base: 'base/' }).base).to.be.equal('/base');
-        expect(new Router({ base: '/base' }).base).to.be.equal('/base');
-        expect(new Router({ base: '/base/' }).base).to.be.equal('/base');
+        expect(new Router({ origin: 'http://local', base: '/' }).base).to.be.equal('/');
+        expect(new Router({ origin: 'http://local', base: '' }).base).to.be.equal('/');
+        expect(new Router({ origin: 'http://local', base: 'base' }).base).to.be.equal('/base');
+        expect(new Router({ origin: 'http://local', base: 'base?test' }).base).to.be.equal('/base');
+        expect(new Router({ origin: 'http://local', base: 'base/' }).base).to.be.equal('/base');
+        expect(new Router({ origin: 'http://local', base: '/base' }).base).to.be.equal('/base');
+        expect(new Router({ origin: 'http://local', base: '/base/' }).base).to.be.equal('/base');
     });
 
     it('should get path from url', () => {
-        expect(new Router({ base: '/base' }).pathFromUrl('/base')).to.be.equal('/');
-        expect(new Router({ base: '/base' }).pathFromUrl('/base?query')).to.be.equal('/?query');
-        expect(new Router({ base: '/base' }).pathFromUrl('/base/')).to.be.equal('/');
-        expect(new Router({ base: '/base' }).pathFromUrl('/base/?query')).to.be.equal('/?query');
-        expect(new Router({ base: '/base' }).pathFromUrl('/base/path')).to.be.equal('/path');
-        expect(new Router({ base: '/base' }).pathFromUrl('/base/path?query')).to.be.equal('/path?query');
-        expect(new Router({ base: '/base' }).pathFromUrl('http://local/base')).to.be.equal('/');
-        expect(new Router({ base: '/base' }).pathFromUrl('http://local/wrong')).to.be.null;
-        expect(new Router({ base: '/base' }).pathFromUrl('http://wrong/base')).to.be.null;
-        expect(new Router({ base: '/base' }).pathFromUrl('http://wrong')).to.be.null;
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base')).to.be.equal('/');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base?query')).to.be.equal('/?query');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/')).to.be.equal('/');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/?query')).to.be.equal('/?query');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path')).to.be.equal('/path');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path?query')).to.be.equal('/path?query');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://local/base')).to.be.equal('/');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://local/wrong')).to.be.null;
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://wrong/base')).to.be.null;
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://wrong')).to.be.null;
     });
 
     it('should resolve a path', () => {
-        expect(new Router({ base: '/' }).resolve('')).to.be.equal('/');
-        expect(new Router({ base: '/' }).resolve('/')).to.be.equal('/');
-        expect(new Router({ base: '/' }).resolve('test')).to.be.equal('/test');
-        expect(new Router({ base: '/' }).resolve('/test')).to.be.equal('/test');
-        expect(new Router({ base: '/' }).resolve('test/')).to.be.equal('/test');
-        expect(new Router({ base: '/' }).resolve('/test/')).to.be.equal('/test');
-        expect(new Router({ base: '/' }).resolve('//test//')).to.be.equal('/test');
-        expect(new Router({ base: '/' }).resolve('/test?query')).to.be.equal('/test?query');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('')).to.be.equal('/');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/')).to.be.equal('/');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test')).to.be.equal('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test')).to.be.equal('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test/')).to.be.equal('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test/')).to.be.equal('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('//test//')).to.be.equal('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test?query')).to.be.equal('/test?query');
     });
 
     it('should resolve a full path', () => {
-        expect(new Router({ base: '/' }).resolve('', true)).to.be.equal('http://local/');
-        expect(new Router({ base: '/' }).resolve('/', true)).to.be.equal('http://local/');
-        expect(new Router({ base: '/' }).resolve('test', true)).to.be.equal('http://local/test');
-        expect(new Router({ base: '/' }).resolve('/test', true)).to.be.equal('http://local/test');
-        expect(new Router({ base: '/' }).resolve('test/', true)).to.be.equal('http://local/test');
-        expect(new Router({ base: '/' }).resolve('/test/', true)).to.be.equal('http://local/test');
-        expect(new Router({ base: '/' }).resolve('//test//', true)).to.be.equal('http://local/test');
-        expect(new Router({ base: '/' }).resolve('/test?query', true)).to.be.equal('http://local/test?query');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('', true)).to.be.equal('http://local/');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/', true)).to.be.equal('http://local/');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test', true)).to.be.equal('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test', true)).to.be.equal('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test/', true)).to.be.equal('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test/', true)).to.be.equal('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('//test//', true)).to.be.equal('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test?query', true)).to.be.equal('http://local/test?query');
     });
 
     it('should resolve a path with base', () => {
-        expect(new Router({ base: '/base' }).resolve('')).to.be.equal('/base');
-        expect(new Router({ base: '/base' }).resolve('/')).to.be.equal('/base');
-        expect(new Router({ base: '/base' }).resolve('test')).to.be.equal('/base/test');
-        expect(new Router({ base: '/base' }).resolve('/test')).to.be.equal('/base/test');
-        expect(new Router({ base: '/base' }).resolve('test/')).to.be.equal('/base/test');
-        expect(new Router({ base: '/base' }).resolve('/test/')).to.be.equal('/base/test');
-        expect(new Router({ base: '/base' }).resolve('//test//')).to.be.equal('/base/test');
-        expect(new Router({ base: '/base' }).resolve('/test?query')).to.be.equal('/base/test?query');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('')).to.be.equal('/base');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/')).to.be.equal('/base');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('test')).to.be.equal('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test')).to.be.equal('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('test/')).to.be.equal('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test/')).to.be.equal('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('//test//')).to.be.equal('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test?query')).to.be.equal('/base/test?query');
     });
 
     it('should navigate', async () => {
         const history = new History();
-        const router = new Router({}, [{
+        const router = new Router({
+            origin: 'http://local',
+        }, [{
             pattern: '/',
             handler: (req, res) => {
                 res.setData(req.url);
@@ -84,6 +86,7 @@ describe('Router', () => {
     it('should navigate (with base)', async () => {
         const history = new History();
         const router = new Router({
+            origin: 'http://local',
             base: '/base',
         }, [{
             pattern: '/',
