@@ -31,6 +31,11 @@ export interface PopStateData {
 }
 
 /**
+ * Default router origin.
+ */
+export const DEFAULT_ORIGIN = 'http://local';
+
+/**
  * Trim slashes from the start and end of a string.
  * @param token The string to trim.
  * @return THe trimmed string.
@@ -97,7 +102,7 @@ export class Router extends Factory.Emitter {
     /**
      * The origin of the router.
      */
-    #origin: string = window.location.origin !== 'null' ? window.location.origin : 'http://local';
+    #origin: string = 'http://local';
 
     /**
      * The origin of the router.
