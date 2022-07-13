@@ -1,8 +1,8 @@
 {
   "mode": "pre",
-  "tag": "beta",
+  "tag": "rc",
   "initialVersions": {
-    "@chialab/synapse": "3.0.0-beta.1"
+    "@chialab/synapse": "3.0.0-rc.1"
   },
   "changesets": [
     "fresh-toes-deliver",
