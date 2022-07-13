@@ -97,7 +97,7 @@ export class Router extends Factory.Emitter {
     /**
      * The origin of the router.
      */
-    #origin: string = 'http://local';
+    #origin: string = window.location.origin !== 'null' ? window.location.origin : 'http://local';
 
     /**
      * The origin of the router.

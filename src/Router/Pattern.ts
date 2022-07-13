@@ -103,7 +103,8 @@ export class Pattern {
      * @param path The path to check.
      * @return False if does not match, grouped values if it does.
      */
-    matches(path: string): RequestParams|false {
+    matches(path: string): RequestParams | false {
+        path = path.split('?')[0];
         if (this.cache[path]) {
             return this.cache[path];
         }
