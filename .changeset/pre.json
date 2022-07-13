@@ -5,6 +5,7 @@
     "@chialab/synapse": "3.0.0-rc.1"
   },
   "changesets": [
+    "five-keys-think",
     "fresh-toes-deliver",
     "happy-onions-clean",
     "lovely-buttons-repair",
