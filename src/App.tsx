@@ -1,6 +1,6 @@
 import type { PopStateData } from './Router/Router';
 import type { RequestInit, RequestMethod } from './Router/Request';
-import { Component, window, property, state, observe, listen } from '@chialab/dna';
+import { Component, window, property, state, observe, listen, customElementPrototype } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router, DEFAULT_ORIGIN } from './Router/Router';
@@ -14,6 +14,7 @@ enum NavigationDirection {
 /**
  * A Web Component which handles routing.
  */
+@customElementPrototype
 export class App extends Component {
     /**
      * The origin of the application.
