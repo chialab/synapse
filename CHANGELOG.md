@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 3.0.0-rc.5
+
+### Patch Changes
+
+- 3753c5b: Update to DNA 3.20
+
 ## 3.0.0-rc.2
 
 ### Patch Changes
