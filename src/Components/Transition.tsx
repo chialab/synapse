@@ -31,9 +31,13 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
         throw new Error('Transition router is required');
     }
 
-    const { node, store, requestUpdate } = context;
+    const { start, store, requestUpdate } = context;
+    if (!start) {
+        return <Renderer key={router.state}>{children}</Renderer>;
+    }
+
     const currentState = store.get('state') as State | undefined;
-    const root = node.parentElement;
+    const root = start.parentElement;
 
     let previousState = store.get('previousState') as State | undefined;
     let previousChildren = store.get('previousChildren') as Template[] | undefined;
