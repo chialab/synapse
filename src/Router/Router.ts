@@ -454,7 +454,7 @@ export class Router extends Factory.Emitter {
      */
     fragment(hash: string) {
         if (window.history === this.history) {
-            if (window.location.hash || hash) {
+            if (window.location.hash !== hash) {
                 window.location.hash = hash;
             }
         }
@@ -544,9 +544,9 @@ export class Router extends Factory.Emitter {
         if (history === window.history) {
             this.onPopStateCallback = (event: PopStateEvent) => {
                 const state = event.state as unknown as State;
-                if (event.state &&
-                    typeof event.state === 'object' &&
-                    typeof event.state.index === 'number') {
+                if (state &&
+                    typeof state === 'object' &&
+                    typeof state.index === 'number') {
                     let path: string|undefined;
                     if (state.id !== this.#id) {
                         this.reset();
@@ -757,10 +757,13 @@ export class Router extends Factory.Emitter {
      * @param url The requested url.
      */
     private shouldNavigate(url: URL) {
-        if (!this.current) {
+        if (!this.state) {
             return true;
         }
+        if (this.listeningHashChanges) {
+            return this.state.url !== url.href;
+        }
 
-        return this.current !== url.href;
+        return this.state.url.split('#')[0] !== url.href.split('#')[0];
     }
 }

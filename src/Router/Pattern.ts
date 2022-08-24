@@ -54,7 +54,7 @@ export class Pattern {
             })
             .join('');
 
-        const regex = new RegExp(`^${chunks || '\\/'}$`, 'i');
+        const regex = new RegExp(`^${chunks || '\\/'}(#|$)`, 'i');
         return [regex, names];
     }
 
