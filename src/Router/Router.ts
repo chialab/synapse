@@ -627,10 +627,15 @@ export class Router extends Factory.Emitter {
         if (url.origin !== this.origin) {
             return null;
         }
-        if (url.pathname !== this.base && url.pathname.indexOf(this.base) !== 0) {
+
+        const isHashNavigation = this.base.indexOf('#') !== -1;
+        const extendedPathname = isHashNavigation ? `/${trimSlash(url.pathname)}${url.search}${url.hash}` : url.pathname;
+        if (extendedPathname !== this.base && extendedPathname.indexOf(this.base) !== 0) {
             return null;
         }
-        return `/${trimSlash(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
+        return isHashNavigation ?
+            `/${trimSlash(extendedPathname.replace(this.base, ''))}` :
+            `/${trimSlash(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
     }
 
     /**

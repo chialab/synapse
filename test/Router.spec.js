@@ -102,6 +102,26 @@ describe('Router', () => {
         expect(history.entries[0].url).to.be.equal('http://local/base/test');
     });
 
+    it('should navigate with hashbang base', async () => {
+        const history = new History();
+        const router = new Router({
+            origin: 'http://local',
+            base: '/#!/',
+            listenHashChanges: true,
+        }, [{
+            pattern: '/test',
+            handler: (req, res) => {
+                res.setData(req.url);
+            },
+        }]);
+
+        await router.start(history);
+
+        const response = await router.navigate('/test');
+        expect(response.data.href).to.be.equal('http://local/#!/test');
+        expect(history.entries[0].url).to.be.equal('http://local/#!/test');
+    });
+
     it('should navigate with hash', async () => {
         const history = new History();
         const router = new Router({
