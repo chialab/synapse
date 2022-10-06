@@ -36,14 +36,30 @@ export interface PopStateData {
 export const DEFAULT_ORIGIN = 'http://local';
 
 /**
+ * Trim slashes from the start a string.
+ * @param token The string to trim.
+ * @return THe trimmed string.
+ */
+function trimSlashStart(token: string) {
+    return token.replace(/^\/*/, '');
+}
+
+/**
+ * Trim slashes from the end a string.
+ * @param token The string to trim.
+ * @return THe trimmed string.
+ */
+function trimSlashEnd(token: string) {
+    return token.replace(/\/*$/, '');
+}
+
+/**
  * Trim slashes from the start and end of a string.
  * @param token The string to trim.
  * @return THe trimmed string.
  */
 function trimSlash(token: string) {
-    return token
-        .replace(/\/*$/, '')
-        .replace(/^\/*/, '');
+    return trimSlashStart(trimSlashEnd(token));
 }
 
 /**
@@ -629,13 +645,13 @@ export class Router extends Factory.Emitter {
         }
 
         const isHashNavigation = this.base.indexOf('#') !== -1;
-        const extendedPathname = isHashNavigation ? `/${trimSlash(url.pathname)}${url.search}${url.hash}` : url.pathname;
+        const extendedPathname = isHashNavigation ? `/${trimSlashStart(url.pathname)}${url.search}${url.hash}` : url.pathname;
         if (extendedPathname !== this.base && extendedPathname.indexOf(this.base) !== 0) {
             return null;
         }
         return isHashNavigation ?
-            `/${trimSlash(extendedPathname.replace(this.base, ''))}` :
-            `/${trimSlash(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
+            `/${trimSlashStart(extendedPathname.replace(this.base, ''))}` :
+            `/${trimSlashStart(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
     }
 
     /**
