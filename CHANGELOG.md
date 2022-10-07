@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 3.0.0-rc.9
+
+### Patch Changes
+
+- 283d297: Fix hash navigation
+
 ## 3.0.0-rc.8
 
 ### Patch Changes
