@@ -301,7 +301,11 @@ export class App extends Component {
     @observe('base')
     protected _onBaseChanged() {
         if (this.router) {
-            this.router.setBase(this.base);
+            let base = this.base;
+            if (base[0] === '#') {
+                base = `${window.location.pathname}${window.location.search}${base}`;
+            }
+            this.router.setBase(base);
         }
     }
 

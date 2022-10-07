@@ -242,7 +242,7 @@ export class Router extends Factory.Emitter {
         if (this.started) {
             throw new Error('Cannot set base after router is started.');
         }
-        this.#base = `/${trimSlash(base.split('?')[0])}`;
+        this.#base = base.indexOf('#') !== -1 ? `/${trimSlash(base)}` : `/${trimSlash(base.split('?')[0])}`;
     }
 
     /**
@@ -555,6 +555,10 @@ export class Router extends Factory.Emitter {
     async start(history: History, path?: string): Promise<Response> {
         this.reset();
         this.end();
+        if (this.base.indexOf('#') !== -1) {
+            this.listenHashChanges();
+        }
+
         this.history = history;
 
         if (history === window.history) {
@@ -644,12 +648,11 @@ export class Router extends Factory.Emitter {
             return null;
         }
 
-        const isHashNavigation = this.base.indexOf('#') !== -1;
-        const extendedPathname = isHashNavigation ? `/${trimSlashStart(url.pathname)}${url.search}${url.hash}` : url.pathname;
+        const extendedPathname = this.listeningHashChanges ? `/${trimSlashStart(url.pathname)}${url.search}${url.hash}` : url.pathname;
         if (extendedPathname !== this.base && extendedPathname.indexOf(this.base) !== 0) {
             return null;
         }
-        return isHashNavigation ?
+        return this.listeningHashChanges ?
             `/${trimSlashStart(extendedPathname.replace(this.base, ''))}` :
             `/${trimSlashStart(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
     }
