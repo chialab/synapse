@@ -116,6 +116,11 @@ export class Router extends Factory.Emitter {
     #navigationPromise?: Promise<Response | null>;
 
     /**
+     * Current request.
+     */
+    #currentRequest?: Request;
+
+    /**
      * The origin of the router.
      */
     #origin: string = window.location.origin !== 'null' ? window.location.origin : 'http://local';
@@ -390,11 +395,17 @@ export class Router extends Factory.Emitter {
             }
 
             const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            this.setCurrentRequest(request);
+
             let response: Response;
             try {
                 response = await this.handle(request, parentResponse);
             } catch (error) {
                 response = this.handleError(request, error as Error);
+            }
+
+            if (request !== this.#currentRequest) {
+                throw new Error('Request aborted.');
             }
 
             const index = this.index + 1;
@@ -427,11 +438,17 @@ export class Router extends Factory.Emitter {
         return this.setCurrentNavigation(async () => {
             const url = new URL(this.resolve(path, true));
             const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            this.setCurrentRequest(request);
+
             let response: Response;
             try {
                 response = await this.handle(request, parentResponse);
             } catch (error) {
                 response = this.handleError(request, error as Error);
+            }
+
+            if (request !== this.#currentRequest) {
+                throw new Error('Request aborted.');
             }
 
             const title = response.title || window.document.title;
@@ -672,6 +689,14 @@ export class Router extends Factory.Emitter {
      */
     private setCurrentNavigation(callback: () => Promise<Response | null>) {
         return this.#navigationPromise = callback();
+    }
+
+    /**
+     * Set the current request.
+     * @param request The request instance.
+     */
+    private setCurrentRequest(request: Request) {
+        return this.#currentRequest = request;
     }
 
     /**
