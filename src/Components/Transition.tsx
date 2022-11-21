@@ -8,7 +8,7 @@ import { window, Node } from '@chialab/dna';
  * @param data Page children.
  * @returns The page template.
  */
-const TransitionPage: FunctionComponent = function Transition({ children }) {
+const TransitionPage: FunctionComponent = function TransitionPage({ children }) {
     return children;
 };
 
