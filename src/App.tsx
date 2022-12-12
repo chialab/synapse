@@ -4,6 +4,9 @@ import { Component, window, property, state, observe, listen, customElementProto
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router, DEFAULT_ORIGIN } from './Router/Router';
+import { History } from './Router/History';
+import { BrowserHistory } from './Router/BrowserHistory';
+import { isNode } from './Helpers/Env';
 import { Page } from './Components/Page';
 
 enum NavigationDirection {
@@ -82,7 +85,7 @@ export class App extends Component {
     /**
      * The History instance for the application.
      */
-    public history: History = window.history;
+    public history: History = isNode() ? new History() : new BrowserHistory();
 
     /**
      * The Router instance for the application.

@@ -3,12 +3,15 @@ import type { RequestInit } from './Request';
 import type { ErrorHandler } from './ErrorHandler';
 import type { RouteRule, RouteHandler, NextHandler } from './Route';
 import type { State } from './State';
-import { on, Factory, off } from '@chialab/proteins';
+import type { History } from './History';
 import { window } from '@chialab/dna';
+import { Path, trimSlash, trimSlashStart } from './Path';
 import { Request } from './Request';
 import { Response } from './Response';
 import { Route } from './Route';
 import { Middleware } from './Middleware';
+import { BrowserHistory } from './BrowserHistory';
+import { Emitter } from '../Helpers/Emitter';
 import DEFAULT_ERROR_HANDLER from './ErrorHandler';
 
 /**
@@ -16,10 +19,8 @@ import DEFAULT_ERROR_HANDLER from './ErrorHandler';
  */
 export interface RouterOptions {
     base?: string;
-    prefix?: string;
     origin?: string;
     errorHandler?: ErrorHandler;
-    listenHashChanges?: boolean;
 }
 
 /**
@@ -36,45 +37,9 @@ export interface PopStateData {
 export const DEFAULT_ORIGIN = 'http://local';
 
 /**
- * Trim slashes from the start a string.
- * @param token The string to trim.
- * @return THe trimmed string.
- */
-function trimSlashStart(token: string) {
-    return token.replace(/^\/*/, '');
-}
-
-/**
- * Trim slashes from the end a string.
- * @param token The string to trim.
- * @return THe trimmed string.
- */
-function trimSlashEnd(token: string) {
-    return token.replace(/\/*$/, '');
-}
-
-/**
- * Trim slashes from the start and end of a string.
- * @param token The string to trim.
- * @return THe trimmed string.
- */
-function trimSlash(token: string) {
-    return trimSlashStart(trimSlashEnd(token));
-}
-
-/**
- * Router instances counter.
- */
-let instances = 0;
-
-function generateId() {
-    return `${Date.now()}-${instances++}`;
-}
-
-/**
  * A router implementation for app navigation.
  */
-export class Router extends Factory.Emitter {
+export class Router extends Emitter {
     /**
      * Router history states.
      */
@@ -84,11 +49,6 @@ export class Router extends Factory.Emitter {
      * The current state index in the history.
      */
     private index: number = 0;
-
-    /**
-     * The callback bound to popstate event.
-     */
-    private onPopStateCallback: (event: PopStateEvent) => unknown = () => { };
 
     /**
      * The browser's history like implementation for state management.
@@ -145,30 +105,6 @@ export class Router extends Factory.Emitter {
     }
 
     /**
-     * The prefix for routing path such as hasbang.
-     */
-    #prefix: string = '';
-
-    /**
-     * The prefix for routing path such as hasbang.
-     */
-    get prefix() {
-        return this.#prefix;
-    }
-
-    /**
-     * Should navigate on hash changes.
-     */
-    #listeningHashChanges: boolean = false;
-
-    /**
-     * Should navigate on hash changes.
-     */
-    get listeningHashChanges() {
-        return this.#listeningHashChanges;
-    }
-
-    /**
      * The router is started.
      */
     get started() {
@@ -186,16 +122,8 @@ export class Router extends Factory.Emitter {
      * The current router path.
      */
     get current() {
-        if (!this.state) {
-            return null;
-        }
-        return this.pathFromUrl(this.state.url);
+        return this.state?.path;
     }
-
-    /**
-     * The unique id of the router.
-     */
-    #id?: string;
 
     /**
      * Create a Router instance.
@@ -210,12 +138,6 @@ export class Router extends Factory.Emitter {
         }
         if (options.base) {
             this.setBase(options.base);
-        }
-        if (options.prefix) {
-            this.setPrefix(options.prefix);
-        }
-        if (options.listenHashChanges) {
-            this.listenHashChanges();
         }
         if (options.errorHandler) {
             this.setErrorHandler(options.errorHandler);
@@ -251,37 +173,6 @@ export class Router extends Factory.Emitter {
     }
 
     /**
-     * Set the routing url prefix.
-     * @param prefix The prefix value.
-     */
-    setPrefix(prefix: string) {
-        if (this.started) {
-            throw new Error('Cannot set prefix after router is started.');
-        }
-        this.#prefix = trimSlash(prefix);
-    }
-
-    /**
-     * Configure the router to listen for hash changes.
-     */
-    listenHashChanges() {
-        if (this.history) {
-            throw new Error('Cannot change hash listener after router is started.');
-        }
-        this.#listeningHashChanges = true;
-    }
-
-    /**
-     * Configure the router to not listen for hash changes.
-     */
-    unlistenHashChanges() {
-        if (this.history) {
-            throw new Error('Cannot change hash listener after router is started.');
-        }
-        this.#listeningHashChanges = false;
-    }
-
-    /**
      * Set the error handler of the router.
      * @param errorHandler The error handler or undefined to restore the default error handler.
      */
@@ -297,12 +188,12 @@ export class Router extends Factory.Emitter {
     async handle(request: Request, parentResponse?: Response): Promise<Response> {
         const routes = this.connectedRoutes;
         const middlewares = this.connectedMiddlewares;
-        const path = this.pathFromUrl(request.url.href) as string;
+        const pathname = this.pathFromUrl(request.url.href) as string;
         let response = new Response(request, parentResponse);
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             const middleware = middlewares[i];
-            const params = middleware.matches(path);
+            const params = middleware.matches(pathname);
             if (!params) {
                 continue;
             }
@@ -323,7 +214,7 @@ export class Router extends Factory.Emitter {
                 if (res.redirected != null) {
                     return res;
                 }
-                const params = route.matches(path);
+                const params = route.matches(pathname);
                 if (params === false) {
                     return next(req, res, this);
                 }
@@ -358,7 +249,7 @@ export class Router extends Factory.Emitter {
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             const middleware = middlewares[i];
-            const params = middleware.matches(path);
+            const params = middleware.matches(pathname);
             if (!params) {
                 continue;
             }
@@ -381,20 +272,19 @@ export class Router extends Factory.Emitter {
 
     /**
      * Trigger a router navigation.
-     * @param path The path to navigate.
+     * @param pathname The path to navigate.
      * @return The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async navigate(path: string, init?: RequestInit, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
+    async navigate(pathname: string, init?: RequestInit, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
         return this.setCurrentNavigation(async () => {
-            const url = new URL(this.resolve(path, true));
-            if (!this.shouldNavigate(url) && !force) {
-                const hash = url.hash;
-                this.fragment(hash || '');
+            const path = new Path(this.origin, this.base, pathname);
+            if (!this.shouldNavigate(path) && !force) {
+                this.fragment(path.hash || '');
                 return null;
             }
 
-            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            const request = parentRequest ? parentRequest.child(path, init) : new Request(path, init);
             this.setCurrentRequest(request);
 
             let response: Response;
@@ -411,8 +301,8 @@ export class Router extends Factory.Emitter {
             const index = this.index + 1;
             const title = response.title || window.document.title;
             await this.pushState({
-                id: this.#id as string,
-                url: response.redirected || url.href,
+                url: response.redirected || path.url.href,
+                path: path.href,
                 index,
                 title,
                 request,
@@ -430,14 +320,14 @@ export class Router extends Factory.Emitter {
 
     /**
      * Trigger a router navigation.
-     * @param path The path to navigate.
+     * @param pathname The path to navigate.
      * @return The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async replace(path: string, init?: RequestInit, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
+    async replace(pathname: string, init?: RequestInit, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
         return this.setCurrentNavigation(async () => {
-            const url = new URL(this.resolve(path, true));
-            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            const path = new Path(this.origin, this.base, pathname);
+            const request = parentRequest ? parentRequest.child(path, init) : new Request(path, init);
             this.setCurrentRequest(request);
 
             let response: Response;
@@ -453,8 +343,8 @@ export class Router extends Factory.Emitter {
 
             const title = response.title || window.document.title;
             await this.replaceState({
-                id: this.#id as string,
-                url: response.redirected || url.href,
+                url: response.redirected || path.url.href,
+                path: path.href,
                 index: this.index,
                 title,
                 request,
@@ -486,7 +376,7 @@ export class Router extends Factory.Emitter {
      * @param hash The hash to set.
      */
     fragment(hash: string) {
-        if (window.history === this.history) {
+        if (this.history instanceof BrowserHistory) {
             if (window.location.hash !== hash) {
                 window.location.hash = hash;
             }
@@ -569,53 +459,20 @@ export class Router extends Factory.Emitter {
      * Bind the Router to a History model.
      * @param history The history model to bind.
      */
-    async start(history: History, path?: string): Promise<Response> {
+    async start(history: History, pathname?: string): Promise<Response> {
         this.reset();
         this.end();
-        if (this.base.indexOf('#') !== -1) {
-            this.listenHashChanges();
-        }
 
         this.history = history;
+        this.history.start();
+        history.on('reset', this.onReset);
+        history.on('popstate', this.onPopState);
 
-        if (history === window.history) {
-            this.onPopStateCallback = (event: PopStateEvent) => {
-                const state = event.state as unknown as State;
-                if (state &&
-                    typeof state === 'object' &&
-                    typeof state.index === 'number') {
-                    let path: string|undefined;
-                    if (state.id !== this.#id) {
-                        this.reset();
-                        path = this.pathFromUrl(state.url) || undefined;
-                    }
-                    return this.onPopState(state, path);
-                }
-
-                const location = new URL(window.location.href);
-                const path = this.pathFromUrl(location.href);
-                if (!path) {
-                    return;
-                }
-
-                if (!this.shouldNavigate(location)) {
-                    event.preventDefault();
-                    return;
-                }
-
-                return this.onPopState(state, path);
-            };
-
-            window.addEventListener('popstate', this.onPopStateCallback);
-        } else {
-            on(history, 'popstate', this.onPopStateCallback);
+        if (history instanceof BrowserHistory) {
+            return this.replace(pathname || this.pathFromUrl(window.location.href) || '/');
         }
 
-        if (history === window.history) {
-            return this.replace(path || this.pathFromUrl(window.location.href) || '/');
-        }
-
-        return this.replace(path || '/');
+        return this.replace(pathname || '/');
     }
 
     /**
@@ -625,8 +482,9 @@ export class Router extends Factory.Emitter {
         if (!this.history) {
             return;
         }
-        window.removeEventListener('popstate', this.onPopStateCallback);
-        off(this.history, 'popstate', this.onPopStateCallback);
+        this.history.off('popstate', this.onPopState);
+        this.history.off('reset', this.onReset);
+        this.history.end();
         delete this.history;
     }
 
@@ -634,24 +492,22 @@ export class Router extends Factory.Emitter {
      * Reset the router states stack.
      */
     reset() {
-        this.#id = generateId();
-        this.states.splice(0, this.states.length);
-        this.index = 0;
+        this.history?.reset();
     }
 
     /**
      * Resolve a path to full url using origin and base.
-     * @param path The path to resolve.
+     * @param pathname The path to resolve.
      *
      * @return The full url.
      */
-    resolve(path: string, full = false) {
-        const uri = new URL(this.buildFullUrl(path), this.origin);
+    resolve(pathname: string, full = false) {
+        const url = new Path(this.origin, this.base, pathname).url;
         if (full) {
-            return uri.href;
+            return url.href;
         }
 
-        return `${uri.pathname}${uri.search}${uri.hash}`;
+        return `${url.pathname}${url.search}${url.hash}`;
     }
 
     /**
@@ -665,13 +521,12 @@ export class Router extends Factory.Emitter {
             return null;
         }
 
-        const extendedPathname = this.listeningHashChanges ? `/${trimSlashStart(url.pathname)}${url.search}${url.hash}` : url.pathname;
-        if (extendedPathname !== this.base && extendedPathname.indexOf(this.base) !== 0) {
+        const pathname = `/${trimSlashStart(url.pathname)}${url.search}${url.hash}`;
+        if (pathname !== this.base && pathname.indexOf(this.base) !== 0) {
             return null;
         }
-        return this.listeningHashChanges ?
-            `/${trimSlashStart(extendedPathname.replace(this.base, ''))}` :
-            `/${trimSlashStart(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
+        const path = new Path(this.origin, this.base, `/${trimSlashStart(pathname.replace(this.base, ''))}`);
+        return `${path.pathname}${path.search}`;
     }
 
     /**
@@ -728,7 +583,6 @@ export class Router extends Factory.Emitter {
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
             this.history.pushState({
-                id: state.id,
                 url: state.url,
                 title: state.title,
                 index: state.index,
@@ -753,7 +607,6 @@ export class Router extends Factory.Emitter {
         this.states.splice(state.index, this.states.length, state);
         if (this.history) {
             this.history.replaceState({
-                id: state.id,
                 url: state.url,
                 title: state.title,
                 index: state.index,
@@ -769,15 +622,23 @@ export class Router extends Factory.Emitter {
     }
 
     /**
+     * Handle history reset event.
+     */
+    private onReset = () => {
+        this.states.splice(0, this.states.length);
+        this.index = 0;
+    };
+
+    /**
      * Handle History pop state event.
      * @param state The new state (if exists).
      * @param path The path to navigate.
      */
-    private async onPopState(newState: State, path?: string) {
+    private onPopState = async (newState: State, path: Path | null = null) => {
         const previous = this.states[this.index];
         let state: State;
-        if (typeof path === 'string') {
-            await this.replace(path || '/', newState && newState.store, false);
+        if (path) {
+            await this.replace(path.href, newState && newState.store, false);
             state = this.state;
         } else {
             state = this.states[newState.index];
@@ -787,32 +648,19 @@ export class Router extends Factory.Emitter {
             previous,
             state,
         });
-    }
-
-    /**
-     * Build the full url combining base url, prefix and path.
-     * @param path The internal route path.
-     * @return The full url of the routing.
-     */
-    private buildFullUrl(path: string) {
-        return `/${[this.base, this.prefix, path]
-            .map((chunk) => trimSlash(chunk))
-            .filter((chunk) => !!chunk)
-            .join('/')}`;
-    }
+    };
 
     /**
      * Check if the requested path should be navigated.
-     * @param url The requested url.
+     * @param pathOrUrl The requested path or url.
      */
-    private shouldNavigate(url: URL) {
+    private shouldNavigate(pathOrUrl: Path | URL) {
         if (!this.state) {
             return true;
         }
-        if (this.listeningHashChanges) {
-            return this.state.url !== url.href;
+        if (pathOrUrl instanceof Path) {
+            return this.state.path !== pathOrUrl.href;
         }
-
-        return this.state.url.split('#')[0] !== url.href.split('#')[0];
+        return this.state.url !== pathOrUrl.href;
     }
 }

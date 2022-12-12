@@ -1,5 +1,5 @@
 import type { State } from './State';
-import { Factory } from '@chialab/proteins';
+import { Emitter } from '../Helpers/Emitter';
 
 /**
  * A history state representation.
@@ -14,13 +14,13 @@ interface HistoryState {
 /**
  * Generate a descriptor for a history state.
  *
- * @param {Object} state Some properties of the current state.
- * @param {String} title The title for the current state.
- * @param {String} url The current path.
- * @param {String} type The type of the state ('push'|'replace').
- * @return A descriptor for the history state.
+ * @param state Some properties of the current state.
+ * @param title The title for the current state.
+ * @param url The current path.
+ * @param type The type of the state ('push'|'replace').
+ * @returns A descriptor for the history state.
  */
-function createState(state, title, url, type): HistoryState {
+function createState(state: State, title: string, url: string, type: 'push' | 'replace'): HistoryState {
     return {
         state: state || {},
         title,
@@ -33,7 +33,7 @@ function createState(state, title, url, type): HistoryState {
  * States collector.
  * An abstraction of the window.history object.
  */
-export class History extends Factory.Emitter {
+export class History extends Emitter {
     private entries: HistoryState[] = [];
     private index = -1;
 
@@ -42,6 +42,25 @@ export class History extends Factory.Emitter {
      */
     get length() {
         return this.entries.length;
+    }
+
+    /**
+     * Start listening history changes.
+     */
+    start() {}
+
+    /**
+     * Stop listening history changes.
+     */
+    end() { }
+
+    /**
+     * Reset the history entries stack.
+     */
+    reset() {
+        this.entries.splice(0, this.entries.length);
+        this.index = 0;
+        this.trigger('reset');
     }
 
     /**
@@ -57,7 +76,7 @@ export class History extends Factory.Emitter {
             return;
         }
         this.index = index;
-        this.trigger('popstate', this.current);
+        this.trigger('popstate', this.entries[index]);
     }
 
     /**

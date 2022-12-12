@@ -15,6 +15,7 @@ export { Router } from './Router/Router';
 export { App } from './App';
 export * from './Components/Page';
 export * from './Components/Transition';
+export * from './Helpers/App';
 export * from './Helpers/Env';
 export * from './Helpers/Network';
 export * from './Helpers/Animations';

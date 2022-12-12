@@ -78,9 +78,10 @@ describe('Router', () => {
 
         await router.start(history);
 
-        const response = await router.navigate('/test');
-        expect(response.data.href).to.be.equal('http://local/test');
-        expect(history.entries[0].url).to.be.equal('http://local/test');
+        const response = await router.navigate('/test?test=1');
+        expect(response.request.path.searchParams.get('test')).to.be.equal('1');
+        expect(response.data.href).to.be.equal('http://local/test?test=1');
+        expect(history.entries[0].url).to.be.equal('http://local/test?test=1');
     });
 
     it('should navigate with base', async () => {
@@ -117,35 +118,16 @@ describe('Router', () => {
 
         await router.start(history);
 
-        const response = await router.navigate('/test');
-        expect(response.data.href).to.be.equal('http://local/#!/test');
-        expect(history.entries[0].url).to.be.equal('http://local/#!/test');
+        const response = await router.navigate('/test?test=1');
+        expect(response.request.path.searchParams.get('test')).to.be.equal('1');
+        expect(response.data.href).to.be.equal('http://local/#!/test?test=1');
+        expect(history.entries[0].url).to.be.equal('http://local/#!/test?test=1');
     });
 
     it('should navigate with hash', async () => {
         const history = new History();
         const router = new Router({
             origin: 'http://local',
-        }, [{
-            pattern: '/test',
-            handler: (req, res) => {
-                res.setData(req.url);
-            },
-        }]);
-
-        await router.start(history);
-
-        const response = await router.navigate('/test');
-        expect(response.data.href).to.be.equal('http://local/test');
-        expect(history.entries[0].url).to.be.equal('http://local/test');
-        expect(await router.navigate('/test#test')).to.be.null;
-    });
-
-    it('should navigate listening hash changes', async () => {
-        const history = new History();
-        const router = new Router({
-            origin: 'http://local',
-            listenHashChanges: true,
         }, [
             {
                 pattern: '/test',

@@ -1,3 +1,4 @@
+import type { Path } from './Path';
 import type { Response } from './Response';
 import type { Route } from './Route';
 
@@ -29,6 +30,11 @@ export class Request<T extends RequestParams = RequestParams> {
      * The requested url.
      */
     public readonly url: URL;
+
+    /**
+     * The requested path.
+     */
+    public readonly path: Path;
 
     /**
      * The parent request in case of subrouting.
@@ -94,11 +100,12 @@ export class Request<T extends RequestParams = RequestParams> {
 
     /**
      * Create a Request instance.
-     * @param url The url to navigate.
+     * @param path The path to navigate.
      * @param parent The parent request.
      */
-    constructor(url: URL, init?: RequestInit, parent?: Request) {
-        this.url = url;
+    constructor(path: Path, init?: RequestInit, parent?: Request) {
+        this.path = path;
+        this.url = path.url;
         this.method = init?.method?.toLowerCase() as RequestMethod || 'get';
         this.data = init?.data;
         this.parent = parent;
@@ -106,10 +113,10 @@ export class Request<T extends RequestParams = RequestParams> {
 
     /**
      * Create a child request for subrouting.
-     * @param url The child request url.
+     * @param path The child path.
      */
-    child(url: URL, init?: RequestInit) {
-        return this._childRequest = new Request(url, init, this);
+    child(path: Path, init?: RequestInit) {
+        return this._childRequest = new Request(path, init, this);
     }
 
     /**

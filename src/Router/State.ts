@@ -5,8 +5,8 @@ import type { Response } from './Response';
  * The router state representation.
  */
 export interface State {
-    id: string|number;
     url: string;
+    path: string;
     index: number;
     title: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

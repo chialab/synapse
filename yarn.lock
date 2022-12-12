@@ -1300,11 +1300,6 @@
   resolved "https://registry.npmjs.org/@chialab/node-resolve/-/node-resolve-0.16.1.tgz#2ecd8992a6f8b7ef7344bf6c25de642ced7ff13a"
   integrity sha512-gySfU2Bi685FR/J9t41eDmTXcXt2dyU1Ngkk3AO8A18V9n9W3IYhHkObHngDT+ivapVwikt5KkZhMkoy9IibTg==
 
-"@chialab/proteins@^3.2.2":
-  version "3.7.1"
-  resolved "https://registry.npmjs.org/@chialab/proteins/-/proteins-3.7.1.tgz#d5249577bda0e57701f76a4b5d156a2ff6cb7a84"
-  integrity sha512-s/A8f4SjgNXYE67ZMIClIpoysZZefXz8HelGLi9St3+X8czmaJSdLcPIUUmviJD9cF3nUpr00SFREwcEJ3KQvQ==
-
 "@chialab/rna-browser-test-runner@^0.16.1":
   version "0.16.2"
   resolved "https://registry.npmjs.org/@chialab/rna-browser-test-runner/-/rna-browser-test-runner-0.16.2.tgz#d50b8d0111f14b4020657688c05b0f0c9e730d70"
