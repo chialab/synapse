@@ -23,9 +23,8 @@ const config = {
         },
     ],
     minify: true,
-    jsxFactory: 'h',
-    jsxFragment: 'Fragment',
-    jsxModule: '@chialab/dna',
+    jsx: 'automatic',
+    jsxImportSource: '@chialab/dna',
 };
 
 export default config;
