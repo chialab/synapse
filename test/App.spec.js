@@ -1,16 +1,17 @@
 import { expect } from '@chialab/ginsenghino';
 import { window, document, customElements, h, render, DOM } from '@chialab/dna';
-import { App, Router, History } from '@chialab/synapse';
+import { App, Router, History, BrowserHistory } from '@chialab/synapse';
 
 describe('App', () => {
     let router, history, TestApp, wrapper, count = 1;
     beforeEach(() => {
-        history = window.history;
         if (typeof window._jsdom !== 'undefined') {
             window._jsdom.reconfigure({
                 url: 'http://localhost/',
             });
             history = new History();
+        } else {
+            history = new BrowserHistory();
         }
         router = new Router({
             origin: window.location.origin,

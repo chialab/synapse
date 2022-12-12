@@ -37,6 +37,31 @@ export class BrowserHistory extends History {
         super.reset();
     }
 
+    /**
+     * @inheritdoc
+     */
+    go(shift: number) {
+        window.history.go(shift);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    back() {
+        window.history.back();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    forward() {
+        window.history.forward();
+    }
+
+    /**
+     * The popstate listener.
+     * @param event The popstate event.
+     */
     private onPopState = (event: PopStateEvent) => {
         const state = event.state as unknown as State & { id?: string };
         if (state &&

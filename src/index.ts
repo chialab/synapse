@@ -11,6 +11,7 @@ export { Response } from './Router/Response';
 export { Route } from './Router/Route';
 export { Middleware } from './Router/Middleware';
 export { History } from './Router/History';
+export { BrowserHistory } from './Router/BrowserHistory';
 export { Router } from './Router/Router';
 export { App } from './App';
 export * from './Components/Page';

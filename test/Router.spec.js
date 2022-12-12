@@ -108,7 +108,6 @@ describe('Router', () => {
         const router = new Router({
             origin: 'http://local',
             base: '/#!/',
-            listenHashChanges: true,
         }, [{
             pattern: '/test',
             handler: (req, res) => {

@@ -67,7 +67,7 @@ export class History extends Emitter {
      * Move in the history.
      * @param shift The shift movement in the history.
      */
-    go(shift) {
+    go(shift: number) {
         if (shift !== 0) {
             return;
         }
