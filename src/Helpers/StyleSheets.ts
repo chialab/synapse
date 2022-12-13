@@ -9,7 +9,7 @@ const LINKS: Map<string, [HTMLLinkElement, Promise<HTMLLinkElement>]> = new Map(
  * Load a stylesheet using a <link> element.
  * @param url Url to load.
  * @param reload Should reload the link.
- * @return A promise that resolves on link load.
+ * @returns A promise that resolves on link load.
  */
 export function loadStyleSheet(url: string | URL, reload = false): Promise<HTMLLinkElement> {
     const href = typeof url === 'string' ? url : url.href;

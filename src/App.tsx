@@ -143,7 +143,7 @@ export class App extends Component {
     /**
      * Trigger a routing navigation.
      * @param path The route path to navigate.
-     * @return The response instance for the navigation.
+     * @returns The response instance for the navigation.
      */
     navigate(path: string, init?: RequestInit): Promise<Response|null> {
         return this.router.navigate(path, init);
@@ -152,7 +152,7 @@ export class App extends Component {
     /**
      * Replace current navigation.
      * @param path The route path to navigate.
-     * @return The response instance for the navigation.
+     * @returns The response instance for the navigation.
      */
     replace(path: string, init?: RequestInit): Promise<Response|null> {
         return this.router.replace(path, init);

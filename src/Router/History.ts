@@ -81,7 +81,7 @@ export class History extends Emitter {
 
     /**
      * Move back in the history by one entry. Same as `.go(-1)`
-     * @return A promise which resolves the new current state.
+     * @returns A promise which resolves the new current state.
      */
     back() {
         return this.go(-1);
@@ -89,7 +89,7 @@ export class History extends Emitter {
 
     /**
      * Move forward in the history by one entry. Same as `.go(1)`
-     * @return A promise which resolves the new current state.
+     * @returns A promise which resolves the new current state.
      */
     forward() {
         return this.go(1);
@@ -100,7 +100,7 @@ export class History extends Emitter {
      * @param stateObj The state properties.
      * @param title The state title.
      * @param url The state path.
-     * @return The new current state.
+     * @returns The new current state.
      */
     pushState(stateObj, title, url) {
         const state = createState(stateObj, title, url, 'push');
@@ -117,7 +117,7 @@ export class History extends Emitter {
      * @param stateObj The state properties.
      * @param title The state title.
      * @param url The state path.
-     * @return The new current state.
+     * @returns The new current state.
      */
     replaceState(stateObj, title, url) {
         const state = createState(stateObj, title, url, 'replace');

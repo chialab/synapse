@@ -6,6 +6,7 @@ export type { RouterOptions, PopStateData } from './Router/Router';
 export type { ErrorHandler } from './Router/ErrorHandler';
 
 export * from '@chialab/dna';
+export { Path } from './Router/Path';
 export { Request } from './Router/Request';
 export { Response } from './Router/Response';
 export { Route } from './Router/Route';

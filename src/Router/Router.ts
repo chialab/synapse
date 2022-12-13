@@ -183,7 +183,7 @@ export class Router extends Emitter {
     /**
      * Handle a router navigation.
      * @param request The request to handle.
-     * @return The final response instance.
+     * @returns The final response instance.
      */
     async handle(request: Request, parentResponse?: Response): Promise<Response> {
         const routes = this.connectedRoutes;
@@ -272,19 +272,22 @@ export class Router extends Emitter {
 
     /**
      * Trigger a router navigation.
-     * @param pathname The path to navigate.
-     * @return The final response instance.
+     * @param path The path to navigate.
+     * @returns The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async navigate(pathname: string, init?: RequestInit, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
+    async navigate(path: Path | string, init?: RequestInit, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
         return this.setCurrentNavigation(async () => {
-            const path = new Path(this.origin, this.base, pathname);
-            if (!this.shouldNavigate(path) && !force) {
-                this.fragment(path.hash || '');
+            path = typeof path === 'string' ? new Path(path) : path;
+            init = { ...init, path };
+
+            const url = this.urlFromPath(path);
+            if (!this.shouldNavigate(url) && !force) {
+                this.fragment(url.hash || '');
                 return null;
             }
 
-            const request = parentRequest ? parentRequest.child(path, init) : new Request(path, init);
+            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
             this.setCurrentRequest(request);
 
             let response: Response;
@@ -301,8 +304,8 @@ export class Router extends Emitter {
             const index = this.index + 1;
             const title = response.title || window.document.title;
             await this.pushState({
-                url: response.redirected || path.url.href,
-                path: path.href,
+                url: response.redirected || url.href,
+                path: url.href,
                 index,
                 title,
                 request,
@@ -320,14 +323,17 @@ export class Router extends Emitter {
 
     /**
      * Trigger a router navigation.
-     * @param pathname The path to navigate.
-     * @return The final response instance.
+     * @param path The path to navigate.
+     * @returns The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async replace(pathname: string, init?: RequestInit, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
+    async replace(path: Path | string, init?: RequestInit, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
         return this.setCurrentNavigation(async () => {
-            const path = new Path(this.origin, this.base, pathname);
-            const request = parentRequest ? parentRequest.child(path, init) : new Request(path, init);
+            path = typeof path === 'string' ? new Path(path) : path;
+            init = { ...init, path };
+
+            const url = this.urlFromPath(path);
+            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
             this.setCurrentRequest(request);
 
             let response: Response;
@@ -343,8 +349,8 @@ export class Router extends Emitter {
 
             const title = response.title || window.document.title;
             await this.replaceState({
-                url: response.redirected || path.url.href,
-                path: path.href,
+                url: response.redirected || url.href,
+                path: url.href,
                 index: this.index,
                 title,
                 request,
@@ -364,7 +370,7 @@ export class Router extends Emitter {
      * Refresh the state of the router.
      * Reset and re-start the navigation.
      * @param path The path to use to restart the router.
-     * @return Resolve the navigation response.
+     * @returns Resolve the navigation response.
      */
     refresh(path?: string) {
         this.reset();
@@ -389,7 +395,7 @@ export class Router extends Emitter {
      * @param path The path of the middleware rule.
      * @param after The middleware method to invoke after routing.
      * @param before The middleware method to invoke before routing.
-     * @return The Middleware instance.
+     * @returns The Middleware instance.
      */
     middleware(middleware: Middleware | MiddlewareRule): Middleware;
     middleware(path: string, after?: MiddlewareAfterHandler, before?: MiddlewareBeforeHandler): Middleware;
@@ -412,7 +418,7 @@ export class Router extends Emitter {
      * @param route A RouteRule object.
      * @param path The path of the route rule.
      * @param handler The callback to exec when matched.
-     * @return The Route instance.
+     * @returns The Route instance.
      */
     connect(route: Route | RouteRule): Route;
     connect(path: string, handler: RouteHandler): Route;
@@ -436,7 +442,7 @@ export class Router extends Emitter {
     /**
      * Disconnect a Route or a Middleware.
      * @param routeOrMiddleare The Route or the Middleware instance to disconnect.
-     * @return It returns false if the given input is not connected.
+     * @returns It returns false if the given input is not connected.
      */
     disconnect(routeOrMiddleare: Route | Middleware): boolean {
         if (routeOrMiddleare instanceof Route) {
@@ -499,10 +505,10 @@ export class Router extends Emitter {
      * Resolve a path to full url using origin and base.
      * @param pathname The path to resolve.
      *
-     * @return The full url.
+     * @returns The full url.
      */
     resolve(pathname: string, full = false) {
-        const url = new Path(this.origin, this.base, pathname).url;
+        const url = this.urlFromPath(pathname);
         if (full) {
             return url.href;
         }
@@ -513,10 +519,10 @@ export class Router extends Emitter {
     /**
      * Extract the path from a full url.
      * @param uri The full url.
-     * @return The path to navigate.
+     * @returns A path.
      */
-    pathFromUrl(uri: string) {
-        const url = new URL(uri, this.origin);
+    pathFromUrl(uri: URL | string) {
+        const url = typeof uri === 'string' ? new URL(uri, this.origin) : uri;
         if (url.origin !== this.origin) {
             return null;
         }
@@ -525,8 +531,20 @@ export class Router extends Emitter {
         if (pathname !== this.base && pathname.indexOf(this.base) !== 0) {
             return null;
         }
-        const path = new Path(this.origin, this.base, `/${trimSlashStart(pathname.replace(this.base, ''))}`);
+        const path = new Path(pathname.replace(this.base, ''));
         return `${path.pathname}${path.search}`;
+    }
+
+    /**
+     * Get the full url from a path.
+     * @param path The path.
+     * @returns A url.
+     */
+    urlFromPath(path: Path | string) {
+        return new URL(`/${[this.base, typeof path === 'string' ? path : path.href]
+            .map((chunk) => trimSlash(chunk))
+            .filter((chunk) => !!chunk)
+            .join('/')}`, this.origin);
     }
 
     /**
@@ -558,7 +576,7 @@ export class Router extends Emitter {
      * Handle thrown error during routing.
      * @param request The request of the routing.
      * @param error The thrown error.
-     * @return An error response.
+     * @returns An error response.
      */
     private handleError(request: Request, error: Error) {
         request.reject(error);

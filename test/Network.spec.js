@@ -1,5 +1,4 @@
 import { expect } from '@chialab/ginsenghino';
-import { window } from '@chialab/dna';
 import { fetch } from '@chialab/synapse';
 
 describe('Network', () => {

@@ -10,7 +10,7 @@ import { Pattern } from './Pattern';
  * @param request The Request instance.
  * @param response The current Response instance.
  * @param router The current router instance.
- * @return The next Response instance.
+ * @returns The next Response instance.
  */
 export type NextHandler = (request: Request, response: Response, router: Router) => Response|void|Promise<Response|void>;
 
@@ -20,7 +20,7 @@ export type NextHandler = (request: Request, response: Response, router: Router)
  * @param response The current Response instance.
  * @param next The next method to invoke if the handler must not end the routing.
  * @param router The current router instance.
- * @return The very same input Response instance or a new one.
+ * @returns The very same input Response instance or a new one.
  */
 export type RouteHandler = (request: Readonly<Request>, response: Readonly<Response>, next: NextHandler, router: Router) => Response|string|void|Promise<Response|string|void>;
 
@@ -80,7 +80,7 @@ export class Route extends Pattern {
      * @param response The current Response instance.
      * @param next The next method to invoke if the handler must not end the routing.
      * @param router The current router instance.
-     * @return The very same input Response instance or a new one.
+     * @returns The very same input Response instance or a new one.
      */
     async exec(request: Request, response: Response, next: NextHandler, router: Router) {
         const data = await this.handler?.(request, response, next, router);

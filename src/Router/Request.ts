@@ -1,4 +1,4 @@
-import type { Path } from './Path';
+import { Path } from './Path';
 import type { Response } from './Response';
 import type { Route } from './Route';
 
@@ -13,6 +13,7 @@ export interface RequestParams {
 export type RequestMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head' | 'options';
 
 export interface RequestInit {
+    path?: Path;
     method?: RequestMethod | Uppercase<RequestMethod>;
     data?: FormData|File;
 }
@@ -100,12 +101,12 @@ export class Request<T extends RequestParams = RequestParams> {
 
     /**
      * Create a Request instance.
-     * @param path The path to navigate.
+     * @param url The url to navigate.
      * @param parent The parent request.
      */
-    constructor(path: Path, init?: RequestInit, parent?: Request) {
-        this.path = path;
-        this.url = path.url;
+    constructor(url: URL, init?: RequestInit, parent?: Request) {
+        this.url = url;
+        this.path = init?.path ?? new Path(`${url.pathname}${url.search}${url.hash}`);
         this.method = init?.method?.toLowerCase() as RequestMethod || 'get';
         this.data = init?.data;
         this.parent = parent;
@@ -113,10 +114,10 @@ export class Request<T extends RequestParams = RequestParams> {
 
     /**
      * Create a child request for subrouting.
-     * @param path The child path.
+     * @param url The child url.
      */
-    child(path: Path, init?: RequestInit) {
-        return this._childRequest = new Request(path, init, this);
+    child(url: URL, init?: RequestInit) {
+        return this._childRequest = new Request(url, init, this);
     }
 
     /**
