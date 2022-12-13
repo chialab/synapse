@@ -41,16 +41,6 @@ export const DEFAULT_ORIGIN = 'http://local';
  */
 export class Router extends Emitter {
     /**
-     * Router history states.
-     */
-    private states: State[] = [];
-
-    /**
-     * The current state index in the history.
-     */
-    private index: number = 0;
-
-    /**
      * The browser's history like implementation for state management.
      */
     private history?: History;
@@ -115,7 +105,10 @@ export class Router extends Emitter {
      * The current router state.
      */
     get state() {
-        return this.states[this.index];
+        if (!this.history) {
+            return null;
+        }
+        return this.history.states[this.history.index - 1];
     }
 
     /**
@@ -301,12 +294,10 @@ export class Router extends Emitter {
                 throw new Error('Request aborted.');
             }
 
-            const index = this.index + 1;
             const title = response.title || window.document.title;
             await this.pushState({
                 url: response.redirected || url.href,
                 path: url.href,
-                index,
                 title,
                 request,
                 response,
@@ -351,7 +342,6 @@ export class Router extends Emitter {
             await this.replaceState({
                 url: response.redirected || url.href,
                 path: url.href,
-                index: this.index,
                 title,
                 request,
                 response,
@@ -373,7 +363,10 @@ export class Router extends Emitter {
      * @returns Resolve the navigation response.
      */
     refresh(path?: string) {
-        this.reset();
+        if (this.history) {
+            this.history.end();
+            this.history.start();
+        }
         return this.replace(path || this.current || '/');
     }
 
@@ -466,12 +459,10 @@ export class Router extends Emitter {
      * @param history The history model to bind.
      */
     async start(history: History, pathname?: string): Promise<Response> {
-        this.reset();
         this.end();
 
         this.history = history;
         this.history.start();
-        history.on('reset', this.onReset);
         history.on('popstate', this.onPopState);
 
         if (history instanceof BrowserHistory) {
@@ -485,20 +476,11 @@ export class Router extends Emitter {
      * Unbind the Router from a History model (if bound).
      */
     end() {
-        if (!this.history) {
-            return;
+        if (this.history) {
+            this.history.off('popstate', this.onPopState);
+            this.history.end();
+            this.history = undefined;
         }
-        this.history.off('popstate', this.onPopState);
-        this.history.off('reset', this.onReset);
-        this.history.end();
-        delete this.history;
-    }
-
-    /**
-     * Reset the router states stack.
-     */
-    reset() {
-        this.history?.reset();
     }
 
     /**
@@ -596,14 +578,11 @@ export class Router extends Emitter {
      * @param state The state to add.
      */
     private async pushState(state: State, trigger = true) {
-        const previous = this.states[this.index];
-        this.index = state.index;
-        this.states.splice(state.index, this.states.length, state);
+        const previous = this.state;
         if (this.history) {
             this.history.pushState({
                 url: state.url,
                 title: state.title,
-                index: state.index,
             }, state.title, state.url);
         }
 
@@ -621,13 +600,11 @@ export class Router extends Emitter {
      * @param state The state to use as replacement.
      */
     private async replaceState(state: State, trigger = true) {
-        const previous = this.states[this.index];
-        this.states.splice(state.index, this.states.length, state);
+        const previous = this.state;
         if (this.history) {
             this.history.replaceState({
                 url: state.url,
                 title: state.title,
-                index: state.index,
             }, state.title, state.url);
         }
 
@@ -640,28 +617,16 @@ export class Router extends Emitter {
     }
 
     /**
-     * Handle history reset event.
-     */
-    private onReset = () => {
-        this.states.splice(0, this.states.length);
-        this.index = 0;
-    };
-
-    /**
      * Handle History pop state event.
      * @param state The new state (if exists).
      * @param path The path to navigate.
      */
     private onPopState = async (newState: State, path: Path | null = null) => {
-        const previous = this.states[this.index];
-        let state: State;
+        const previous = this.state;
         if (path) {
             await this.replace(path.href, newState && newState.store, false);
-            state = this.state;
-        } else {
-            state = this.states[newState.index];
-            this.index = newState.index;
         }
+        const state = this.state as State;
         await this.trigger('popstate', {
             previous,
             state,

@@ -1,6 +1,11 @@
 import type { State } from './State';
 import { Emitter } from '../Helpers/Emitter';
 
+export enum NavigationDirection {
+    back = 'back',
+    forward = 'forward',
+}
+
 /**
  * A history state representation.
  */
@@ -34,34 +39,42 @@ function createState(state: State, title: string, url: string, type: 'push' | 'r
  * An abstraction of the window.history object.
  */
 export class History extends Emitter {
-    private entries: HistoryState[] = [];
-    private index = -1;
+    #entries: HistoryState[] = [];
+    #index = -1;
+
+    /**
+     * Get history states.
+     */
+    get states() {
+        return this.#entries.map((entry) => entry.state);
+    }
+
+    /**
+     * Get current index.
+     */
+    get index() {
+        return this.#index;
+    }
 
     /**
      * Get history length.
      */
     get length() {
-        return this.entries.length;
+        return this.#entries.length;
     }
 
     /**
      * Start listening history changes.
      */
-    start() {}
+    start() {
+        this.#entries.splice(0, this.#entries.length);
+        this.#index = -1;
+    }
 
     /**
      * Stop listening history changes.
      */
     end() { }
-
-    /**
-     * Reset the history entries stack.
-     */
-    reset() {
-        this.entries.splice(0, this.entries.length);
-        this.index = 0;
-        this.trigger('reset');
-    }
 
     /**
      * Move in the history.
@@ -71,12 +84,12 @@ export class History extends Emitter {
         if (shift !== 0) {
             return;
         }
-        const index = this.index + shift;
-        if (index < 0 || index >= this.entries.length) {
+        const index = this.#index + shift;
+        if (index < 0 || index >= this.#entries.length) {
             return;
         }
-        this.index = index;
-        this.trigger('popstate', this.entries[index]);
+        this.#index = index;
+        this.trigger('popstate', this.#entries[index]);
     }
 
     /**
@@ -104,8 +117,8 @@ export class History extends Emitter {
      */
     pushState(stateObj, title, url) {
         const state = createState(stateObj, title, url, 'push');
-        this.entries = this.entries.slice(0, this.index + 1);
-        this.entries.push(state);
+        this.#entries = this.#entries.slice(0, this.#index + 1);
+        this.#entries.push(state);
         this.go(1);
         this.trigger('popstate', state);
         return state;
@@ -121,8 +134,19 @@ export class History extends Emitter {
      */
     replaceState(stateObj, title, url) {
         const state = createState(stateObj, title, url, 'replace');
-        this.entries[this.index] = state;
+        this.#entries[this.#index] = state;
         this.trigger('replacestate', state);
         return state;
+    }
+
+    /**
+     * Compare tow states position.
+     * @param state1 The first state.
+     * @param state2 The second state.
+     */
+    compareStates(state1: State, state2: State) {
+        return (state2 as State & { index: number }).index < (state1 as State & { index: number }).index ?
+            NavigationDirection.back :
+            NavigationDirection.forward;
     }
 }

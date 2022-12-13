@@ -7,7 +7,6 @@ import type { Response } from './Response';
 export interface State {
     url: string;
     path: string;
-    index: number;
     title: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     store: any;

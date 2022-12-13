@@ -4,15 +4,10 @@ import { Component, window, property, state, observe, listen, customElementProto
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router, DEFAULT_ORIGIN } from './Router/Router';
-import { History } from './Router/History';
+import { NavigationDirection, History } from './Router/History';
 import { BrowserHistory } from './Router/BrowserHistory';
 import { isNode } from './Helpers/Env';
 import { Page } from './Components/Page';
-
-enum NavigationDirection {
-    back = 'back',
-    forward = 'forward',
-}
 
 /**
  * A Web Component which handles routing.
@@ -264,9 +259,7 @@ export class App extends Component {
     onPopState(data: PopStateData) {
         const { state, previous } = data;
         if (previous) {
-            this.navigationDirection = state.index < previous.index ?
-                NavigationDirection.back :
-                NavigationDirection.forward;
+            this.navigationDirection = this.history.compareStates(previous, state);
         } else {
             this.navigationDirection = NavigationDirection.forward;
         }

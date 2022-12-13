@@ -16,8 +16,22 @@ export class BrowserHistory extends History {
     /**
      * @inheritdoc
      */
+    get index() {
+        return window.history.state?.index ?? -1;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    get length() {
+        return window.history.length;
+    }
+
+    /**
+     * @inheritdoc
+     */
     start() {
-        super.start();
+        this.#id = `${Date.now()}-${instances++}`;
         window.addEventListener('popstate', this.onPopState);
     }
 
@@ -27,14 +41,6 @@ export class BrowserHistory extends History {
     end() {
         super.end();
         window.addEventListener('popstate', this.onPopState);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    reset() {
-        this.#id = `${Date.now()}-${instances++}`;
-        super.reset();
     }
 
     /**
@@ -63,12 +69,13 @@ export class BrowserHistory extends History {
      * @param event The popstate event.
      */
     private onPopState = (event: PopStateEvent) => {
-        const state = event.state as unknown as State & { id?: string };
+        const state = event.state as unknown as State & { id?: string; index?: number };
         if (state &&
             typeof state === 'object' &&
             typeof state.index === 'number') {
             if (state.id !== this.#id) {
-                this.reset();
+                this.end();
+                this.start();
             }
         }
 
