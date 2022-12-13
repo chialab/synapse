@@ -1131,9 +1131,9 @@
     "@chialab/estransform" "^0.17.3"
 
 "@chialab/dna@^3.20.0":
-  version "3.21.3"
-  resolved "https://registry.npmjs.org/@chialab/dna/-/dna-3.21.3.tgz#e14fa5e8859d2361050734eebd756f4be8a91fcd"
-  integrity sha512-+9+uyFDdijSoeyE8moCF/i1Nu03cspDZrV+yf8gGP3OcgV7ALXFTit1XfUsppeEDu1YT//JS+Mm7UlwfgHVUbw==
+  version "3.21.4"
+  resolved "https://registry.npmjs.org/@chialab/dna/-/dna-3.21.4.tgz#2f0530cee0ce4b55dd7b0574206040b43ae100ea"
+  integrity sha512-3SJygR//JeXxAqQO1pQuUsoQm40A34kj0/P1yvsTps1VIr1KqowmMe78RPuFMjg/ZNIrSr1Fv43mzzkxJCWhUQ==
   dependencies:
     "@types/jsdom" "^16.0.0"
 
@@ -1766,9 +1766,9 @@
   integrity sha512-ekGvFhFgrc2zYQoX4JeZPmVzZxw6Dtllga7iGHzfbYIYkAMUx/sAFP2GdFpLff+vdHXu5fl7WX9AT+TtqYcsyw==
 
 "@types/node@*":
-  version "18.11.13"
-  resolved "https://registry.npmjs.org/@types/node/-/node-18.11.13.tgz#dff34f226ec1ac0432ae3b136ec5552bd3b9c0fe"
-  integrity sha512-IASpMGVcWpUsx5xBOrxMj7Bl8lqfuTY7FKAnPmu5cHkfQVWF8GulWS1jbRqA934qZL35xh5xN/+Xe/i26Bod4w==
+  version "18.11.14"
+  resolved "https://registry.npmjs.org/@types/node/-/node-18.11.14.tgz#a8571b25f3a31e9ded14e3ab9488509adef831d8"
+  integrity sha512-0KXV57tENYmmJMl+FekeW9V3O/rlcqGQQJ/hNh9r8pKIj304pskWuEd8fCyNT86g/TpO0gcOTiLzsHLEURFMIQ==
 
 "@types/node@^12.7.1":
   version "12.20.55"
@@ -4583,9 +4583,9 @@ node-fetch@^3.0.0:
     formdata-polyfill "^4.0.10"
 
 node-releases@^2.0.6:
-  version "2.0.6"
-  resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.6.tgz#8a7088c63a55e493845683ebf3c828d8c51c5503"
-  integrity sha512-PiVXnNuFm5+iYkLBNeq5211hvO38y63T0i2KKh2KnUs3RpzJ+JtODFjkD8yjLwnDkTYF1eKXheUwdssR+NRZdg==
+  version "2.0.7"
+  resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.7.tgz#593edbc7c22860ee4d32d3933cfebdfab0c0e0e5"
+  integrity sha512-EJ3rzxL9pTWPjk5arA0s0dgXpnyiAbJDE6wHT62g7VsgrgQgmmZ+Ru++M1BFofncWja+Pnn3rEr3fieRySAdKQ==
 
 normalize-package-data@^2.5.0:
   version "2.5.0"

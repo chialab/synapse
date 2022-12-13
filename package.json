@@ -10,9 +10,11 @@
   },
   "types": "types/index.d.ts",
   "exports": {
-    "require": "./dist/cjs/synapse.cjs",
-    "node": "./dist/node/synapse.js",
-    "default": "./dist/esm/synapse.js"
+    ".": {
+      "require": "./dist/cjs/synapse.cjs",
+      "node": "./dist/node/synapse.js",
+      "default": "./dist/esm/synapse.js"
+    }
   },
   "scripts": {
     "build": "rimraf dist && yarn types && rna build",
