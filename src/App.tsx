@@ -116,7 +116,7 @@ export class App extends Component {
      * @param path The initial path to navigate.
      */
     async start(path?: string): Promise<Response | void> {
-        const { router, history, _onPopState } = this;
+        const { router, history } = this;
         router.middleware({
             pattern: '*',
             priority: -Infinity,
@@ -124,9 +124,9 @@ export class App extends Component {
                 this.request = req;
             },
         });
-        router.on('popstate', _onPopState);
-        router.on('pushstate', _onPopState);
-        router.on('replacestate', _onPopState);
+        router.on('popstate', this._onPopState);
+        router.on('pushstate', this._onPopState);
+        router.on('replacestate', this._onPopState);
 
         const response = await router.start(history, path);
         if (response) {

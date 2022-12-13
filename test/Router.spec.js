@@ -81,7 +81,7 @@ describe('Router', () => {
         const response = await router.navigate('/test?test=1');
         expect(response.request.path.searchParams.get('test')).to.be.equal('1');
         expect(response.data.href).to.be.equal('http://local/test?test=1');
-        expect(history.states[0].url).to.be.equal('http://local/test?test=1');
+        expect(history.states[1].url).to.be.equal('http://local/test?test=1');
     });
 
     it('should navigate with base', async () => {
@@ -100,7 +100,7 @@ describe('Router', () => {
 
         const response = await router.navigate('/test');
         expect(response.data.href).to.be.equal('http://local/base/test');
-        expect(history.states[0].url).to.be.equal('http://local/base/test');
+        expect(history.states[1].url).to.be.equal('http://local/base/test');
     });
 
     it('should navigate with hashbang base', async () => {
@@ -120,7 +120,7 @@ describe('Router', () => {
         const response = await router.navigate('/test?test=1');
         expect(response.request.path.searchParams.get('test')).to.be.equal('1');
         expect(response.data.href).to.be.equal('http://local/#!/test?test=1');
-        expect(history.states[0].url).to.be.equal('http://local/#!/test?test=1');
+        expect(history.states[1].url).to.be.equal('http://local/#!/test?test=1');
     });
 
     it('should navigate with hash', async () => {
@@ -140,10 +140,10 @@ describe('Router', () => {
 
         const response = await router.navigate('/test');
         expect(response.data.href).to.be.equal('http://local/test');
-        expect(history.states[0].url).to.be.equal('http://local/test');
+        expect(history.states[1].url).to.be.equal('http://local/test');
         const response2 = await router.navigate('/test#test');
         expect(response2.data.href).to.be.equal('http://local/test#test');
-        expect(history.states[0].url).to.be.equal('http://local/test#test');
+        expect(history.states[2].url).to.be.equal('http://local/test#test');
     });
 
     describe('patterns', () => {

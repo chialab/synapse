@@ -9,7 +9,7 @@ export enum NavigationDirection {
 /**
  * A history state representation.
  */
-interface HistoryState {
+export interface HistoryState {
     state: State;
     title: string;
     url: string;
@@ -39,36 +39,36 @@ function createState(state: State, title: string, url: string, type: 'push' | 'r
  * An abstraction of the window.history object.
  */
 export class History extends Emitter {
-    #entries: HistoryState[] = [];
-    #index = -1;
+    protected _entries: HistoryState[] = [];
+    protected _index = -1;
 
     /**
      * Get history states.
      */
     get states() {
-        return this.#entries.map((entry) => entry.state);
+        return this._entries.map((entry) => entry.state);
     }
 
     /**
      * Get current index.
      */
     get index() {
-        return this.#index;
+        return this._index;
     }
 
     /**
      * Get history length.
      */
     get length() {
-        return this.#entries.length;
+        return this._entries.length;
     }
 
     /**
      * Start listening history changes.
      */
     start() {
-        this.#entries.splice(0, this.#entries.length);
-        this.#index = -1;
+        this._entries.splice(0, this._entries.length);
+        this._index = -1;
     }
 
     /**
@@ -81,15 +81,16 @@ export class History extends Emitter {
      * @param shift The shift movement in the history.
      */
     go(shift: number) {
-        if (shift !== 0) {
+        if (shift === 0) {
             return;
         }
-        const index = this.#index + shift;
-        if (index < 0 || index >= this.#entries.length) {
+        const index = this._index + shift;
+        if (index < 0 || index >= this._entries.length) {
             return;
         }
-        this.#index = index;
-        this.trigger('popstate', this.#entries[index]);
+        const previous = this._entries[this._index]?.state;
+        this._index = index;
+        this.trigger('popstate', { state: this._entries[this._index]?.state, previous });
     }
 
     /**
@@ -115,13 +116,15 @@ export class History extends Emitter {
      * @param url The state path.
      * @returns The new current state.
      */
-    pushState(stateObj, title, url) {
-        const state = createState(stateObj, title, url, 'push');
-        this.#entries = this.#entries.slice(0, this.#index + 1);
-        this.#entries.push(state);
-        this.go(1);
-        this.trigger('popstate', state);
-        return state;
+    pushState(stateObj: State, title: string, url: string) {
+        const cloneState = { ...stateObj, index: this._index + 1 };
+        const historyState = createState(cloneState, title, url, 'push');
+        this._entries = this._entries.slice(0, this._index + 1);
+        this._entries.push(historyState);
+        const previous = this._entries[this._index]?.state;
+        this._index += 1;
+        this.trigger('pushstate', { state: this._entries[this._index]?.state, previous });
+        return historyState;
     }
 
     /**
@@ -132,11 +135,14 @@ export class History extends Emitter {
      * @param url The state path.
      * @returns The new current state.
      */
-    replaceState(stateObj, title, url) {
-        const state = createState(stateObj, title, url, 'replace');
-        this.#entries[this.#index] = state;
-        this.trigger('replacestate', state);
-        return state;
+    replaceState(stateObj: State, title: string, url: string) {
+        const cloneState = { ...stateObj, index: this._index };
+        const historyState = createState(cloneState, title, url, 'replace');
+        const previous = this._entries[this._index]?.state;
+        this._index = Math.max(this.index, 0);
+        this._entries[this._index] = historyState;
+        this.trigger('replacestate', { state: historyState.state, previous });
+        return historyState;
     }
 
     /**

@@ -108,7 +108,7 @@ export class Router extends Emitter {
         if (!this.history) {
             return null;
         }
-        return this.history.states[this.history.index - 1];
+        return this.history.states[this.history.index];
     }
 
     /**
@@ -297,7 +297,7 @@ export class Router extends Emitter {
             const title = response.title || window.document.title;
             await this.pushState({
                 url: response.redirected || url.href,
-                path: url.href,
+                path: path.href,
                 title,
                 request,
                 response,
@@ -341,7 +341,7 @@ export class Router extends Emitter {
             const title = response.title || window.document.title;
             await this.replaceState({
                 url: response.redirected || url.href,
-                path: url.href,
+                path: path.href,
                 title,
                 request,
                 response,
@@ -580,10 +580,7 @@ export class Router extends Emitter {
     private async pushState(state: State, trigger = true) {
         const previous = this.state;
         if (this.history) {
-            this.history.pushState({
-                url: state.url,
-                title: state.title,
-            }, state.title, state.url);
+            this.history.pushState(state, state.title, state.url);
         }
 
         if (trigger) {
@@ -602,10 +599,7 @@ export class Router extends Emitter {
     private async replaceState(state: State, trigger = true) {
         const previous = this.state;
         if (this.history) {
-            this.history.replaceState({
-                url: state.url,
-                title: state.title,
-            }, state.title, state.url);
+            this.history.replaceState(state, state.title, state.url);
         }
 
         if (trigger) {
@@ -618,18 +612,15 @@ export class Router extends Emitter {
 
     /**
      * Handle History pop state event.
-     * @param state The new state (if exists).
-     * @param path The path to navigate.
+     * @param data Event data.
      */
-    private onPopState = async (newState: State, path: Path | null = null) => {
-        const previous = this.state;
-        if (path) {
-            await this.replace(path.href, newState && newState.store, false);
+    private onPopState = async ({ state, previous }: { state?: State; previous?: State }) => {
+        if (state) {
+            await this.replace(state.path, state.store, false);
         }
-        const state = this.state as State;
         await this.trigger('popstate', {
-            previous,
             state,
+            previous,
         });
     };
 
