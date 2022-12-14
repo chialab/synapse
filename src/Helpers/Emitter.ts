@@ -1,12 +1,22 @@
+export interface EventMap {
+    [key: string]: [unknown, unknown];
+}
+
+export type Arg<M extends EventMap, K extends keyof M> = M[K][0];
+
+export type Return<M extends EventMap, K extends keyof M> = M[K][1] | null;
+
+export type Listener<M extends EventMap, K extends keyof M> = (arg: Arg<M, K>, res: Return<M, K>) => Return<M, K>;
+
 /**
  * Base Emitter class.
  */
-export class Emitter {
+export class Emitter<M extends EventMap = {}> {
     /**
      * Map of listeners.
      */
     #listeners: {
-        [key: string]: Function[];
+        [K in keyof M]?: Listener<M, K>[];
     } = {};
 
     /**
@@ -14,9 +24,9 @@ export class Emitter {
      * @param type The event name.
      * @param listener The listener callback.
      */
-    on(type: string, listener: Function) {
-        this.#listeners[type] = this.#listeners[type] || [];
-        this.#listeners[type].push(listener);
+    on<E extends keyof M>(type: E, listener: Listener<M, E>) {
+        const listeners = this.#listeners[type] = this.#listeners[type] || [];
+        listeners.push(listener);
     }
 
     /**
@@ -24,7 +34,7 @@ export class Emitter {
      * @param type The event name.
      * @param listener The listener callback to remove.
      */
-    off(type: string, listener: Function) {
+    off<E extends keyof M>(type: E, listener: Listener<M, E>) {
         const listeners = this.#listeners[type];
         if (!listeners) {
             return;
@@ -35,7 +45,7 @@ export class Emitter {
             return;
         }
 
-        this.#listeners[type].splice(index, 1);
+        listeners.splice(index, 1);
     }
 
     /**
@@ -44,12 +54,12 @@ export class Emitter {
      * @param data Data to pass to listener.
      * @returns A promise that resolves all listerner invokations.
      */
-    trigger<T = {}>(type: string, data?: T) {
+    trigger<E extends keyof M>(type: E, data: Arg<M, E>): Return<M, E> {
         const listeners = this.#listeners[type];
         if (!listeners) {
             return;
         }
 
-        return listeners.reduce((result, listener) => listener.call(this, data, result) ?? result, null);
+        return listeners.reduce((result: Return<M, E>, listener) => listener(data, result) ?? result, null);
     }
 }

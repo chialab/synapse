@@ -3,7 +3,7 @@ import type { RequestInit } from './Request';
 import type { ErrorHandler } from './ErrorHandler';
 import type { RouteRule, RouteHandler, NextHandler } from './Route';
 import type { State } from './State';
-import type { History } from './History';
+import type { HistoryStateChange, History } from './History';
 import { window } from '@chialab/dna';
 import { Path, trimSlash, trimSlashStart } from './Path';
 import { Request } from './Request';
@@ -24,14 +24,6 @@ export interface RouterOptions {
 }
 
 /**
- * Describe the popstate data.
- */
-export interface PopStateData {
-    state: State;
-    previous: State;
-}
-
-/**
  * Default router origin.
  */
 export const DEFAULT_ORIGIN = 'http://local';
@@ -39,7 +31,11 @@ export const DEFAULT_ORIGIN = 'http://local';
 /**
  * A router implementation for app navigation.
  */
-export class Router extends Emitter {
+export class Router extends Emitter<{
+    'pushstate': [HistoryStateChange, void];
+    'replacestate': [HistoryStateChange, void];
+    'popstate': [HistoryStateChange, void];
+}> {
     /**
      * The browser's history like implementation for state management.
      */
@@ -108,7 +104,7 @@ export class Router extends Emitter {
         if (!this.history) {
             return null;
         }
-        return this.history.states[this.history.index];
+        return this.history.state;
     }
 
     /**
@@ -363,10 +359,6 @@ export class Router extends Emitter {
      * @returns Resolve the navigation response.
      */
     refresh(path?: string) {
-        if (this.history) {
-            this.history.end();
-            this.history.start();
-        }
         return this.replace(path || this.current || '/');
     }
 
@@ -459,10 +451,8 @@ export class Router extends Emitter {
      * @param history The history model to bind.
      */
     async start(history: History, pathname?: string): Promise<Response> {
-        this.end();
-
         this.history = history;
-        this.history.start();
+        this.history.reset();
         history.on('popstate', this.onPopState);
 
         if (history instanceof BrowserHistory) {
@@ -478,7 +468,6 @@ export class Router extends Emitter {
     end() {
         if (this.history) {
             this.history.off('popstate', this.onPopState);
-            this.history.end();
             this.history = undefined;
         }
     }
@@ -580,7 +569,7 @@ export class Router extends Emitter {
     private async pushState(state: State, trigger = true) {
         const previous = this.state;
         if (this.history) {
-            this.history.pushState(state, state.title, state.url);
+            await this.history.pushState(state);
         }
 
         if (trigger) {
@@ -599,7 +588,7 @@ export class Router extends Emitter {
     private async replaceState(state: State, trigger = true) {
         const previous = this.state;
         if (this.history) {
-            this.history.replaceState(state, state.title, state.url);
+            await this.history.replaceState(state);
         }
 
         if (trigger) {
@@ -614,14 +603,21 @@ export class Router extends Emitter {
      * Handle History pop state event.
      * @param data Event data.
      */
-    private onPopState = async ({ state, previous }: { state?: State; previous?: State }) => {
+    private onPopState = ({ state, previous }: { state: State  | null; previous: State  | null }) => {
         if (state) {
-            await this.replace(state.path, state.store, false);
+            this.replace(state.path, state.store, false)
+                .then(() => {
+                    this.trigger('popstate', {
+                        state,
+                        previous,
+                    });
+                });
+        } else {
+            this.trigger('popstate', {
+                state,
+                previous,
+            });
         }
-        await this.trigger('popstate', {
-            state,
-            previous,
-        });
     };
 
     /**

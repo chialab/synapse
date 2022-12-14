@@ -1,12 +1,10 @@
-import type { PopStateData } from './Router/Router';
+import type { HistoryStateChange } from './Router/History';
 import type { RequestInit, RequestMethod } from './Router/Request';
 import { Component, window, property, state, observe, listen, customElementPrototype } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router, DEFAULT_ORIGIN } from './Router/Router';
 import { NavigationDirection, History } from './Router/History';
-import { BrowserHistory } from './Router/BrowserHistory';
-import { isNode } from './Helpers/Env';
 import { Page } from './Components/Page';
 
 /**
@@ -80,7 +78,7 @@ export class App extends Component {
     /**
      * The History instance for the application.
      */
-    public history: History = isNode() ? new History() : new BrowserHistory();
+    public history: History = new History();
 
     /**
      * The Router instance for the application.
@@ -246,7 +244,10 @@ export class App extends Component {
      * Popstate listener.
      * @param data Popstate data.
      */
-    protected _onPopState = (data: PopStateData) => {
+    protected _onPopState = (data: HistoryStateChange) => {
+        if (!data.state) {
+            return;
+        }
         this.request = data.state.request;
         this.onPopState(data);
         this.response = data.state.response;
@@ -256,9 +257,9 @@ export class App extends Component {
      * Handle popstate event from the router.
      * @param data The event triggered by the router.
      */
-    onPopState(data: PopStateData) {
+    onPopState(data: HistoryStateChange) {
         const { state, previous } = data;
-        if (previous) {
+        if (state && previous) {
             this.navigationDirection = this.history.compareStates(previous, state);
         } else {
             this.navigationDirection = NavigationDirection.forward;

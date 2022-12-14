@@ -14,6 +14,7 @@ describe('App', () => {
     });
 
     afterEach(() => {
+        history.unlisten?.();
         DOM.removeChild(document.body, wrapper);
     });
 

@@ -15,6 +15,7 @@ describe('Helpers', () => {
         });
 
         afterEach(() => {
+            history.unlisten?.();
             DOM.removeChild(document.body, wrapper);
         });
 
@@ -49,20 +50,6 @@ describe('Helpers', () => {
     });
 
     describe('resources', () => {
-        // before(async () => {
-        //     if (isNode()) {
-        //         const { ResourceLoader } = await import('jsdom');
-        //         const { default: utils } = await import('jsdom/lib/jsdom/living/generated/utils.js');
-
-        //         window._jsdom.reconfigure({
-        //             url: [...import.meta.url.split('/').slice(0, -1), 'index.html'].join('/'),
-        //         });
-        //         window._runScripts = 'dangerously';
-        //         window._resourceLoader = new ResourceLoader();
-        //         utils.implForWrapper(document)._resourceLoader._resourceLoader = window._resourceLoader;
-        //     }
-        // });
-
         describe('loadScript', () => {
             it('should load a script', async function() {
                 if (isBrowser()) {

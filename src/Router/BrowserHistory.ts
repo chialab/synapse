@@ -1,122 +1,97 @@
 import type { State } from './State';
 import { window } from '@chialab/dna';
-import { History } from './History';
+import { History, isHistoryState } from './History';
 
 /**
- * Router instances counter.
+ * Flag listening state for global `popstate` event.
  */
-let instances = 0;
+let listening = false;
 
 /**
  * History implementation that uses browser window.history.
  */
 export class BrowserHistory extends History {
-    #id?: string;
     #adapter: typeof window.history;
+    #currentPopRequest?: { resolve: Function; reject: Function };
 
     constructor(adapter = window.history) {
         super();
         this.#adapter = adapter;
+        this.listen();
     }
 
     /**
-     * @inheritdoc
+     * Add global `popstate` listener.
      */
-    get length() {
-        return this.#adapter.length;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    start() {
-        this.#id = `${Date.now()}-${instances++}`;
-        window.addEventListener('popstate', this.onPopState);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    end() {
-        super.end();
-        window.addEventListener('popstate', this.onPopState);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    go(shift: number) {
-        if (shift === 0) {
-            return;
+    listen() {
+        if (listening) {
+            throw new Error('You cannot initialize more than one "BrowserHistory".');
         }
-        this._index += shift;
-        this.#adapter.go(shift);
+        listening = true;
+        window.addEventListener('popstate', this.onPopState);
+    }
+
+    /**
+     * Remove global `popstate` listener.
+     */
+    unlisten() {
+        listening = false;
+        window.removeEventListener('popstate', this.onPopState);
     }
 
     /**
      * @inheritdoc
      */
-    back() {
-        this.#adapter.back();
+    async go(shift: number) {
+        if (this.#currentPopRequest) {
+            this.#currentPopRequest.reject();
+        }
+        return new Promise<void>((resolve, reject) => {
+            this.#currentPopRequest = { resolve, reject };
+            this.#adapter.go(shift);
+        });
     }
 
     /**
      * @inheritdoc
      */
-    forward() {
-        this.#adapter.forward();
+    async pushState(state: State) {
+        const historyState = await super.pushState(state);
+        this.#adapter.pushState({ ...historyState, state: null }, historyState.title, historyState.url);
+
+        return historyState;
     }
 
     /**
      * @inheritdoc
      */
-    pushState(stateObj: State, title: string, url: string) {
-        const state = super.pushState(stateObj, title, url);
-        this.#adapter.pushState({
-            id: this.#id,
-            title: stateObj.title,
-            url: stateObj.url,
-            index: this.index,
-        }, state.title, state.url);
+    async replaceState(state: State) {
+        const historyState = await super.replaceState(state);
+        this.#adapter.replaceState({ ...historyState, state: null }, historyState.title, historyState.url);
 
-        return state;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    replaceState(stateObj: State, title: string, url: string) {
-        const state = super.replaceState(stateObj, title, url);
-        this.#adapter.replaceState({
-            id: this.#id,
-            title: stateObj.title,
-            url: stateObj.url,
-            index: this.index,
-        }, state.title, state.url);
-
-        return state;
+        return historyState;
     }
 
     /**
      * The popstate listener.
      * @param event The popstate event.
      */
-    private onPopState = (event: PopStateEvent) => {
-        const historyState = event.state as unknown as State & { id?: string; index?: number };
-        if (historyState &&
-            typeof historyState === 'object' &&
-            typeof historyState.index === 'number') {
-            if (historyState.id !== this.#id) {
-                this.end();
-                this.start();
-                this.pushState(historyState, historyState.title, historyState.url);
-            } else {
-                const previous = this._entries[this._index]?.state;
-                this._index = historyState.index;
-                this.trigger('popstate', { state: this._entries[this._index]?.state, previous });
-            }
-        } else {
-            this.pushState(historyState, historyState.title, historyState.url);
+    private onPopState = async (event: PopStateEvent) => {
+        if (!isHistoryState(event.state)) {
+            return;
         }
+        if (event.state.historyId !== this._id) {
+            this.reset();
+            await this.pushState(event.state.state);
+        } else {
+            const previous = this.state;
+            this._index = event.state.index;
+            this.trigger('popstate', { state: this.state, previous });
+        }
+
+        if (this.#currentPopRequest) {
+            this.#currentPopRequest.resolve();
+        }
+        this.#currentPopRequest = undefined;
     };
 }

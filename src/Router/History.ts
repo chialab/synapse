@@ -10,43 +10,71 @@ export enum NavigationDirection {
  * A history state representation.
  */
 export interface HistoryState {
+    historyId: string;
     state: State;
     title: string;
     url: string;
+    index: number;
     type: 'push' | 'replace';
 }
 
 /**
- * Generate a descriptor for a history state.
- *
- * @param state Some properties of the current state.
- * @param title The title for the current state.
- * @param url The current path.
- * @param type The type of the state ('push'|'replace').
- * @returns A descriptor for the history state.
+ * Describe the change state event data.
  */
-function createState(state: State, title: string, url: string, type: 'push' | 'replace'): HistoryState {
-    return {
-        state: state || {},
-        title,
-        url,
-        type,
-    };
+export interface HistoryStateChange {
+    state: State | null;
+    previous: State | null;
 }
+
+/**
+ * Check if a state is a synapse History state.
+ * @param historyState The state to check.
+ * @returns True if it is a HistoryState.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isHistoryState(historyState: any): historyState is HistoryState {
+    return historyState &&
+        typeof historyState === 'object' &&
+        typeof historyState.historyId === 'string' &&
+        typeof historyState.index === 'number';
+}
+
+/**
+ * History instances counter.
+ */
+let instances = 0;
 
 /**
  * States collector.
  * An abstraction of the window.history object.
  */
-export class History extends Emitter {
+export class History extends Emitter<{
+    'pushstate': [HistoryStateChange, void];
+    'replacestate': [HistoryStateChange, void];
+    'popstate': [HistoryStateChange, void];
+}> {
     protected _entries: HistoryState[] = [];
     protected _index = -1;
+    protected _id: string;
+
+
+    constructor() {
+        super();
+        this._id = `${Date.now()}-${instances++}`;
+    }
 
     /**
      * Get history states.
      */
     get states() {
         return this._entries.map((entry) => entry.state);
+    }
+
+    /**
+     * Get current state.
+     */
+    get state() {
+        return this.states[this._index] ?? null;
     }
 
     /**
@@ -66,21 +94,16 @@ export class History extends Emitter {
     /**
      * Start listening history changes.
      */
-    start() {
+    reset() {
         this._entries.splice(0, this._entries.length);
         this._index = -1;
     }
 
     /**
-     * Stop listening history changes.
-     */
-    end() { }
-
-    /**
      * Move in the history.
      * @param shift The shift movement in the history.
      */
-    go(shift: number) {
+    async go(shift: number) {
         if (shift === 0) {
             return;
         }
@@ -88,16 +111,16 @@ export class History extends Emitter {
         if (index < 0 || index >= this._entries.length) {
             return;
         }
-        const previous = this._entries[this._index]?.state;
+        const previous = this.state;
         this._index = index;
-        this.trigger('popstate', { state: this._entries[this._index]?.state, previous });
+        this.trigger('popstate', { state: this.state, previous });
     }
 
     /**
      * Move back in the history by one entry. Same as `.go(-1)`
      * @returns A promise which resolves the new current state.
      */
-    back() {
+    async back() {
         return this.go(-1);
     }
 
@@ -105,43 +128,51 @@ export class History extends Emitter {
      * Move forward in the history by one entry. Same as `.go(1)`
      * @returns A promise which resolves the new current state.
      */
-    forward() {
+    async forward() {
         return this.go(1);
     }
 
     /**
      * Add a state to the history.
-     * @param stateObj The state properties.
-     * @param title The state title.
-     * @param url The state path.
+     * @param state The state properties.
      * @returns The new current state.
      */
-    pushState(stateObj: State, title: string, url: string) {
-        const cloneState = { ...stateObj, index: this._index + 1 };
-        const historyState = createState(cloneState, title, url, 'push');
+    async pushState(state: State) {
+        const historyState: HistoryState = {
+            historyId: this._id,
+            index: this.index + 1,
+            title: state.title,
+            url: state.url,
+            state,
+            type: 'push',
+        };
         this._entries = this._entries.slice(0, this._index + 1);
         this._entries.push(historyState);
-        const previous = this._entries[this._index]?.state;
+        const previous = this.state;
         this._index += 1;
-        this.trigger('pushstate', { state: this._entries[this._index]?.state, previous });
+        this.trigger('pushstate', { state: this.state, previous });
         return historyState;
     }
 
     /**
      * Replace the current state of the history.
      *
-     * @param stateObj The state properties.
-     * @param title The state title.
-     * @param url The state path.
+     * @param state The state properties.
      * @returns The new current state.
      */
-    replaceState(stateObj: State, title: string, url: string) {
-        const cloneState = { ...stateObj, index: this._index };
-        const historyState = createState(cloneState, title, url, 'replace');
-        const previous = this._entries[this._index]?.state;
+    async replaceState(state: State) {
+        const historyState: HistoryState = {
+            historyId: this._id,
+            index: this.index,
+            title: state.title,
+            url: state.url,
+            state,
+            type: 'replace',
+        };
+        const previous = this.state;
         this._index = Math.max(this.index, 0);
         this._entries[this._index] = historyState;
-        this.trigger('replacestate', { state: historyState.state, previous });
+        this.trigger('replacestate', { state: this.state, previous });
         return historyState;
     }
 
@@ -151,7 +182,8 @@ export class History extends Emitter {
      * @param state2 The second state.
      */
     compareStates(state1: State, state2: State) {
-        return (state2 as State & { index: number }).index < (state1 as State & { index: number }).index ?
+        const states = this.states;
+        return states.indexOf(state2) < states.indexOf(state1) ?
             NavigationDirection.back :
             NavigationDirection.forward;
     }
