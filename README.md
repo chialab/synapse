@@ -42,37 +42,34 @@ import { App, Router, ... } from '@chialab/synapse';
 ## Create an application
 
 ```tsx
-import { html, customElements, render } from '@chialab/dna';
-import { App, Router } from '@chialab/synapse';
+import { html, customElement, render } from '@chialab/dna';
+import { App } from '@chialab/synapse';
 
-const router = new Router({
-    base: '/',
-}, [
-    {
-        pattern: '/',
-        render(req, res) {
-            return <main>
-                <h1>Home</h1>
-            </main>;
-        },
-    },
-    {
-        handler(req, res) {
-            res.data = new Error('not found');
-        },
-        render(req, res) {
-            return <main>
-                <details>
-                    <summary>${res.data.message}</summary>
-                    <pre>${res.data.stack}</pre>
-                </details>
-            </main>;
-        },
-    },
-]);
-
+@customElement('demo-app')
 class DemoApp extends App {
-    router = router;
+    routes = [
+        {
+            pattern: '/',
+            render(req, res) {
+                return <main>
+                    <h1>Home</h1>
+                </main>;
+            },
+        },
+        {
+            handler(req, res) {
+                res.data = new Error('not found');
+            },
+            render(req, res) {
+                return <main>
+                    <details>
+                        <summary>${res.data.message}</summary>
+                        <pre>${res.data.stack}</pre>
+                    </details>
+                </main>;
+            },
+        },
+    ];
 
     render() {
         return <>
@@ -91,9 +88,9 @@ class DemoApp extends App {
     }
 }
 
-customElements.define('demo-app', DemoApp);
-
-const app = render(<DemoApp />, document.getElementById('app'));
+const app = render(<DemoApp
+    base="/"
+/>, document.getElementById('app'));
 
 app.start('/');
 ```
