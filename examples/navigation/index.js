@@ -1,9 +1,9 @@
-import { html, render, document } from '@chialab/dna';
+import { html, render, window, document } from '@chialab/dna';
 import { BrowserHistory } from '@chialab/synapse';
 import './App.js';
 
 const app = render(html`<demo-app
-    base="/examples/navigation/#!/"
+    base=${`${window.location.pathname}#!/`}
     history=${new BrowserHistory()}
 
 />`, document.body);
