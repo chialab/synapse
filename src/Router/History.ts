@@ -149,7 +149,7 @@ export class History extends Emitter<{
         this._entries = this._entries.slice(0, this._index + 1);
         this._entries.push(historyState);
         const previous = this.state;
-        this._index += 1;
+        this._index = historyState.index;
         this.trigger('pushstate', { state: this.state, previous });
         return historyState;
     }
@@ -163,14 +163,14 @@ export class History extends Emitter<{
     async replaceState(state: State) {
         const historyState: HistoryState = {
             historyId: this._id,
-            index: this.index,
+            index: Math.max(this.index, 0),
             title: state.title,
             url: state.url,
             state,
             type: 'replace',
         };
         const previous = this.state;
-        this._index = Math.max(this.index, 0);
+        this._index = historyState.index;
         this._entries[this._index] = historyState;
         this.trigger('replacestate', { state: this.state, previous });
         return historyState;

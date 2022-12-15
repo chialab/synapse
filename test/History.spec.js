@@ -8,7 +8,7 @@ describe('History', () => {
         describe(History.name, () => {
             let origin, history;
             before(() => {
-                origin = isNode() ? 'http://localhost' : window.location.origin;
+                origin = isNode() ? 'http://localhost/' : `${window.location.origin}/`;
             });
 
             beforeEach(() => {
@@ -36,6 +36,9 @@ describe('History', () => {
 
                 expect(history.states).to.have.lengthOf(1);
                 expect(history.state.url).to.be.equal(origin);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(origin);
+                }
                 expect(history.state.request).to.be.equal(request1);
                 expect(history.index).to.be.equal(0);
                 expect(history.length).to.be.equal(1);
@@ -50,6 +53,9 @@ describe('History', () => {
 
                 expect(history.states).to.have.lengthOf(2);
                 expect(history.state.url).to.be.equal(`${origin}/2`);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                }
                 expect(history.state.request).to.be.equal(request2);
                 expect(history.index).to.be.equal(1);
                 expect(history.length).to.be.equal(2);
@@ -71,6 +77,9 @@ describe('History', () => {
                 });
 
                 expect(currentState.url).to.be.equal(origin);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(origin);
+                }
                 expect(currentState.request).to.be.equal(request1);
 
                 const request2 = new Request(`${origin}/2`);
@@ -84,6 +93,9 @@ describe('History', () => {
                 expect(previousState.url).to.be.equal(origin);
                 expect(previousState.request).to.be.equal(request1);
                 expect(currentState.url).to.be.equal(`${origin}/2`);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                }
                 expect(currentState.request).to.be.equal(request2);
             });
 
@@ -98,6 +110,9 @@ describe('History', () => {
 
                 expect(history.states).to.have.lengthOf(1);
                 expect(history.state.url).to.be.equal(origin);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(origin);
+                }
                 expect(history.state.request).to.be.equal(request1);
                 expect(history.index).to.be.equal(0);
                 expect(history.length).to.be.equal(1);
@@ -112,6 +127,9 @@ describe('History', () => {
 
                 expect(history.states).to.have.lengthOf(1);
                 expect(history.state.url).to.be.equal(`${origin}/2`);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                }
                 expect(history.state.request).to.be.equal(request2);
                 expect(history.index).to.be.equal(0);
                 expect(history.length).to.be.equal(1);
@@ -133,6 +151,9 @@ describe('History', () => {
                 });
 
                 expect(currentState.url).to.be.equal(origin);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(origin);
+                }
                 expect(currentState.request).to.be.equal(request1);
 
                 const request2 = new Request(`${origin}/2`);
@@ -146,6 +167,9 @@ describe('History', () => {
                 expect(previousState.url).to.be.equal(origin);
                 expect(previousState.request).to.be.equal(request1);
                 expect(currentState.url).to.be.equal(`${origin}/2`);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                }
                 expect(currentState.request).to.be.equal(request2);
             });
 
@@ -160,6 +184,9 @@ describe('History', () => {
 
                 expect(history.states).to.have.lengthOf(1);
                 expect(history.state.url).to.be.equal(origin);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(origin);
+                }
                 expect(history.state.request).to.be.equal(request1);
                 expect(history.index).to.be.equal(0);
                 expect(history.length).to.be.equal(1);
@@ -176,6 +203,9 @@ describe('History', () => {
 
                 expect(history.states).to.have.lengthOf(1);
                 expect(history.state.url).to.be.equal(`${origin}/2`);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                }
                 expect(history.state.request).to.be.equal(request2);
                 expect(history.index).to.be.equal(0);
                 expect(history.length).to.be.equal(1);
@@ -209,6 +239,9 @@ describe('History', () => {
                 await history.go(-2);
 
                 expect(history.state.url).to.be.equal(origin);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(origin);
+                }
                 expect(history.state.request).to.be.equal(request1);
                 expect(history.index).to.be.equal(0);
                 expect(history.length).to.be.equal(3);
@@ -216,6 +249,9 @@ describe('History', () => {
                 await history.forward();
 
                 expect(history.state.url).to.be.equal(`${origin}/2`);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                }
                 expect(history.state.request).to.be.equal(request2);
                 expect(history.index).to.be.equal(1);
                 expect(history.length).to.be.equal(3);
@@ -223,6 +259,9 @@ describe('History', () => {
                 await history.forward();
 
                 expect(history.state.url).to.be.equal(`${origin}/3`);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(`${origin}/3`);
+                }
                 expect(history.state.request).to.be.equal(request3);
                 expect(history.index).to.be.equal(2);
                 expect(history.length).to.be.equal(3);
@@ -230,8 +269,21 @@ describe('History', () => {
                 await history.back();
 
                 expect(history.state.url).to.be.equal(`${origin}/2`);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                }
                 expect(history.state.request).to.be.equal(request2);
                 expect(history.index).to.be.equal(1);
+                expect(history.length).to.be.equal(3);
+
+                await history.back();
+
+                expect(history.state.url).to.be.equal(origin);
+                if (history instanceof BrowserHistory) {
+                    expect(window.location.href).to.be.equal(origin);
+                }
+                expect(history.state.request).to.be.equal(request1);
+                expect(history.index).to.be.equal(0);
                 expect(history.length).to.be.equal(3);
             });
 
