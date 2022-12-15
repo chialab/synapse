@@ -18,7 +18,7 @@ function formatStack(error: Error) {
  * The default error handler.
  * @param request The request of the routing.
  * @param error The thrown error.
- * @return An error response object.
+ * @returns An error response object.
  */
 export default function(request: Request, error: Error) {
     const response = new Response(request);

@@ -5,12 +5,11 @@ import type { Response } from './Response';
  * The router state representation.
  */
 export interface State {
-    id: string|number;
     url: string;
-    index: number;
+    path: string;
     title: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    store: any;
+    data: any;
     request: Request;
     response?: Response;
 }

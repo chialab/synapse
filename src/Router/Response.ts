@@ -6,7 +6,7 @@ import type { RequestInit, Request } from './Request';
  * @param request The request of the routing.
  * @param response The response for the request.
  * @param context The app context.
- * @return A template to render.
+ * @returns A template to render.
  */
 export type View = (request: Request, response: Response) => Template;
 
@@ -123,9 +123,11 @@ export class Response {
 
     /**
      * Get stored data.
+     * @param defaultValue Default value if missing data.
      */
-    getData() {
-        return this.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getData(defaultValue: any = null) {
+        return this.data ?? defaultValue;
     }
 
     /**
@@ -161,7 +163,7 @@ export class Response {
 
     /**
      * Return the template to render in the app.
-     * @return The view to render.
+     * @returns The view to render.
      */
     render(): Template {
         return this.view?.(this.request, this);
@@ -170,7 +172,7 @@ export class Response {
     /**
      * Trigger a redirect for the response.
      * @param path The new path to navigate.
-     * @return The new navigation Promise.
+     * @returns The new navigation Promise.
      */
     redirect(path: string, init?: RequestInit) {
         this.redirected = path;

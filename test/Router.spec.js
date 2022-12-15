@@ -78,9 +78,10 @@ describe('Router', () => {
 
         await router.start(history);
 
-        const response = await router.navigate('/test');
-        expect(response.data.href).to.be.equal('http://local/test');
-        expect(history.entries[0].url).to.be.equal('http://local/test');
+        const response = await router.navigate('/test?test=1');
+        expect(response.request.path.searchParams.get('test')).to.be.equal('1');
+        expect(response.data.href).to.be.equal('http://local/test?test=1');
+        expect(history.states[1].url).to.be.equal('http://local/test?test=1');
     });
 
     it('should navigate with base', async () => {
@@ -99,7 +100,7 @@ describe('Router', () => {
 
         const response = await router.navigate('/test');
         expect(response.data.href).to.be.equal('http://local/base/test');
-        expect(history.entries[0].url).to.be.equal('http://local/base/test');
+        expect(history.states[1].url).to.be.equal('http://local/base/test');
     });
 
     it('should navigate with hashbang base', async () => {
@@ -107,7 +108,6 @@ describe('Router', () => {
         const router = new Router({
             origin: 'http://local',
             base: '/#!/',
-            listenHashChanges: true,
         }, [{
             pattern: '/test',
             handler: (req, res) => {
@@ -117,35 +117,16 @@ describe('Router', () => {
 
         await router.start(history);
 
-        const response = await router.navigate('/test');
-        expect(response.data.href).to.be.equal('http://local/#!/test');
-        expect(history.entries[0].url).to.be.equal('http://local/#!/test');
+        const response = await router.navigate('/test?test=1');
+        expect(response.request.path.searchParams.get('test')).to.be.equal('1');
+        expect(response.data.href).to.be.equal('http://local/#!/test?test=1');
+        expect(history.states[1].url).to.be.equal('http://local/#!/test?test=1');
     });
 
     it('should navigate with hash', async () => {
         const history = new History();
         const router = new Router({
             origin: 'http://local',
-        }, [{
-            pattern: '/test',
-            handler: (req, res) => {
-                res.setData(req.url);
-            },
-        }]);
-
-        await router.start(history);
-
-        const response = await router.navigate('/test');
-        expect(response.data.href).to.be.equal('http://local/test');
-        expect(history.entries[0].url).to.be.equal('http://local/test');
-        expect(await router.navigate('/test#test')).to.be.null;
-    });
-
-    it('should navigate listening hash changes', async () => {
-        const history = new History();
-        const router = new Router({
-            origin: 'http://local',
-            listenHashChanges: true,
         }, [
             {
                 pattern: '/test',
@@ -159,10 +140,10 @@ describe('Router', () => {
 
         const response = await router.navigate('/test');
         expect(response.data.href).to.be.equal('http://local/test');
-        expect(history.entries[0].url).to.be.equal('http://local/test');
+        expect(history.states[1].url).to.be.equal('http://local/test');
         const response2 = await router.navigate('/test#test');
         expect(response2.data.href).to.be.equal('http://local/test#test');
-        expect(history.entries[0].url).to.be.equal('http://local/test#test');
+        expect(history.states[2].url).to.be.equal('http://local/test#test');
     });
 
     describe('patterns', () => {

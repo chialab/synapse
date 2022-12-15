@@ -3,7 +3,7 @@ import { window } from '@chialab/dna';
 /**
  * requestAnimationFrame wrapper for support in Node environments.
  * @param callback The callback to invoke.
- * @return The numeric handle of the request.
+ * @returns The numeric handle of the request.
  */
 export function requestAnimationFrame(callback: FrameRequestCallback): number {
     if (typeof window.requestAnimationFrame === 'function') {

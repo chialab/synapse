@@ -1,44 +1,21 @@
 import { expect } from '@chialab/ginsenghino';
-import { window, document, customElements, h, render, DOM } from '@chialab/dna';
-import { App, Router, History } from '@chialab/synapse';
+import { window, document, h, render, DOM } from '@chialab/dna';
+import { Router } from '@chialab/synapse';
+import { createTestApp, createTestHistory, createTestRouter } from './App.test.js';
 
 describe('App', () => {
-    let router, history, TestApp, wrapper, count = 1;
+    let router, history, TestApp, wrapper;
     beforeEach(() => {
-        history = window.history;
-        if (typeof window._jsdom !== 'undefined') {
-            window._jsdom.reconfigure({
-                url: 'http://localhost/',
-            });
-            history = new History();
-        }
-        router = new Router({
-            origin: window.location.origin,
-            base: '/',
-        }, [
-            {
-                pattern: '/',
-                render() {
-                    return h('span', {}, 'Home');
-                },
-            },
-        ]);
-        TestApp = class extends App {
-            history = history;
-            router = router;
-        };
-        customElements.define(`test-app-${count++}`, TestApp);
+        history = createTestHistory();
+        router = createTestRouter();
+        TestApp = createTestApp(history, router);
         wrapper = DOM.createElement('div');
         DOM.appendChild(document.body, wrapper);
     });
 
     afterEach(() => {
+        history.unlisten?.();
         DOM.removeChild(document.body, wrapper);
-        if (typeof window._jsdom !== 'undefined') {
-            window._jsdom.reconfigure({
-                url: 'about:blank',
-            });
-        }
     });
 
     it('should initialize a router', () => {

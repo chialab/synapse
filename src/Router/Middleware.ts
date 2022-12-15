@@ -10,7 +10,7 @@ import { Pattern } from './Pattern';
  * @param response The current response instance.
  * @param params Middleware params extracted from the Request path.
  * @param router The current router instance.
- * @return The Response instance.
+ * @returns The Response instance.
  */
 export type MiddlewareBeforeHandler = (request: Request, response: Response, params: RequestParams, router: Router) => Response|void|Promise<Response|void>;
 
@@ -20,7 +20,7 @@ export type MiddlewareBeforeHandler = (request: Request, response: Response, par
  * @param response The current response instance.
  * @param params Middleware params extracted from the Request path.
  * @param router The current router instance.
- * @return The Response instance.
+ * @returns The Response instance.
  */
 export type MiddlewareAfterHandler = (request: Readonly<Request>, response: Response, params: RequestParams, router: Router) => Response|void|Promise<Response|void>;
 
@@ -69,7 +69,7 @@ export class Middleware extends Pattern {
      * @param response The current Response instance.
      * @param params Middleware params extracted from the Request path.
      * @param router The current router instance.
-     * @return The very same input Response instance or a new one.
+     * @returns The very same input Response instance or a new one.
      */
     hookBefore(request: Request, response: Response, params: RequestParams, router: Router) {
         return this.before?.(request, response, params, router);
@@ -81,7 +81,7 @@ export class Middleware extends Pattern {
      * @param response The current Response instance.
      * @param params Middleware params extracted from the Request path.
      * @param router The current router instance.
-     * @return The very same input Response instance or a new one.
+     * @returns The very same input Response instance or a new one.
      */
     hookAfter(request: Readonly<Request>, response: Response, params: RequestParams, router: Router) {
         return this.after?.(request, response, params, router);

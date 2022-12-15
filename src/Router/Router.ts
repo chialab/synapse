@@ -3,12 +3,15 @@ import type { RequestInit } from './Request';
 import type { ErrorHandler } from './ErrorHandler';
 import type { RouteRule, RouteHandler, NextHandler } from './Route';
 import type { State } from './State';
-import { on, Factory, off } from '@chialab/proteins';
+import type { History, HistoryState } from './History';
 import { window } from '@chialab/dna';
+import { Path, trimSlash, trimSlashStart } from './Path';
 import { Request } from './Request';
 import { Response } from './Response';
 import { Route } from './Route';
 import { Middleware } from './Middleware';
+import { BrowserHistory } from './BrowserHistory';
+import { Emitter } from '../Helpers/Emitter';
 import DEFAULT_ERROR_HANDLER from './ErrorHandler';
 
 /**
@@ -16,18 +19,8 @@ import DEFAULT_ERROR_HANDLER from './ErrorHandler';
  */
 export interface RouterOptions {
     base?: string;
-    prefix?: string;
     origin?: string;
     errorHandler?: ErrorHandler;
-    listenHashChanges?: boolean;
-}
-
-/**
- * Describe the popstate data.
- */
-export interface PopStateData {
-    state: State;
-    previous: State;
 }
 
 /**
@@ -36,60 +29,13 @@ export interface PopStateData {
 export const DEFAULT_ORIGIN = 'http://local';
 
 /**
- * Trim slashes from the start a string.
- * @param token The string to trim.
- * @return THe trimmed string.
- */
-function trimSlashStart(token: string) {
-    return token.replace(/^\/*/, '');
-}
-
-/**
- * Trim slashes from the end a string.
- * @param token The string to trim.
- * @return THe trimmed string.
- */
-function trimSlashEnd(token: string) {
-    return token.replace(/\/*$/, '');
-}
-
-/**
- * Trim slashes from the start and end of a string.
- * @param token The string to trim.
- * @return THe trimmed string.
- */
-function trimSlash(token: string) {
-    return trimSlashStart(trimSlashEnd(token));
-}
-
-/**
- * Router instances counter.
- */
-let instances = 0;
-
-function generateId() {
-    return `${Date.now()}-${instances++}`;
-}
-
-/**
  * A router implementation for app navigation.
  */
-export class Router extends Factory.Emitter {
-    /**
-     * Router history states.
-     */
-    private states: State[] = [];
-
-    /**
-     * The current state index in the history.
-     */
-    private index: number = 0;
-
-    /**
-     * The callback bound to popstate event.
-     */
-    private onPopStateCallback: (event: PopStateEvent) => unknown = () => { };
-
+export class Router extends Emitter<{
+    'pushstate': [{ state: State; previous?: State }, void];
+    'replacestate': [{ state: State; previous?: State }, void];
+    'popstate': [{ state: State; previous?: State }, void];
+}> {
     /**
      * The browser's history like implementation for state management.
      */
@@ -145,30 +91,6 @@ export class Router extends Factory.Emitter {
     }
 
     /**
-     * The prefix for routing path such as hasbang.
-     */
-    #prefix: string = '';
-
-    /**
-     * The prefix for routing path such as hasbang.
-     */
-    get prefix() {
-        return this.#prefix;
-    }
-
-    /**
-     * Should navigate on hash changes.
-     */
-    #listeningHashChanges: boolean = false;
-
-    /**
-     * Should navigate on hash changes.
-     */
-    get listeningHashChanges() {
-        return this.#listeningHashChanges;
-    }
-
-    /**
      * The router is started.
      */
     get started() {
@@ -179,23 +101,18 @@ export class Router extends Factory.Emitter {
      * The current router state.
      */
     get state() {
-        return this.states[this.index];
+        if (!this.history) {
+            return undefined;
+        }
+        return this.history.state;
     }
 
     /**
      * The current router path.
      */
     get current() {
-        if (!this.state) {
-            return null;
-        }
-        return this.pathFromUrl(this.state.url);
+        return this.state?.path;
     }
-
-    /**
-     * The unique id of the router.
-     */
-    #id?: string;
 
     /**
      * Create a Router instance.
@@ -210,12 +127,6 @@ export class Router extends Factory.Emitter {
         }
         if (options.base) {
             this.setBase(options.base);
-        }
-        if (options.prefix) {
-            this.setPrefix(options.prefix);
-        }
-        if (options.listenHashChanges) {
-            this.listenHashChanges();
         }
         if (options.errorHandler) {
             this.setErrorHandler(options.errorHandler);
@@ -251,37 +162,6 @@ export class Router extends Factory.Emitter {
     }
 
     /**
-     * Set the routing url prefix.
-     * @param prefix The prefix value.
-     */
-    setPrefix(prefix: string) {
-        if (this.started) {
-            throw new Error('Cannot set prefix after router is started.');
-        }
-        this.#prefix = trimSlash(prefix);
-    }
-
-    /**
-     * Configure the router to listen for hash changes.
-     */
-    listenHashChanges() {
-        if (this.history) {
-            throw new Error('Cannot change hash listener after router is started.');
-        }
-        this.#listeningHashChanges = true;
-    }
-
-    /**
-     * Configure the router to not listen for hash changes.
-     */
-    unlistenHashChanges() {
-        if (this.history) {
-            throw new Error('Cannot change hash listener after router is started.');
-        }
-        this.#listeningHashChanges = false;
-    }
-
-    /**
      * Set the error handler of the router.
      * @param errorHandler The error handler or undefined to restore the default error handler.
      */
@@ -292,17 +172,21 @@ export class Router extends Factory.Emitter {
     /**
      * Handle a router navigation.
      * @param request The request to handle.
-     * @return The final response instance.
+     * @param parentResponse The request to handle.
+     * @param data Initial response data.
+     * @returns The final response instance.
      */
-    async handle(request: Request, parentResponse?: Response): Promise<Response> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    protected async handle(request: Request, parentResponse?: Response, data: any = null): Promise<Response> {
         const routes = this.connectedRoutes;
         const middlewares = this.connectedMiddlewares;
-        const path = this.pathFromUrl(request.url.href) as string;
+        const pathname = this.pathFromUrl(request.url.href) as string;
         let response = new Response(request, parentResponse);
+        response.setData(data);
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             const middleware = middlewares[i];
-            const params = middleware.matches(path);
+            const params = middleware.matches(pathname);
             if (!params) {
                 continue;
             }
@@ -323,13 +207,13 @@ export class Router extends Factory.Emitter {
                 if (res.redirected != null) {
                     return res;
                 }
-                const params = route.matches(path);
+                const params = route.matches(pathname);
                 if (params === false) {
                     return next(req, res, this);
                 }
                 req.setMatcher(route);
                 req.setParams(params);
-                const newResponse = await route.exec(req, res, next, this);
+                const newResponse = await route.exec(req, res, next, this) ?? res;
                 if (newResponse.redirected) {
                     return newResponse;
                 }
@@ -358,7 +242,7 @@ export class Router extends Factory.Emitter {
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             const middleware = middlewares[i];
-            const params = middleware.matches(path);
+            const params = middleware.matches(pathname);
             if (!params) {
                 continue;
             }
@@ -382,15 +266,17 @@ export class Router extends Factory.Emitter {
     /**
      * Trigger a router navigation.
      * @param path The path to navigate.
-     * @return The final response instance.
+     * @returns The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async navigate(path: string, init?: RequestInit, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
+    async navigate(path: Path | string, init?: RequestInit, data: any = null, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
         return this.setCurrentNavigation(async () => {
-            const url = new URL(this.resolve(path, true));
+            path = typeof path === 'string' ? new Path(path) : path;
+            init = { ...init, path };
+
+            const url = this.urlFromPath(path);
             if (!this.shouldNavigate(url) && !force) {
-                const hash = url.hash;
-                this.fragment(hash || '');
+                this.fragment(url.hash || '');
                 return null;
             }
 
@@ -408,20 +294,18 @@ export class Router extends Factory.Emitter {
                 throw new Error('Request aborted.');
             }
 
-            const index = this.index + 1;
             const title = response.title || window.document.title;
             await this.pushState({
-                id: this.#id as string,
                 url: response.redirected || url.href,
-                index,
+                path: path.href,
                 title,
                 request,
                 response,
-                store,
+                data: response.getData(),
             }, trigger);
 
             if (response.redirected != null) {
-                return this.replace(response.redirected, response.redirectInit, store, trigger, parentRequest, parentResponse);
+                return this.replace(response.redirected, response.redirectInit, data, trigger, parentRequest, parentResponse);
             }
 
             return response;
@@ -431,18 +315,21 @@ export class Router extends Factory.Emitter {
     /**
      * Trigger a router navigation.
      * @param path The path to navigate.
-     * @return The final response instance.
+     * @returns The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async replace(path: string, init?: RequestInit, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
+    async replace(path: Path | string, init?: RequestInit, data: any = null, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
         return this.setCurrentNavigation(async () => {
-            const url = new URL(this.resolve(path, true));
+            path = typeof path === 'string' ? new Path(path) : path;
+            init = { ...init, path };
+
+            const url = this.urlFromPath(path);
             const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
             this.setCurrentRequest(request);
 
             let response: Response;
             try {
-                response = await this.handle(request, parentResponse);
+                response = await this.handle(request, parentResponse, data);
             } catch (error) {
                 response = this.handleError(request, error as Error);
             }
@@ -453,17 +340,16 @@ export class Router extends Factory.Emitter {
 
             const title = response.title || window.document.title;
             await this.replaceState({
-                id: this.#id as string,
                 url: response.redirected || url.href,
-                index: this.index,
+                path: path.href,
                 title,
                 request,
                 response,
-                store,
+                data: response.getData(),
             }, trigger);
 
             if (response.redirected != null) {
-                return this.replace(response.redirected, response.redirectInit, store, trigger);
+                return this.replace(response.redirected, response.redirectInit, data, trigger);
             }
 
             return response;
@@ -474,10 +360,9 @@ export class Router extends Factory.Emitter {
      * Refresh the state of the router.
      * Reset and re-start the navigation.
      * @param path The path to use to restart the router.
-     * @return Resolve the navigation response.
+     * @returns Resolve the navigation response.
      */
     refresh(path?: string) {
-        this.reset();
         return this.replace(path || this.current || '/');
     }
 
@@ -486,7 +371,7 @@ export class Router extends Factory.Emitter {
      * @param hash The hash to set.
      */
     fragment(hash: string) {
-        if (window.history === this.history) {
+        if (this.history instanceof BrowserHistory) {
             if (window.location.hash !== hash) {
                 window.location.hash = hash;
             }
@@ -499,7 +384,7 @@ export class Router extends Factory.Emitter {
      * @param path The path of the middleware rule.
      * @param after The middleware method to invoke after routing.
      * @param before The middleware method to invoke before routing.
-     * @return The Middleware instance.
+     * @returns The Middleware instance.
      */
     middleware(middleware: Middleware | MiddlewareRule): Middleware;
     middleware(path: string, after?: MiddlewareAfterHandler, before?: MiddlewareBeforeHandler): Middleware;
@@ -522,7 +407,7 @@ export class Router extends Factory.Emitter {
      * @param route A RouteRule object.
      * @param path The path of the route rule.
      * @param handler The callback to exec when matched.
-     * @return The Route instance.
+     * @returns The Route instance.
      */
     connect(route: Route | RouteRule): Route;
     connect(path: string, handler: RouteHandler): Route;
@@ -546,7 +431,7 @@ export class Router extends Factory.Emitter {
     /**
      * Disconnect a Route or a Middleware.
      * @param routeOrMiddleare The Route or the Middleware instance to disconnect.
-     * @return It returns false if the given input is not connected.
+     * @returns It returns false if the given input is not connected.
      */
     disconnect(routeOrMiddleare: Route | Middleware): boolean {
         if (routeOrMiddleare instanceof Route) {
@@ -569,109 +454,72 @@ export class Router extends Factory.Emitter {
      * Bind the Router to a History model.
      * @param history The history model to bind.
      */
-    async start(history: History, path?: string): Promise<Response> {
-        this.reset();
-        this.end();
-        if (this.base.indexOf('#') !== -1) {
-            this.listenHashChanges();
-        }
-
+    async start(history: History, pathname?: string): Promise<Response> {
         this.history = history;
+        this.history.reset();
+        history.on('popstate', this.onPopState);
 
-        if (history === window.history) {
-            this.onPopStateCallback = (event: PopStateEvent) => {
-                const state = event.state as unknown as State;
-                if (state &&
-                    typeof state === 'object' &&
-                    typeof state.index === 'number') {
-                    let path: string|undefined;
-                    if (state.id !== this.#id) {
-                        this.reset();
-                        path = this.pathFromUrl(state.url) || undefined;
-                    }
-                    return this.onPopState(state, path);
-                }
-
-                const location = new URL(window.location.href);
-                const path = this.pathFromUrl(location.href);
-                if (!path) {
-                    return;
-                }
-
-                if (!this.shouldNavigate(location)) {
-                    event.preventDefault();
-                    return;
-                }
-
-                return this.onPopState(state, path);
-            };
-
-            window.addEventListener('popstate', this.onPopStateCallback);
-        } else {
-            on(history, 'popstate', this.onPopStateCallback);
+        if (history instanceof BrowserHistory) {
+            return this.replace(pathname || this.pathFromUrl(window.location.href) || '/');
         }
 
-        if (history === window.history) {
-            return this.replace(path || this.pathFromUrl(window.location.href) || '/');
-        }
-
-        return this.replace(path || '/');
+        return this.replace(pathname || '/');
     }
 
     /**
      * Unbind the Router from a History model (if bound).
      */
     end() {
-        if (!this.history) {
-            return;
+        if (this.history) {
+            this.history.off('popstate', this.onPopState);
+            this.history = undefined;
         }
-        window.removeEventListener('popstate', this.onPopStateCallback);
-        off(this.history, 'popstate', this.onPopStateCallback);
-        delete this.history;
-    }
-
-    /**
-     * Reset the router states stack.
-     */
-    reset() {
-        this.#id = generateId();
-        this.states.splice(0, this.states.length);
-        this.index = 0;
     }
 
     /**
      * Resolve a path to full url using origin and base.
-     * @param path The path to resolve.
+     * @param pathname The path to resolve.
      *
-     * @return The full url.
+     * @returns The full url.
      */
-    resolve(path: string, full = false) {
-        const uri = new URL(this.buildFullUrl(path), this.origin);
+    resolve(pathname: string, full = false) {
+        const url = this.urlFromPath(pathname);
         if (full) {
-            return uri.href;
+            return url.href;
         }
 
-        return `${uri.pathname}${uri.search}${uri.hash}`;
+        return `${url.pathname}${url.search}${url.hash}`;
     }
 
     /**
      * Extract the path from a full url.
      * @param uri The full url.
-     * @return The path to navigate.
+     * @returns A path.
      */
-    pathFromUrl(uri: string) {
-        const url = new URL(uri, this.origin);
+    pathFromUrl(uri: URL | string) {
+        const url = typeof uri === 'string' ? new URL(uri, this.origin) : uri;
         if (url.origin !== this.origin) {
             return null;
         }
 
-        const extendedPathname = this.listeningHashChanges ? `/${trimSlashStart(url.pathname)}${url.search}${url.hash}` : url.pathname;
-        if (extendedPathname !== this.base && extendedPathname.indexOf(this.base) !== 0) {
+        const pathname = `/${trimSlashStart(url.pathname)}${url.search}${url.hash}`;
+        if (pathname !== this.base && pathname.indexOf(this.base) !== 0) {
             return null;
         }
-        return this.listeningHashChanges ?
-            `/${trimSlashStart(extendedPathname.replace(this.base, ''))}` :
-            `/${trimSlashStart(url.pathname.replace(this.base, ''))}${url.search}${url.hash}`;
+        const path = new Path(pathname.replace(this.base, ''));
+        return `${path.pathname}${path.search}`;
+    }
+
+    /**
+     * Get the full url from a path.
+     * @param path The path.
+     * @returns A url.
+     */
+    urlFromPath(path: Path | string) {
+        return new URL(`/${[this.base, typeof path === 'string' ? path : path.href]
+            .map((chunk) => trimSlash(chunk))
+            .filter((chunk) => !!chunk)
+            .join('/')}`, this.origin);
     }
 
     /**
@@ -703,7 +551,7 @@ export class Router extends Factory.Emitter {
      * Handle thrown error during routing.
      * @param request The request of the routing.
      * @param error The thrown error.
-     * @return An error response.
+     * @returns An error response.
      */
     private handleError(request: Request, error: Error) {
         request.reject(error);
@@ -721,24 +569,18 @@ export class Router extends Factory.Emitter {
      * Push the current Router state to the stack.
      * It updates History if bound.
      * @param state The state to add.
+     * @param trigger Should trigger the event.
      */
     private async pushState(state: State, trigger = true) {
-        const previous = this.states[this.index];
-        this.index = state.index;
-        this.states.splice(state.index, this.states.length, state);
+        const previous = this.state;
         if (this.history) {
-            this.history.pushState({
-                id: state.id,
-                url: state.url,
-                title: state.title,
-                index: state.index,
-            }, state.title, state.url);
+            await this.history.pushState(state);
         }
 
         if (trigger) {
             await this.trigger('pushstate', {
-                previous,
                 state,
+                previous,
             });
         }
     }
@@ -747,17 +589,12 @@ export class Router extends Factory.Emitter {
      * Replace the current Router of the stack and remove next states.
      * It updates History if bound.
      * @param state The state to use as replacement.
+     * @param trigger Should trigger the event.
      */
     private async replaceState(state: State, trigger = true) {
-        const previous = this.states[this.index];
-        this.states.splice(state.index, this.states.length, state);
+        const previous = this.state;
         if (this.history) {
-            this.history.replaceState({
-                id: state.id,
-                url: state.url,
-                title: state.title,
-                index: state.index,
-            }, state.title, state.url);
+            await this.history.replaceState(state);
         }
 
         if (trigger) {
@@ -770,49 +607,36 @@ export class Router extends Factory.Emitter {
 
     /**
      * Handle History pop state event.
-     * @param state The new state (if exists).
-     * @param path The path to navigate.
+     * @param data Event data.
      */
-    private async onPopState(newState: State, path?: string) {
-        const previous = this.states[this.index];
-        let state: State;
-        if (typeof path === 'string') {
-            await this.replace(path || '/', newState && newState.store, false);
-            state = this.state;
+    private onPopState = ({ state, previous }: { state: State | HistoryState; previous?: State }) => {
+        if (state) {
+            this.replace(state.path, undefined, state.data, false)
+                .then(() => {
+                    this.trigger('popstate', {
+                        state: this.state as State,
+                        previous,
+                    });
+                });
         } else {
-            state = this.states[newState.index];
-            this.index = newState.index;
+            this.trigger('popstate', {
+                state,
+                previous,
+            });
         }
-        await this.trigger('popstate', {
-            previous,
-            state,
-        });
-    }
-
-    /**
-     * Build the full url combining base url, prefix and path.
-     * @param path The internal route path.
-     * @return The full url of the routing.
-     */
-    private buildFullUrl(path: string) {
-        return `/${[this.base, this.prefix, path]
-            .map((chunk) => trimSlash(chunk))
-            .filter((chunk) => !!chunk)
-            .join('/')}`;
-    }
+    };
 
     /**
      * Check if the requested path should be navigated.
-     * @param url The requested url.
+     * @param pathOrUrl The requested path or url.
      */
-    private shouldNavigate(url: URL) {
+    private shouldNavigate(pathOrUrl: Path | URL) {
         if (!this.state) {
             return true;
         }
-        if (this.listeningHashChanges) {
-            return this.state.url !== url.href;
+        if (pathOrUrl instanceof Path) {
+            return this.state.path !== pathOrUrl.href;
         }
-
-        return this.state.url.split('#')[0] !== url.href.split('#')[0];
+        return this.state.url !== pathOrUrl.href;
     }
 }

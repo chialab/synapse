@@ -9,7 +9,7 @@ const SCRIPTS: Map<string, Promise<void>> = new Map();
  * Load a script using a <script> element.
  * @param url Url to load.
  * @param reload Should reload the script.
- * @return A promise that resolves on script load.
+ * @returns A promise that resolves on script load.
  */
 export function loadScript(url: string | URL, reload = false) {
     const href = typeof url === 'string' ? url : url.href;

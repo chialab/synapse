@@ -23,7 +23,7 @@ export class Pattern {
     /**
      * Convert a pattern string into a Regular Expression.
      * @param pattern The string to conver.
-     * @return A RegExp that matches named groups.
+     * @returns A RegExp that matches named groups.
      */
     static patternToRegex(pattern: string): [RegExp, string[]] {
         if (pattern === '*') {
@@ -101,7 +101,7 @@ export class Pattern {
      * If the regex matches, return grouped values.
      * If the regex does not matches, return false.
      * @param path The path to check.
-     * @return False if does not match, grouped values if it does.
+     * @returns False if does not match, grouped values if it does.
      */
     matches(path: string): RequestParams | false {
         path = path.split('?')[0];

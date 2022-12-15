@@ -1,109 +1,190 @@
 import type { State } from './State';
-import { Factory } from '@chialab/proteins';
+import { Emitter } from '../Helpers/Emitter';
+
+export enum NavigationDirection {
+    back = 'back',
+    forward = 'forward',
+}
 
 /**
  * A history state representation.
  */
-interface HistoryState {
-    state: State;
-    title: string;
+export interface HistoryState {
+    historyId: string;
     url: string;
+    path: string;
+    title: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any;
+    index: number;
     type: 'push' | 'replace';
 }
 
 /**
- * Generate a descriptor for a history state.
- *
- * @param {Object} state Some properties of the current state.
- * @param {String} title The title for the current state.
- * @param {String} url The current path.
- * @param {String} type The type of the state ('push'|'replace').
- * @return A descriptor for the history state.
+ * Check if a state is a synapse History state.
+ * @param historyState The state to check.
+ * @returns True if it is a HistoryState.
  */
-function createState(state, title, url, type): HistoryState {
-    return {
-        state: state || {},
-        title,
-        url,
-        type,
-    };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isHistoryState(historyState: any): historyState is HistoryState {
+    return historyState &&
+        typeof historyState === 'object' &&
+        typeof historyState.historyId === 'string' &&
+        typeof historyState.index === 'number';
 }
+
+/**
+ * History instances counter.
+ */
+let instances = 0;
 
 /**
  * States collector.
  * An abstraction of the window.history object.
  */
-export class History extends Factory.Emitter {
-    private entries: HistoryState[] = [];
-    private index = -1;
+export class History extends Emitter<{
+    'pushstate': [{ state: State; previous?: State }, void];
+    'replacestate': [{ state: State; previous?: State }, void];
+    'popstate': [{ state: State | HistoryState; previous?: State }, void];
+}> {
+    protected _entries: HistoryState[] = [];
+    protected _map: Map<HistoryState, State> = new Map();
+    protected _index = -1;
+    protected _id: string;
+
+
+    constructor() {
+        super();
+        this._id = `${Date.now()}-${instances++}`;
+    }
+
+    /**
+     * Get history states.
+     */
+    get states() {
+        return this._entries.map((entry) => this._map.get(entry));
+    }
+
+    /**
+     * Get current state.
+     */
+    get state() {
+        return this.states[this._index] ?? undefined;
+    }
+
+    /**
+     * Get current index.
+     */
+    get index() {
+        return this._index;
+    }
 
     /**
      * Get history length.
      */
     get length() {
-        return this.entries.length;
+        return this._entries.length;
+    }
+
+    /**
+     * Start listening history changes.
+     */
+    reset() {
+        this._id = `${Date.now()}-${instances++}`;
+        this._entries.splice(0, this._entries.length);
+        this._index = -1;
     }
 
     /**
      * Move in the history.
      * @param shift The shift movement in the history.
      */
-    go(shift) {
-        if (shift !== 0) {
+    async go(shift: number) {
+        if (shift === 0) {
             return;
         }
-        const index = this.index + shift;
-        if (index < 0 || index >= this.entries.length) {
+        const index = this._index + shift;
+        if (index < 0 || index >= this._entries.length) {
             return;
         }
-        this.index = index;
-        this.trigger('popstate', this.current);
+        const previous = this.state;
+        this._index = index;
+        this.trigger('popstate', { state: this.state as State, previous });
     }
 
     /**
      * Move back in the history by one entry. Same as `.go(-1)`
-     * @return A promise which resolves the new current state.
+     * @returns A promise which resolves the new current state.
      */
-    back() {
+    async back() {
         return this.go(-1);
     }
 
     /**
      * Move forward in the history by one entry. Same as `.go(1)`
-     * @return A promise which resolves the new current state.
+     * @returns A promise which resolves the new current state.
      */
-    forward() {
+    async forward() {
         return this.go(1);
     }
 
     /**
      * Add a state to the history.
-     * @param stateObj The state properties.
-     * @param title The state title.
-     * @param url The state path.
-     * @return The new current state.
+     * @param state The state properties.
+     * @returns The new current state.
      */
-    pushState(stateObj, title, url) {
-        const state = createState(stateObj, title, url, 'push');
-        this.entries = this.entries.slice(0, this.index + 1);
-        this.entries.push(state);
-        this.go(1);
-        this.trigger('popstate', state);
-        return state;
+    async pushState(state: State) {
+        const historyState: HistoryState = {
+            historyId: this._id,
+            url: state.url,
+            path: state.path,
+            title: state.title,
+            data: state.data,
+            index: this.index + 1,
+            type: 'push',
+        };
+        this._map.set(historyState, state);
+        this._entries = this._entries.slice(0, this._index + 1);
+        this._entries.push(historyState);
+        const previous = this.state;
+        this._index = historyState.index;
+        this.trigger('pushstate', { state: this.state as State, previous });
+        return historyState;
     }
 
     /**
      * Replace the current state of the history.
      *
-     * @param stateObj The state properties.
-     * @param title The state title.
-     * @param url The state path.
-     * @return The new current state.
+     * @param state The state properties.
+     * @returns The new current state.
      */
-    replaceState(stateObj, title, url) {
-        const state = createState(stateObj, title, url, 'replace');
-        this.entries[this.index] = state;
-        this.trigger('replacestate', state);
-        return state;
+    async replaceState(state: State) {
+        const historyState: HistoryState = {
+            historyId: this._id,
+            url: state.url,
+            path: state.path,
+            title: state.title,
+            data: state.data,
+            index: Math.max(this.index, 0),
+            type: 'replace',
+        };
+        const previous = this.state;
+        this._index = historyState.index;
+        this._map.set(historyState, state);
+        this._entries[this._index] = historyState;
+        this.trigger('replacestate', { state: this.state as State, previous });
+        return historyState;
+    }
+
+    /**
+     * Compare tow states position.
+     * @param state1 The first state.
+     * @param state2 The second state.
+     */
+    compareStates(state1: State, state2: State) {
+        const states = this.states;
+        return states.indexOf(state2) < states.indexOf(state1) ?
+            NavigationDirection.back :
+            NavigationDirection.forward;
     }
 }

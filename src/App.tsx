@@ -1,15 +1,13 @@
-import type { PopStateData } from './Router/Router';
+import type { Route } from './Router/Route';
+import type { Middleware } from './Router/Middleware';
+import type { State } from './Router/State';
 import type { RequestInit, RequestMethod } from './Router/Request';
 import { Component, window, property, state, observe, listen, customElementPrototype } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
 import { Router, DEFAULT_ORIGIN } from './Router/Router';
+import { NavigationDirection, History } from './Router/History';
 import { Page } from './Components/Page';
-
-enum NavigationDirection {
-    back = 'back',
-    forward = 'forward',
-}
 
 /**
  * A Web Component which handles routing.
@@ -82,7 +80,7 @@ export class App extends Component {
     /**
      * The History instance for the application.
      */
-    public history: History = window.history;
+    public history: History = new History();
 
     /**
      * The Router instance for the application.
@@ -91,6 +89,16 @@ export class App extends Component {
         origin: this.origin,
         base: this.base,
     });
+
+    /**
+     * Routes to connect.
+     */
+    public routes: Route[] = [];
+
+    /**
+     * Middlewares to connect.
+     */
+    public middlewares: Middleware[] = [];
 
     /**
      * @inheritdoc
@@ -118,7 +126,13 @@ export class App extends Component {
      * @param path The initial path to navigate.
      */
     async start(path?: string): Promise<Response | void> {
-        const { router, history, _onPopState } = this;
+        const { router, history, routes, middlewares } = this;
+        routes.forEach((route) => {
+            router.connect(route);
+        });
+        middlewares.forEach((middleware) => {
+            router.middleware(middleware);
+        });
         router.middleware({
             pattern: '*',
             priority: -Infinity,
@@ -126,9 +140,9 @@ export class App extends Component {
                 this.request = req;
             },
         });
-        router.on('popstate', _onPopState);
-        router.on('pushstate', _onPopState);
-        router.on('replacestate', _onPopState);
+        router.on('popstate', this._onPopState);
+        router.on('pushstate', this._onPopState);
+        router.on('replacestate', this._onPopState);
 
         const response = await router.start(history, path);
         if (response) {
@@ -140,7 +154,7 @@ export class App extends Component {
     /**
      * Trigger a routing navigation.
      * @param path The route path to navigate.
-     * @return The response instance for the navigation.
+     * @returns The response instance for the navigation.
      */
     navigate(path: string, init?: RequestInit): Promise<Response|null> {
         return this.router.navigate(path, init);
@@ -149,7 +163,7 @@ export class App extends Component {
     /**
      * Replace current navigation.
      * @param path The route path to navigate.
-     * @return The response instance for the navigation.
+     * @returns The response instance for the navigation.
      */
     replace(path: string, init?: RequestInit): Promise<Response|null> {
         return this.router.replace(path, init);
@@ -248,7 +262,10 @@ export class App extends Component {
      * Popstate listener.
      * @param data Popstate data.
      */
-    protected _onPopState = (data: PopStateData) => {
+    protected _onPopState = (data: { state: State; previous?: State }) => {
+        if (!data.state) {
+            return;
+        }
         this.request = data.state.request;
         this.onPopState(data);
         this.response = data.state.response;
@@ -258,12 +275,10 @@ export class App extends Component {
      * Handle popstate event from the router.
      * @param data The event triggered by the router.
      */
-    onPopState(data: PopStateData) {
+    onPopState(data: { state: State; previous?: State }) {
         const { state, previous } = data;
-        if (previous) {
-            this.navigationDirection = state.index < previous.index ?
-                NavigationDirection.back :
-                NavigationDirection.forward;
+        if (state && previous) {
+            this.navigationDirection = this.history.compareStates(previous, state);
         } else {
             this.navigationDirection = NavigationDirection.forward;
         }
