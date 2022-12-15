@@ -11,19 +11,13 @@ export enum NavigationDirection {
  */
 export interface HistoryState {
     historyId: string;
-    state: State;
-    title: string;
     url: string;
+    path: string;
+    title: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any;
     index: number;
     type: 'push' | 'replace';
-}
-
-/**
- * Describe the change state event data.
- */
-export interface HistoryStateChange {
-    state: State | null;
-    previous: State | null;
 }
 
 /**
@@ -49,11 +43,12 @@ let instances = 0;
  * An abstraction of the window.history object.
  */
 export class History extends Emitter<{
-    'pushstate': [HistoryStateChange, void];
-    'replacestate': [HistoryStateChange, void];
-    'popstate': [HistoryStateChange, void];
+    'pushstate': [{ state: State; previous?: State }, void];
+    'replacestate': [{ state: State; previous?: State }, void];
+    'popstate': [{ state: State | HistoryState; previous?: State }, void];
 }> {
     protected _entries: HistoryState[] = [];
+    protected _map: Map<HistoryState, State> = new Map();
     protected _index = -1;
     protected _id: string;
 
@@ -67,14 +62,14 @@ export class History extends Emitter<{
      * Get history states.
      */
     get states() {
-        return this._entries.map((entry) => entry.state);
+        return this._entries.map((entry) => this._map.get(entry));
     }
 
     /**
      * Get current state.
      */
     get state() {
-        return this.states[this._index] ?? null;
+        return this.states[this._index] ?? undefined;
     }
 
     /**
@@ -95,6 +90,7 @@ export class History extends Emitter<{
      * Start listening history changes.
      */
     reset() {
+        this._id = `${Date.now()}-${instances++}`;
         this._entries.splice(0, this._entries.length);
         this._index = -1;
     }
@@ -113,7 +109,7 @@ export class History extends Emitter<{
         }
         const previous = this.state;
         this._index = index;
-        this.trigger('popstate', { state: this.state, previous });
+        this.trigger('popstate', { state: this.state as State, previous });
     }
 
     /**
@@ -140,17 +136,19 @@ export class History extends Emitter<{
     async pushState(state: State) {
         const historyState: HistoryState = {
             historyId: this._id,
-            index: this.index + 1,
-            title: state.title,
             url: state.url,
-            state,
+            path: state.path,
+            title: state.title,
+            data: state.data,
+            index: this.index + 1,
             type: 'push',
         };
+        this._map.set(historyState, state);
         this._entries = this._entries.slice(0, this._index + 1);
         this._entries.push(historyState);
         const previous = this.state;
         this._index = historyState.index;
-        this.trigger('pushstate', { state: this.state, previous });
+        this.trigger('pushstate', { state: this.state as State, previous });
         return historyState;
     }
 
@@ -163,16 +161,18 @@ export class History extends Emitter<{
     async replaceState(state: State) {
         const historyState: HistoryState = {
             historyId: this._id,
-            index: Math.max(this.index, 0),
-            title: state.title,
             url: state.url,
-            state,
+            path: state.path,
+            title: state.title,
+            data: state.data,
+            index: Math.max(this.index, 0),
             type: 'replace',
         };
         const previous = this.state;
         this._index = historyState.index;
+        this._map.set(historyState, state);
         this._entries[this._index] = historyState;
-        this.trigger('replacestate', { state: this.state, previous });
+        this.trigger('replacestate', { state: this.state as State, previous });
         return historyState;
     }
 

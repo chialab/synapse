@@ -9,7 +9,7 @@ export interface State {
     path: string;
     title: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    store: any;
+    data: any;
     request: Request;
     response?: Response;
 }

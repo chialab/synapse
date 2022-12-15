@@ -1,4 +1,6 @@
-import type { HistoryStateChange } from './Router/History';
+import type { Route } from './Router/Route';
+import type { Middleware } from './Router/Middleware';
+import type { State } from './Router/State';
 import type { RequestInit, RequestMethod } from './Router/Request';
 import { Component, window, property, state, observe, listen, customElementPrototype } from '@chialab/dna';
 import { Request } from './Router/Request';
@@ -89,6 +91,16 @@ export class App extends Component {
     });
 
     /**
+     * Routes to connect.
+     */
+    public routes: Route[] = [];
+
+    /**
+     * Middlewares to connect.
+     */
+    public middlewares: Middleware[] = [];
+
+    /**
      * @inheritdoc
      */
     connectedCallback() {
@@ -114,7 +126,13 @@ export class App extends Component {
      * @param path The initial path to navigate.
      */
     async start(path?: string): Promise<Response | void> {
-        const { router, history } = this;
+        const { router, history, routes, middlewares } = this;
+        routes.forEach((route) => {
+            router.connect(route);
+        });
+        middlewares.forEach((middleware) => {
+            router.middleware(middleware);
+        });
         router.middleware({
             pattern: '*',
             priority: -Infinity,
@@ -244,7 +262,7 @@ export class App extends Component {
      * Popstate listener.
      * @param data Popstate data.
      */
-    protected _onPopState = (data: HistoryStateChange) => {
+    protected _onPopState = (data: { state: State; previous?: State }) => {
         if (!data.state) {
             return;
         }
@@ -257,7 +275,7 @@ export class App extends Component {
      * Handle popstate event from the router.
      * @param data The event triggered by the router.
      */
-    onPopState(data: HistoryStateChange) {
+    onPopState(data: { state: State; previous?: State }) {
         const { state, previous } = data;
         if (state && previous) {
             this.navigationDirection = this.history.compareStates(previous, state);

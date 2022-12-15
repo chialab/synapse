@@ -3,7 +3,7 @@ import type { RequestInit } from './Request';
 import type { ErrorHandler } from './ErrorHandler';
 import type { RouteRule, RouteHandler, NextHandler } from './Route';
 import type { State } from './State';
-import type { HistoryStateChange, History } from './History';
+import type { History, HistoryState } from './History';
 import { window } from '@chialab/dna';
 import { Path, trimSlash, trimSlashStart } from './Path';
 import { Request } from './Request';
@@ -32,9 +32,9 @@ export const DEFAULT_ORIGIN = 'http://local';
  * A router implementation for app navigation.
  */
 export class Router extends Emitter<{
-    'pushstate': [HistoryStateChange, void];
-    'replacestate': [HistoryStateChange, void];
-    'popstate': [HistoryStateChange, void];
+    'pushstate': [{ state: State; previous?: State }, void];
+    'replacestate': [{ state: State; previous?: State }, void];
+    'popstate': [{ state: State; previous?: State }, void];
 }> {
     /**
      * The browser's history like implementation for state management.
@@ -102,7 +102,7 @@ export class Router extends Emitter<{
      */
     get state() {
         if (!this.history) {
-            return null;
+            return undefined;
         }
         return this.history.state;
     }
@@ -172,13 +172,17 @@ export class Router extends Emitter<{
     /**
      * Handle a router navigation.
      * @param request The request to handle.
+     * @param parentResponse The request to handle.
+     * @param data Initial response data.
      * @returns The final response instance.
      */
-    async handle(request: Request, parentResponse?: Response): Promise<Response> {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    protected async handle(request: Request, parentResponse?: Response, data: any = null): Promise<Response> {
         const routes = this.connectedRoutes;
         const middlewares = this.connectedMiddlewares;
         const pathname = this.pathFromUrl(request.url.href) as string;
         let response = new Response(request, parentResponse);
+        response.setData(data);
 
         for (let i = middlewares.length - 1; i >= 0; i--) {
             const middleware = middlewares[i];
@@ -209,7 +213,7 @@ export class Router extends Emitter<{
                 }
                 req.setMatcher(route);
                 req.setParams(params);
-                const newResponse = await route.exec(req, res, next, this);
+                const newResponse = await route.exec(req, res, next, this) ?? res;
                 if (newResponse.redirected) {
                     return newResponse;
                 }
@@ -265,7 +269,7 @@ export class Router extends Emitter<{
      * @returns The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async navigate(path: Path | string, init?: RequestInit, store: any = {}, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
+    async navigate(path: Path | string, init?: RequestInit, data: any = null, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
         return this.setCurrentNavigation(async () => {
             path = typeof path === 'string' ? new Path(path) : path;
             init = { ...init, path };
@@ -297,11 +301,11 @@ export class Router extends Emitter<{
                 title,
                 request,
                 response,
-                store,
+                data: response.getData(),
             }, trigger);
 
             if (response.redirected != null) {
-                return this.replace(response.redirected, response.redirectInit, store, trigger, parentRequest, parentResponse);
+                return this.replace(response.redirected, response.redirectInit, data, trigger, parentRequest, parentResponse);
             }
 
             return response;
@@ -314,7 +318,7 @@ export class Router extends Emitter<{
      * @returns The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async replace(path: Path | string, init?: RequestInit, store: any = {}, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
+    async replace(path: Path | string, init?: RequestInit, data: any = null, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
         return this.setCurrentNavigation(async () => {
             path = typeof path === 'string' ? new Path(path) : path;
             init = { ...init, path };
@@ -325,7 +329,7 @@ export class Router extends Emitter<{
 
             let response: Response;
             try {
-                response = await this.handle(request, parentResponse);
+                response = await this.handle(request, parentResponse, data);
             } catch (error) {
                 response = this.handleError(request, error as Error);
             }
@@ -341,11 +345,11 @@ export class Router extends Emitter<{
                 title,
                 request,
                 response,
-                store,
+                data: response.getData(),
             }, trigger);
 
             if (response.redirected != null) {
-                return this.replace(response.redirected, response.redirectInit, store, trigger);
+                return this.replace(response.redirected, response.redirectInit, data, trigger);
             }
 
             return response;
@@ -565,6 +569,7 @@ export class Router extends Emitter<{
      * Push the current Router state to the stack.
      * It updates History if bound.
      * @param state The state to add.
+     * @param trigger Should trigger the event.
      */
     private async pushState(state: State, trigger = true) {
         const previous = this.state;
@@ -574,8 +579,8 @@ export class Router extends Emitter<{
 
         if (trigger) {
             await this.trigger('pushstate', {
-                previous,
                 state,
+                previous,
             });
         }
     }
@@ -584,6 +589,7 @@ export class Router extends Emitter<{
      * Replace the current Router of the stack and remove next states.
      * It updates History if bound.
      * @param state The state to use as replacement.
+     * @param trigger Should trigger the event.
      */
     private async replaceState(state: State, trigger = true) {
         const previous = this.state;
@@ -603,12 +609,12 @@ export class Router extends Emitter<{
      * Handle History pop state event.
      * @param data Event data.
      */
-    private onPopState = ({ state, previous }: { state: State  | null; previous: State  | null }) => {
+    private onPopState = ({ state, previous }: { state: State | HistoryState; previous?: State }) => {
         if (state) {
-            this.replace(state.path, state.store, false)
+            this.replace(state.path, undefined, state.data, false)
                 .then(() => {
                     this.trigger('popstate', {
-                        state,
+                        state: this.state as State,
                         previous,
                     });
                 });

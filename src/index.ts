@@ -2,7 +2,6 @@ export type { RequestParams } from './Router/Request';
 export type { View, Meta } from './Router/Response';
 export type { RouteRule, NextHandler, RouteHandler } from './Router/Route';
 export type { MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Router/Middleware';
-export type { HistoryStateChange } from './Router/History';
 export type { RouterOptions } from './Router/Router';
 export type { ErrorHandler } from './Router/ErrorHandler';
 

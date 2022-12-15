@@ -1,4 +1,5 @@
 import type { State } from './State';
+import type { HistoryState } from './History';
 import { window } from '@chialab/dna';
 import { History, isHistoryState } from './History';
 
@@ -6,6 +7,15 @@ import { History, isHistoryState } from './History';
  * Flag listening state for global `popstate` event.
  */
 let listening = false;
+
+/**
+ * Ensure that the history state con be used as history state.
+ * @param state History state object.
+ * @returns A history state safe object.
+ */
+function serializeHistoryState(historyState: HistoryState) {
+    return JSON.parse(JSON.stringify(historyState));
+}
 
 /**
  * History implementation that uses browser window.history.
@@ -57,7 +67,7 @@ export class BrowserHistory extends History {
      */
     async pushState(state: State) {
         const historyState = await super.pushState(state);
-        this.#adapter.pushState({ ...historyState, state: null }, historyState.title, historyState.url);
+        this.#adapter.pushState(serializeHistoryState(historyState), historyState.title, historyState.url);
 
         return historyState;
     }
@@ -67,7 +77,7 @@ export class BrowserHistory extends History {
      */
     async replaceState(state: State) {
         const historyState = await super.replaceState(state);
-        this.#adapter.replaceState({ ...historyState, state: null }, historyState.title, historyState.url);
+        this.#adapter.replaceState(serializeHistoryState(historyState), historyState.title, historyState.url);
 
         return historyState;
     }
@@ -80,13 +90,13 @@ export class BrowserHistory extends History {
         if (!isHistoryState(event.state)) {
             return;
         }
+        const previous = this.state;
         if (event.state.historyId !== this._id) {
             this.reset();
-            await this.pushState(event.state.state);
+            this.trigger('popstate', { state: event.state, previous });
         } else {
-            const previous = this.state;
             this._index = event.state.index;
-            this.trigger('popstate', { state: this.state, previous });
+            this.trigger('popstate', { state: this.state as State, previous });
         }
 
         if (this.#currentPopRequest) {

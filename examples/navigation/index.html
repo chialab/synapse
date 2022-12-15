@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Synapse</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script type="importmap">
+            {
+                "imports": {
+                    "@chialab/dna": "/node_modules/@chialab/dna/dist/esm/dna.js",
+                    "@chialab/dna/jsx-runtime": "/node_modules/@chialab/dna/jsx-runtime.js",
+                    "@chialab/synapse": "/dist/esm/synapse.js"
+                }
+            }
+        </script>
+        <script type="module" src="index.js"></script>
+        <style>
+            html, body {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            body {
+                display: flex;
+            }
+
+            demo-app {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+    </body>
+</html>

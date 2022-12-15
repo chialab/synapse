@@ -123,9 +123,11 @@ export class Response {
 
     /**
      * Get stored data.
+     * @param defaultValue Default value if missing data.
      */
-    getData() {
-        return this.data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getData(defaultValue: any = null) {
+        return this.data ?? defaultValue;
     }
 
     /**
