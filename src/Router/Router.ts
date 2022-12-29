@@ -23,10 +23,8 @@ export interface RouterOptions {
     errorHandler?: ErrorHandler;
 }
 
-/**
- * Default router origin.
- */
-export const DEFAULT_ORIGIN = 'http://local';
+const DEFAULT_ORIGIN = window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'http://local';
+const DEFAULT_BASE = '/';
 
 /**
  * A router implementation for app navigation.
@@ -69,7 +67,7 @@ export class Router extends Emitter<{
     /**
      * The origin of the router.
      */
-    #origin: string = window.location.origin !== 'null' ? window.location.origin : 'http://local';
+    #origin: string = DEFAULT_ORIGIN;
 
     /**
      * The origin of the router.
@@ -81,7 +79,7 @@ export class Router extends Emitter<{
     /**
      * The base routing path.
      */
-    #base: string = '/';
+    #base: string = DEFAULT_BASE;
 
     /**
      * The base routing path.
@@ -143,10 +141,11 @@ export class Router extends Emitter<{
      * Set the location origin of the router.
      * @param origin The origin value.
      */
-    setOrigin(origin: string) {
+    setOrigin(origin: string|null) {
         if (this.history) {
             throw new Error('Cannot set origin after router is started.');
         }
+        origin = origin ?? DEFAULT_ORIGIN;
         this.#origin = trimSlash(origin);
     }
 
@@ -154,10 +153,11 @@ export class Router extends Emitter<{
      * Set the routing url base.
      * @param base The base value.
      */
-    setBase(base: string) {
-        if (this.started) {
+    setBase(base: string|null) {
+        if (this.history) {
             throw new Error('Cannot set base after router is started.');
         }
+        base = base ?? DEFAULT_BASE;
         this.#base = base.indexOf('#') !== -1 ? `/${trimSlash(base)}` : `/${trimSlash(base.split('?')[0])}`;
     }
 
@@ -469,11 +469,19 @@ export class Router extends Emitter<{
     /**
      * Unbind the Router from a History model (if bound).
      */
-    end() {
+    stop() {
         if (this.history) {
             this.history.off('popstate', this.onPopState);
             this.history = undefined;
         }
+    }
+
+    /**
+     * Unbind the Router from a History model (if bound).
+     * @deprecated Use `stop` method instead.
+     */
+    end() {
+        return this.stop();
     }
 
     /**

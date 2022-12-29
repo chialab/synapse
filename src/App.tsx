@@ -5,7 +5,7 @@ import type { RequestInit, RequestMethod } from './Router/Request';
 import { Component, window, property, state, observe, listen, customElementPrototype } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
-import { Router, DEFAULT_ORIGIN } from './Router/Router';
+import { Router } from './Router/Router';
 import { NavigationDirection, History } from './Router/History';
 import { Page } from './Components/Page';
 
@@ -19,33 +19,14 @@ export class App extends Component {
      */
     @property({
         type: String,
-    })
-    get origin(): string {
-        if (this.getInnerPropertyValue('origin')) {
-            return this.getInnerPropertyValue('origin');
-        }
-        if (window.location.origin && window.location.origin !== 'null') {
-            return window.location.origin;
-        }
-
-        return DEFAULT_ORIGIN;
-    }
-    set origin(value: string) {
-        this.setInnerPropertyValue('origin', value);
-    }
+    }) origin ?: string;
 
     /**
      * The base url of the application.
      */
     @property({
         type: String,
-    })
-    get base(): string {
-        return this.getInnerPropertyValue('base') || '/';
-    }
-    set base(value: string) {
-        this.setInnerPropertyValue('base', value);
-    }
+    }) base ?: string;
 
     /**
      * The current Router Request instance.
@@ -80,15 +61,12 @@ export class App extends Component {
     /**
      * The History instance for the application.
      */
-    public history: History = new History();
+    public history?: History;
 
     /**
      * The Router instance for the application.
      */
-    public router: Router = new Router({
-        origin: this.origin,
-        base: this.base,
-    });
+    public router?: Router;
 
     /**
      * Routes to connect.
@@ -99,6 +77,11 @@ export class App extends Component {
      * Middlewares to connect.
      */
     public middlewares: Middleware[] = [];
+
+    /**
+     * List of routes added by the app.
+     */
+    private connectedAppRoutes: (Route | Middleware)[] = [];
 
     /**
      * @inheritdoc
@@ -126,20 +109,39 @@ export class App extends Component {
      * @param path The initial path to navigate.
      */
     async start(path?: string): Promise<Response | void> {
-        const { router, history, routes, middlewares } = this;
+        const {
+            router = new Router(),
+            history = new History(),
+            routes,
+            middlewares,
+        } = this;
+
+        if (router.started) {
+            throw new Error('Application has already started');
+        }
+
+        this.router = router;
+        if (this.origin) {
+            router.setOrigin(this.origin);
+        }
+        if (this.base) {
+            router.setBase(this.base);
+        }
+
         routes.forEach((route) => {
-            router.connect(route);
+            this.connectedAppRoutes.push(router.connect(route));
         });
         middlewares.forEach((middleware) => {
-            router.middleware(middleware);
+            this.connectedAppRoutes.push(router.middleware(middleware));
         });
-        router.middleware({
+        this.connectedAppRoutes.push(router.middleware({
             pattern: '*',
             priority: -Infinity,
             before: (req) => {
                 this.request = req;
             },
-        });
+        }));
+
         router.on('popstate', this._onPopState);
         router.on('pushstate', this._onPopState);
         router.on('replacestate', this._onPopState);
@@ -152,11 +154,34 @@ export class App extends Component {
     }
 
     /**
+     * Stop the router.
+     */
+    stop() {
+        const router = this.router;
+        if (!router) {
+            throw new Error('Application has not started yet');
+        }
+
+        this.connectedAppRoutes.forEach((route) => {
+            router.disconnect(route);
+        });
+        this.connectedAppRoutes = [];
+
+        router.off('popstate', this._onPopState);
+        router.off('pushstate', this._onPopState);
+        router.off('replacestate', this._onPopState);
+        router.stop();
+    }
+
+    /**
      * Trigger a routing navigation.
      * @param path The route path to navigate.
      * @returns The response instance for the navigation.
      */
     navigate(path: string, init?: RequestInit): Promise<Response|null> {
+        if (!this.router) {
+            throw new Error('Application has not started yet');
+        }
         return this.router.navigate(path, init);
     }
 
@@ -166,6 +191,9 @@ export class App extends Component {
      * @returns The response instance for the navigation.
      */
     replace(path: string, init?: RequestInit): Promise<Response|null> {
+        if (!this.router) {
+            throw new Error('Application has not started yet');
+        }
         return this.router.replace(path, init);
     }
 
@@ -176,7 +204,7 @@ export class App extends Component {
      */
     @listen('click', 'a')
     protected _handleLink(event: Event, node?: Node) {
-        if (!this.router.started) {
+        if (!this.router) {
             return;
         }
         return this.handleLink(event, node as HTMLElement);
@@ -189,7 +217,7 @@ export class App extends Component {
      */
     @listen('submit', 'form')
     protected _handleSubmit(event: Event, node?: Node) {
-        if (!this.router.started) {
+        if (!this.router) {
             return;
         }
         return this.handleSubmit(event, node as HTMLFormElement);
@@ -201,6 +229,10 @@ export class App extends Component {
      * @param node The anchor node.
      */
     async handleLink(event: Event, node: HTMLElement) {
+        if (!this.router) {
+            throw new Error('Application has not started yet');
+        }
+
         const href = node.getAttribute('href');
         if (!href) {
             return;
@@ -227,6 +259,10 @@ export class App extends Component {
      * @param node The anchor node.
      */
     async handleSubmit(event: Event, node: HTMLFormElement) {
+        if (!this.router) {
+            throw new Error('Application has not started yet');
+        }
+
         const action = node.getAttribute('action');
         if (!action) {
             return;
@@ -277,7 +313,7 @@ export class App extends Component {
      */
     onPopState(data: { state: State; previous?: State }) {
         const { state, previous } = data;
-        if (state && previous) {
+        if (this.history && state && previous) {
             this.navigationDirection = this.history.compareStates(previous, state);
         } else {
             this.navigationDirection = NavigationDirection.forward;
@@ -306,7 +342,7 @@ export class App extends Component {
     @observe('origin')
     protected _onOriginChanged() {
         if (this.router) {
-            this.router.setOrigin(this.origin);
+            this.router.setOrigin(this.origin || null);
         }
     }
 
@@ -317,10 +353,10 @@ export class App extends Component {
     protected _onBaseChanged() {
         if (this.router) {
             let base = this.base;
-            if (base[0] === '#') {
+            if (base && base[0] === '#') {
                 base = `${window.location.pathname}${window.location.search}${base}`;
             }
-            this.router.setBase(base);
+            this.router.setBase(base || null);
         }
     }
 
