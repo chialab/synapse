@@ -1,10 +1,12 @@
 import { html } from '@chialab/dna';
+import { getRouter } from '@chialab/synapse';
 
-export function Link({ children, router, href }) {
-    const isCurrentPage = href === router.current;
+export function Link({ children, href }, context) {
+    const router = getRouter(context);
+    const isCurrentPage = href === router?.current;
 
     return html`<a
-    href=${router.resolve(href)}
+    href=${router?.resolve(href)}
     class=${{
         'bg-gray-900': isCurrentPage,
         'text-white': isCurrentPage,

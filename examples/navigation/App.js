@@ -24,11 +24,11 @@ export class DemoApp extends App {
                 <div class="px-4">
                     <div class="flex h-16 items-center justify-between">
                         <div class="flex items-center">
-                            <div class="flex items-baseline space-x-4">
-                                <${Link} router=${this.router} href="/">Dashboard</>
-                                <${Link} router=${this.router} href="/team">Team</>
-                                <${Link} router=${this.router} href="/projects">Projects</>
-                            </div>
+                            {<div class="flex items-baseline space-x-4">
+                                <${Link} href="/">Dashboard</>
+                                <${Link} href="/team">Team</>
+                                <${Link} href="/projects">Projects</>
+                            </div>}
                         </div>
                     </div>
                 </div>
