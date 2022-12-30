@@ -1,5 +1,12 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 3.0.0-rc.11
+
+### Patch Changes
+
+- 6f0d2f7: Add `stop` method to App.
+- 9a142d2: Introduce the `Path` object for routing.
+
 ## 3.0.0-rc.10
 
 ### Minor Changes
