@@ -15,6 +15,16 @@ import { Page } from './Components/Page';
 @customElementPrototype
 export class App extends Component {
     /**
+     * Default routes to connect.
+     */
+    public static routes: Route[] = [];
+
+    /**
+     * Default middlewares to connect.
+     */
+    public static middlewares: Middleware[] = [];
+
+    /**
      * The origin of the application.
      */
     @property({
@@ -61,6 +71,38 @@ export class App extends Component {
     }
 
     /**
+     * Routes to connect.
+     */
+    @property({
+        type: Array,
+    })
+    get routes(): Route[] {
+        return this.getInnerPropertyValue('routes');
+    }
+    set routes(routes: Route[]) {
+        if (this.router && this.router.running) {
+            throw new Error('Cannot change application router while running.');
+        }
+        this.setInnerPropertyValue('routes', routes);
+    }
+
+    /**
+     * Middlewares to connect.
+     */
+    @property({
+        type: Array,
+    })
+    get middlewares(): Middleware[] {
+        return this.getInnerPropertyValue('middlewares');
+    }
+    set middlewares(middlewares: Middleware[]) {
+        if (this.router && this.router.running) {
+            throw new Error('Cannot change application router while running.');
+        }
+        this.setInnerPropertyValue('middlewares', middlewares);
+    }
+
+    /**
      * Should auto start on connect.
      */
     @property({
@@ -91,16 +133,6 @@ export class App extends Component {
     }) navigationDirection: NavigationDirection = NavigationDirection.forward;
 
     /**
-     * Routes to connect.
-     */
-    public routes: Route[] = [];
-
-    /**
-     * Middlewares to connect.
-     */
-    public middlewares: Middleware[] = [];
-
-    /**
      * List of routes added by the app.
      */
     private connectedAppRoutes: (Route | Middleware)[] = [];
@@ -111,11 +143,14 @@ export class App extends Component {
     constructor(...args: any[]) {
         super(...args);
 
+        this.routes = (this.constructor as typeof App).routes;
+        this.middlewares = (this.constructor as typeof App).middlewares;
         if (!this.history) {
             this.history = new History();
         }
         if (!this.router) {
             this.router = new Router();
+            this._onRouterChanged(undefined, this.router);
         }
     }
 
@@ -353,12 +388,24 @@ export class App extends Component {
     }
 
     /**
+     * Hook for routes and middlewares property changes.
+     */
+    @observe('routes')
+    @observe('middlewares')
+    protected _onRoutesChanged() {
+        if (this.router) {
+            this.disconnectAppRoutes();
+            this.connectAppRoutes();
+        }
+    }
+
+    /**
      * Handle history changes.
      */
     @observe('history')
-    protected _onHistoryChanged() {
-        if (this.history) {
-            this.router.setHistory(this.history);
+    protected _onHistoryChanged(oldHistory?: History, newHistory?: History) {
+        if (this.router && newHistory) {
+            this.router.setHistory(newHistory);
         }
     }
 
@@ -366,7 +413,7 @@ export class App extends Component {
      * Handle router changes.
      */
     @observe('router')
-    protected _onRouterChanged(oldRouter: Router|undefined, newRouter: Router) {
+    protected _onRouterChanged(oldRouter: Router | undefined, newRouter: Router) {
         if (this.origin) {
             newRouter.setOrigin(this.origin);
         }
@@ -376,20 +423,26 @@ export class App extends Component {
         if (this.history) {
             newRouter.setHistory(this.history);
         }
-        if (oldRouter) {
-            this.connectedAppRoutes.forEach((route) => {
-                oldRouter.disconnect(route);
-            });
-        }
+        this.disconnectAppRoutes(oldRouter);
+        this.connectAppRoutes(newRouter);
+    }
+
+    protected disconnectAppRoutes(router: Router = this.router) {
+        this.connectedAppRoutes.forEach((route) => {
+            router.disconnect(route);
+        });
         this.connectedAppRoutes = [];
+    }
+
+    protected connectAppRoutes(router: Router = this.router) {
         const { routes, middlewares } = this;
         routes.forEach((route) => {
-            this.connectedAppRoutes.push(newRouter.connect(route));
+            this.connectedAppRoutes.push(router.connect(route));
         });
         middlewares.forEach((middleware) => {
-            this.connectedAppRoutes.push(newRouter.middleware(middleware));
+            this.connectedAppRoutes.push(router.middleware(middleware));
         });
-        this.connectedAppRoutes.push(newRouter.middleware({
+        this.connectedAppRoutes.push(router.middleware({
             pattern: '*',
             priority: -Infinity,
             before: (req) => {

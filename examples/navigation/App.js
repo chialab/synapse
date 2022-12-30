@@ -7,16 +7,20 @@ import { Projects } from './Pages/Projects.js';
 import { NotFound } from './Pages/NotFound.js';
 
 export class DemoApp extends App {
-    routes = [
-        new Dashboard({ pattern: '/' }),
-        new Team({ pattern: '/team' }),
-        new Projects({ pattern: '/projects' }),
-        new NotFound({ pattern: '*' }),
-    ];
+    static get routes() {
+        return [
+            new Dashboard({ pattern: '/' }),
+            new Team({ pattern: '/team' }),
+            new Projects({ pattern: '/projects' }),
+            new NotFound({ pattern: '*' }),
+        ];
+    }
 
-    middlewares = [
-        new DocumentMetaMiddleware(),
-    ];
+    static get middlewares() {
+        return [
+            new DocumentMetaMiddleware(),
+        ];
+    }
 
     render() {
         return html`<div class="min-h-full flex flex-col">
