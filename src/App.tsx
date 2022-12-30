@@ -19,28 +19,46 @@ export class App extends Component {
      */
     @property({
         type: String,
-    }) origin ?: string;
+    }) origin?: string;
 
     /**
      * The base url of the application.
      */
     @property({
         type: String,
-    }) base ?: string;
+    }) base?: string;
 
     /**
-     * The current Router Request instance.
+     * The History instance for the application.
      */
     @property({
-        type: Request,
-    }) request?: Request;
+        type: History,
+    })
+    get history(): History {
+        return this.getInnerPropertyValue('history');
+    }
+    set history(history: History) {
+        if (this.router && this.router.running) {
+            throw new Error('Cannot change application router while running.');
+        }
+        this.setInnerPropertyValue('history', history);
+    }
 
     /**
-     * The current Router Response instance.
+     * The Router instance for the application.
      */
     @property({
-        type: Response,
-    }) response?: Response;
+        type: Router,
+    })
+    get router(): Router {
+        return this.getInnerPropertyValue('router');
+    }
+    set router(router: Router) {
+        if (this.router && this.router.running) {
+            throw new Error('Cannot change application router while running.');
+        }
+        this.setInnerPropertyValue('router', router);
+    }
 
     /**
      * Should auto start on connect.
@@ -50,6 +68,20 @@ export class App extends Component {
     }) autostart: boolean | string = false;
 
     /**
+     * The current Router Request instance.
+     */
+    @state({
+        type: Request,
+    }) request?: Request;
+
+    /**
+     * The current Router Response instance.
+     */
+    @state({
+        type: Response,
+    }) response?: Response;
+
+    /**
      * The navigation direction.
      */
     @state({
@@ -57,16 +89,6 @@ export class App extends Component {
         attribute: ':navigation',
         update: false,
     }) navigationDirection: NavigationDirection = NavigationDirection.forward;
-
-    /**
-     * The History instance for the application.
-     */
-    public history?: History;
-
-    /**
-     * The Router instance for the application.
-     */
-    public router?: Router;
 
     /**
      * Routes to connect.
@@ -82,6 +104,20 @@ export class App extends Component {
      * List of routes added by the app.
      */
     private connectedAppRoutes: (Route | Middleware)[] = [];
+
+    /**
+     * @inheritdoc
+     */
+    constructor(...args: any[]) {
+        super(...args);
+
+        if (!this.history) {
+            this.history = new History();
+        }
+        if (!this.router) {
+            this.router = new Router();
+        }
+    }
 
     /**
      * @inheritdoc
@@ -109,44 +145,16 @@ export class App extends Component {
      * @param path The initial path to navigate.
      */
     async start(path?: string): Promise<Response | void> {
-        const {
-            router = new Router(),
-            history = new History(),
-            routes,
-            middlewares,
-        } = this;
-
-        if (router.started) {
+        const router = this.router;
+        if (router.running) {
             throw new Error('Application has already started');
         }
-
-        this.router = router;
-        if (this.origin) {
-            router.setOrigin(this.origin);
-        }
-        if (this.base) {
-            router.setBase(this.base);
-        }
-
-        routes.forEach((route) => {
-            this.connectedAppRoutes.push(router.connect(route));
-        });
-        middlewares.forEach((middleware) => {
-            this.connectedAppRoutes.push(router.middleware(middleware));
-        });
-        this.connectedAppRoutes.push(router.middleware({
-            pattern: '*',
-            priority: -Infinity,
-            before: (req) => {
-                this.request = req;
-            },
-        }));
 
         router.on('popstate', this._onPopState);
         router.on('pushstate', this._onPopState);
         router.on('replacestate', this._onPopState);
 
-        const response = await router.start(history, path);
+        const response = await router.start(path);
         if (response) {
             this.response = response;
             return response;
@@ -157,20 +165,10 @@ export class App extends Component {
      * Stop the router.
      */
     stop() {
-        const router = this.router;
-        if (!router) {
-            throw new Error('Application has not started yet');
-        }
-
-        this.connectedAppRoutes.forEach((route) => {
-            router.disconnect(route);
-        });
-        this.connectedAppRoutes = [];
-
-        router.off('popstate', this._onPopState);
-        router.off('pushstate', this._onPopState);
-        router.off('replacestate', this._onPopState);
-        router.stop();
+        this.router.off('popstate', this._onPopState);
+        this.router.off('pushstate', this._onPopState);
+        this.router.off('replacestate', this._onPopState);
+        this.router.stop();
     }
 
     /**
@@ -179,9 +177,6 @@ export class App extends Component {
      * @returns The response instance for the navigation.
      */
     navigate(path: string, init?: RequestInit): Promise<Response|null> {
-        if (!this.router) {
-            throw new Error('Application has not started yet');
-        }
         return this.router.navigate(path, init);
     }
 
@@ -191,9 +186,6 @@ export class App extends Component {
      * @returns The response instance for the navigation.
      */
     replace(path: string, init?: RequestInit): Promise<Response|null> {
-        if (!this.router) {
-            throw new Error('Application has not started yet');
-        }
         return this.router.replace(path, init);
     }
 
@@ -204,7 +196,7 @@ export class App extends Component {
      */
     @listen('click', 'a')
     protected _handleLink(event: Event, node?: Node) {
-        if (!this.router) {
+        if (!this.router.running) {
             return;
         }
         return this.handleLink(event, node as HTMLElement);
@@ -217,7 +209,7 @@ export class App extends Component {
      */
     @listen('submit', 'form')
     protected _handleSubmit(event: Event, node?: Node) {
-        if (!this.router) {
+        if (!this.router.running) {
             return;
         }
         return this.handleSubmit(event, node as HTMLFormElement);
@@ -229,7 +221,7 @@ export class App extends Component {
      * @param node The anchor node.
      */
     async handleLink(event: Event, node: HTMLElement) {
-        if (!this.router) {
+        if (!this.router.running) {
             throw new Error('Application has not started yet');
         }
 
@@ -259,7 +251,7 @@ export class App extends Component {
      * @param node The anchor node.
      */
     async handleSubmit(event: Event, node: HTMLFormElement) {
-        if (!this.router) {
+        if (!this.router.running) {
             throw new Error('Application has not started yet');
         }
 
@@ -358,6 +350,52 @@ export class App extends Component {
             }
             this.router.setBase(base || null);
         }
+    }
+
+    /**
+     * Handle history changes.
+     */
+    @observe('history')
+    protected _onHistoryChanged() {
+        if (this.history) {
+            this.router.setHistory(this.history);
+        }
+    }
+
+    /**
+     * Handle router changes.
+     */
+    @observe('router')
+    protected _onRouterChanged(oldRouter: Router|undefined, newRouter: Router) {
+        if (this.origin) {
+            newRouter.setOrigin(this.origin);
+        }
+        if (this.base) {
+            newRouter.setBase(this.base);
+        }
+        if (this.history) {
+            newRouter.setHistory(this.history);
+        }
+        if (oldRouter) {
+            this.connectedAppRoutes.forEach((route) => {
+                oldRouter.disconnect(route);
+            });
+        }
+        this.connectedAppRoutes = [];
+        const { routes, middlewares } = this;
+        routes.forEach((route) => {
+            this.connectedAppRoutes.push(newRouter.connect(route));
+        });
+        middlewares.forEach((middleware) => {
+            this.connectedAppRoutes.push(newRouter.middleware(middleware));
+        });
+        this.connectedAppRoutes.push(newRouter.middleware({
+            pattern: '*',
+            priority: -Infinity,
+            before: (req) => {
+                this.request = req;
+            },
+        }));
     }
 
     /**

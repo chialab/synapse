@@ -3,8 +3,9 @@ import type { RequestInit } from './Request';
 import type { ErrorHandler } from './ErrorHandler';
 import type { RouteRule, RouteHandler, NextHandler } from './Route';
 import type { State } from './State';
-import type { History, HistoryState } from './History';
+import type { HistoryState } from './History';
 import { window } from '@chialab/dna';
+import { History } from './History';
 import { Path, trimSlash, trimSlashStart } from './Path';
 import { Request } from './Request';
 import { Response } from './Response';
@@ -18,6 +19,7 @@ import DEFAULT_ERROR_HANDLER from './ErrorHandler';
  * The options to pass to the router.
  */
 export interface RouterOptions {
+    history?: History;
     base?: string;
     origin?: string;
     errorHandler?: ErrorHandler;
@@ -34,11 +36,6 @@ export class Router extends Emitter<{
     'replacestate': [{ state: State; previous?: State }, void];
     'popstate': [{ state: State; previous?: State }, void];
 }> {
-    /**
-     * The browser's history like implementation for state management.
-     */
-    private history?: History;
-
     /**
      * The router error handler.
      */
@@ -65,6 +62,18 @@ export class Router extends Emitter<{
     #currentRequest?: Request;
 
     /**
+     * The history object bound with the router.
+     */
+    #history: History = new History();
+
+    /**
+     * The browser's history like implementation for state management.
+     */
+    get history() {
+        return this.#history;
+    }
+
+    /**
      * The origin of the router.
      */
     #origin: string = DEFAULT_ORIGIN;
@@ -89,10 +98,23 @@ export class Router extends Emitter<{
     }
 
     /**
+     * Running flag.
+     */
+    #running: boolean = false;
+
+    /**
+     * The router is running.
+     */
+    get running() {
+        return this.#running;
+    }
+
+    /**
      * The router is started.
+     * @deprecated Use `running` property.
      */
     get started() {
-        return !!this.history;
+        return this.#running;
     }
 
     /**
@@ -120,6 +142,9 @@ export class Router extends Emitter<{
     constructor(options: RouterOptions = {}, routes: (Route | RouteRule)[] = [], middlewares: (Middleware | MiddlewareRule)[] = []) {
         super();
 
+        if (options.history) {
+            this.setHistory(options.history);
+        }
         if (options.origin) {
             this.setOrigin(options.origin);
         }
@@ -138,11 +163,22 @@ export class Router extends Emitter<{
     }
 
     /**
+     * Set the history object of the router.
+     * @param history The history instance.
+     */
+    setHistory(history: History) {
+        if (this.running) {
+            throw new Error('Cannot set history after router is started.');
+        }
+        this.#history = history;
+    }
+
+    /**
      * Set the location origin of the router.
      * @param origin The origin value.
      */
     setOrigin(origin: string|null) {
-        if (this.history) {
+        if (this.running) {
             throw new Error('Cannot set origin after router is started.');
         }
         origin = origin ?? DEFAULT_ORIGIN;
@@ -154,7 +190,7 @@ export class Router extends Emitter<{
      * @param base The base value.
      */
     setBase(base: string|null) {
-        if (this.history) {
+        if (this.running) {
             throw new Error('Cannot set base after router is started.');
         }
         base = base ?? DEFAULT_BASE;
@@ -454,12 +490,12 @@ export class Router extends Emitter<{
      * Bind the Router to a History model.
      * @param history The history model to bind.
      */
-    async start(history: History, pathname?: string): Promise<Response> {
-        this.history = history;
+    async start(pathname?: string): Promise<Response> {
+        this.#running = true;
         this.history.reset();
-        history.on('popstate', this.onPopState);
+        this.history.on('popstate', this.onPopState);
 
-        if (history instanceof BrowserHistory) {
+        if (this.history instanceof BrowserHistory) {
             return this.replace(pathname || this.pathFromUrl(window.location.href) || '/');
         }
 
@@ -470,9 +506,9 @@ export class Router extends Emitter<{
      * Unbind the Router from a History model (if bound).
      */
     stop() {
+        this.#running = false;
         if (this.history) {
             this.history.off('popstate', this.onPopState);
-            this.history = undefined;
         }
     }
 

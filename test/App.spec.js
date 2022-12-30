@@ -22,7 +22,7 @@ describe('App', () => {
         const app = render(h(TestApp));
 
         expect(app.router).to.be.instanceOf(Router);
-        expect(app.router.started).to.be.false;
+        expect(app.router.running).to.be.false;
         expect(app.router.base).to.be.equal('/');
     });
 
@@ -31,7 +31,7 @@ describe('App', () => {
 
         expect(app.router).to.be.instanceOf(Router);
         expect(app.router.base).to.be.equal('/base');
-        expect(app.router.started).to.be.false;
+        expect(app.router.running).to.be.false;
     });
 
     it('should update router base on property change', () => {
@@ -54,14 +54,14 @@ describe('App', () => {
         const app = render(h(TestApp, { autostart: true }), wrapper);
 
         expect(app.router).to.be.instanceOf(Router);
-        expect(app.router.started).to.be.true;
+        expect(app.router.running).to.be.true;
     });
 
     it('should autostoart with string attribute', async () => {
         const app = render(h(TestApp, { autostart: '/' }), wrapper);
 
         expect(app.router).to.be.instanceOf(Router);
-        expect(app.router.started).to.be.true;
+        expect(app.router.running).to.be.true;
         await app.router.waitNavigation();
 
         expect(app.children[0].tagName).to.be.equal('SPAN');
