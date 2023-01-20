@@ -1,5 +1,26 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 3.0.0
+
+### Minor Changes
+
+- ab41ce4: Abort concurrent requests.
+
+### Patch Changes
+
+- b937592: Fix path from url trailing slash
+- 910799a: Fix initial router origin
+- 05ef79a: Update node fetch
+- 986175c: Increment version
+- 9c35391: Route patterns matching
+- 6f0d2f7: Add `stop` method to App.
+- a8aece1: Handle hash changes
+- 283d297: Fix hash navigation
+- 3753c5b: Update to DNA 3.20
+- b73d5d5: Ensure transition pages are keyed
+- 2fb765f: Fixed navigation with hash bang
+- 9a142d2: Introduce the `Path` object for routing.
+
 ## 3.0.0-rc.10
 
 ### Minor Changes
