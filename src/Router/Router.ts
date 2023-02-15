@@ -5,7 +5,7 @@ import type { RouteRule, RouteHandler, NextHandler } from './Route';
 import type { State } from './State';
 import type { HistoryState } from './History';
 import { window } from '@chialab/dna';
-import { History } from './History';
+import { History, isStateful } from './History';
 import { Path, trimSlash, trimSlashStart } from './Path';
 import { Request } from './Request';
 import { Response } from './Response';
@@ -330,6 +330,10 @@ export class Router extends Emitter<{
                 throw new Error('Request aborted.');
             }
 
+            if (response.redirected != null) {
+                return this.replace(response.redirected, response.redirectInit, data, trigger, parentRequest, parentResponse);
+            }
+
             const title = response.title || window.document.title;
             await this.pushState({
                 url: response.redirected || url.href,
@@ -339,10 +343,6 @@ export class Router extends Emitter<{
                 response,
                 data: response.getData(),
             }, trigger);
-
-            if (response.redirected != null) {
-                return this.replace(response.redirected, response.redirectInit, data, trigger, parentRequest, parentResponse);
-            }
 
             return response;
         });
@@ -374,6 +374,10 @@ export class Router extends Emitter<{
                 throw new Error('Request aborted.');
             }
 
+            if (response.redirected != null) {
+                return this.replace(response.redirected, response.redirectInit, data, trigger);
+            }
+
             const title = response.title || window.document.title;
             await this.replaceState({
                 url: response.redirected || url.href,
@@ -383,10 +387,6 @@ export class Router extends Emitter<{
                 response,
                 data: response.getData(),
             }, trigger);
-
-            if (response.redirected != null) {
-                return this.replace(response.redirected, response.redirectInit, data, trigger);
-            }
 
             return response;
         }) as Promise<Response>;
@@ -653,20 +653,17 @@ export class Router extends Emitter<{
      * Handle History pop state event.
      * @param data Event data.
      */
-    private onPopState = ({ state, previous }: { state: State | HistoryState; previous?: State }) => {
-        if (state) {
-            this.replace(state.path, undefined, state.data, false)
+    private onPopState = (entry: { state: State | HistoryState; previous?: State }|{ url: string }) => {
+        if (isStateful(entry)) {
+            this.replace(entry.state.path, undefined, entry.state.data, false)
                 .then(() => {
                     this.trigger('popstate', {
                         state: this.state as State,
-                        previous,
+                        previous: entry.previous,
                     });
                 });
-        } else {
-            this.trigger('popstate', {
-                state,
-                previous,
-            });
+        } else if (entry.url) {
+            this.navigate(this.pathFromUrl(window.location.href) || '/');
         }
     };
 

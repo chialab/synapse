@@ -88,6 +88,9 @@ export class BrowserHistory extends History {
      */
     private onPopState = async (event: PopStateEvent) => {
         if (!isHistoryState(event.state)) {
+            this.trigger('popstate', {
+                url: window.location.href,
+            });
             return;
         }
         const previous = this.state;
