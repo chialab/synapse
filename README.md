@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/synapse"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/synapse/rc"></a>
+    <a href="https://www.npmjs.com/package/@chialab/synapse"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/synapse"></a>
 </p>
 
 ---
