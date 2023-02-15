@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 3.0.1
+
+### Patch Changes
+
+- 30b235d: Fixed redirected responses.
+
 ## 3.0.0
 
 ### Minor Changes
