@@ -21,6 +21,15 @@ export interface HistoryState {
 }
 
 /**
+ * Check if popstate entry is stateful.
+ * @param entry The popstate entry.
+ * @returns True if stateful entry.
+ */
+export function isStateful(entry: { state: State | HistoryState; previous?: State } | { url: string }): entry is { state: State | HistoryState; previous?: State } {
+    return 'state' in entry;
+}
+
+/**
  * Check if a state is a synapse History state.
  * @param historyState The state to check.
  * @returns True if it is a HistoryState.
@@ -45,7 +54,7 @@ let instances = 0;
 export class History extends Emitter<{
     'pushstate': [{ state: State; previous?: State }, void];
     'replacestate': [{ state: State; previous?: State }, void];
-    'popstate': [{ state: State | HistoryState; previous?: State }, void];
+    'popstate': [{ state: State | HistoryState; previous?: State } | { url: string }, void];
 }> {
     protected _entries: HistoryState[] = [];
     protected _map: Map<HistoryState, State> = new Map();
