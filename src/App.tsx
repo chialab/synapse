@@ -244,6 +244,9 @@ export class App extends Component {
      */
     @listen('submit', 'form')
     protected _handleSubmit(event: Event, node?: Node) {
+        if (event.defaultPrevented) {
+            return;
+        }
         if (!this.router.running) {
             return;
         }
@@ -256,6 +259,9 @@ export class App extends Component {
      * @param node The anchor node.
      */
     async handleLink(event: Event, node: HTMLElement) {
+        if (event.defaultPrevented) {
+            return;
+        }
         if (!this.router.running) {
             throw new Error('Application has not started yet');
         }
