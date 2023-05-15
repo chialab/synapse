@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 3.0.2
+
+### Patch Changes
+
+- b96eb8e: Do not navigate on default prevented form submission.
+
 ## 3.0.1
 
 ### Patch Changes
