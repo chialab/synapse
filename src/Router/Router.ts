@@ -546,7 +546,7 @@ export class Router extends Emitter<{
             return null;
         }
 
-        const pathname = `/${trimSlashStart(url.pathname)}${url.search}${url.hash}`;
+        const pathname = `/${trimSlashStart(url.pathname)}${url.search}${url.hash || (url.href.endsWith('#') ? '#' : '')}`;
         if (pathname !== this.base && pathname.indexOf(this.base) !== 0) {
             return null;
         }
