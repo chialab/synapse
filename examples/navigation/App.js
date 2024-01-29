@@ -1,10 +1,10 @@
-import { html, customElements } from '@chialab/dna';
+import { customElements, html } from '@chialab/dna';
 import { App, DocumentMetaMiddleware } from '@chialab/synapse';
 import { Link } from './Elements/Link.js';
 import { Dashboard } from './Pages/Dashboard.js';
-import { Team } from './Pages/Team.js';
-import { Projects } from './Pages/Projects.js';
 import { NotFound } from './Pages/NotFound.js';
+import { Projects } from './Pages/Projects.js';
+import { Team } from './Pages/Team.js';
 
 export class DemoApp extends App {
     static get routes() {
@@ -17,9 +17,7 @@ export class DemoApp extends App {
     }
 
     static get middlewares() {
-        return [
-            new DocumentMetaMiddleware(),
-        ];
+        return [new DocumentMetaMiddleware()];
     }
 
     render() {

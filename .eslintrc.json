@@ -1,6 +1,3 @@
 {
-  "extends": "@chialab/eslint-config",
-  "parserOptions": {
-    "project": false
-  }
+  "extends": "@chialab/eslint-config"
 }

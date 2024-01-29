@@ -54,7 +54,6 @@ export class Path {
         return this.#internalUrl.hash;
     }
 
-
     /**
      * Search part.
      */

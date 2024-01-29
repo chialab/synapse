@@ -1,5 +1,5 @@
-import type { State } from './State';
 import { Emitter } from '../Helpers/Emitter';
+import type { State } from './State';
 
 export enum NavigationDirection {
     back = 'back',
@@ -25,7 +25,9 @@ export interface HistoryState {
  * @param entry The popstate entry.
  * @returns True if stateful entry.
  */
-export function isStateful(entry: { state: State | HistoryState; previous?: State } | { url: string }): entry is { state: State | HistoryState; previous?: State } {
+export function isStateful(
+    entry: { state: State | HistoryState; previous?: State } | { url: string }
+): entry is { state: State | HistoryState; previous?: State } {
     return 'state' in entry;
 }
 
@@ -36,10 +38,12 @@ export function isStateful(entry: { state: State | HistoryState; previous?: Stat
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isHistoryState(historyState: any): historyState is HistoryState {
-    return historyState &&
+    return (
+        historyState &&
         typeof historyState === 'object' &&
         typeof historyState.historyId === 'string' &&
-        typeof historyState.index === 'number';
+        typeof historyState.index === 'number'
+    );
 }
 
 /**
@@ -52,15 +56,14 @@ let instances = 0;
  * An abstraction of the window.history object.
  */
 export class History extends Emitter<{
-    'pushstate': [{ state: State; previous?: State }, void];
-    'replacestate': [{ state: State; previous?: State }, void];
-    'popstate': [{ state: State | HistoryState; previous?: State } | { url: string }, void];
+    pushstate: [{ state: State; previous?: State }, void];
+    replacestate: [{ state: State; previous?: State }, void];
+    popstate: [{ state: State | HistoryState; previous?: State } | { url: string }, void];
 }> {
     protected _entries: HistoryState[] = [];
     protected _map: Map<HistoryState, State> = new Map();
     protected _index = -1;
     protected _id: string;
-
 
     constructor() {
         super();
@@ -192,8 +195,6 @@ export class History extends Emitter<{
      */
     compareStates(state1: State, state2: State) {
         const states = this.states;
-        return states.indexOf(state2) < states.indexOf(state1) ?
-            NavigationDirection.back :
-            NavigationDirection.forward;
+        return states.indexOf(state2) < states.indexOf(state1) ? NavigationDirection.back : NavigationDirection.forward;
     }
 }

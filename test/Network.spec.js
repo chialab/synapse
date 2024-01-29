@@ -1,14 +1,15 @@
-import { expect } from '@chialab/ginsenghino';
 import { fetch } from '@chialab/synapse';
+import { describe, expect, test } from 'vitest';
 
 describe('Network', () => {
-    it('should fetch content from url', async () => {
-        expect(fetch).to.be.a('function');
+    test('should fetch content from url', async () => {
+        expect(fetch).toBeTypeOf('function');
 
-        const response = await fetch('https://www.chialab.it', {
+        const response = await fetch('https://www.github.com', {
+            method: 'HEAD',
             mode: 'no-cors',
         });
-        expect(response).to.not.be.null;
-        expect(typeof response).to.be.equal('object');
+        expect(response).not.toBeNull();
+        expect(typeof response).toBe('object');
     });
 });

@@ -5,8 +5,6 @@ export class NotFound extends Route {
     async exec(request, response) {
         response.setTitle('Not found');
 
-        response.setView(() => html`
-            Page not found.
-        `);
+        response.setView(() => html` Page not found. `);
     }
 }

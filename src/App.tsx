@@ -1,13 +1,13 @@
-import type { Route } from './Router/Route';
+import { Component, customElementPrototype, listen, observe, property, state, window } from '@chialab/dna';
+import { Page } from './Components/Page';
+import { History, NavigationDirection } from './Router/History';
 import type { Middleware } from './Router/Middleware';
-import type { State } from './Router/State';
 import type { RequestInit, RequestMethod } from './Router/Request';
-import { Component, window, property, state, observe, listen, customElementPrototype } from '@chialab/dna';
 import { Request } from './Router/Request';
 import { Response } from './Router/Response';
+import type { Route } from './Router/Route';
 import { Router } from './Router/Router';
-import { NavigationDirection, History } from './Router/History';
-import { Page } from './Components/Page';
+import type { State } from './Router/State';
 
 /**
  * A Web Component which handles routing.
@@ -29,14 +29,16 @@ export class App extends Component {
      */
     @property({
         type: String,
-    }) origin?: string;
+    })
+    origin?: string;
 
     /**
      * The base url of the application.
      */
     @property({
         type: String,
-    }) base?: string;
+    })
+    base?: string;
 
     /**
      * The History instance for the application.
@@ -107,21 +109,24 @@ export class App extends Component {
      */
     @property({
         type: [Boolean, String],
-    }) autostart: boolean | string = false;
+    })
+    autostart: boolean | string = false;
 
     /**
      * The current Router Request instance.
      */
     @state({
         type: Request,
-    }) request?: Request;
+    })
+    request?: Request;
 
     /**
      * The current Router Response instance.
      */
     @state({
         type: Response,
-    }) response?: Response;
+    })
+    response?: Response;
 
     /**
      * The navigation direction.
@@ -130,7 +135,8 @@ export class App extends Component {
         type: String,
         attribute: ':navigation',
         update: false,
-    }) navigationDirection: NavigationDirection = NavigationDirection.forward;
+    })
+    navigationDirection: NavigationDirection = NavigationDirection.forward;
 
     /**
      * List of routes added by the app.
@@ -211,7 +217,7 @@ export class App extends Component {
      * @param path The route path to navigate.
      * @returns The response instance for the navigation.
      */
-    navigate(path: string, init?: RequestInit): Promise<Response|null> {
+    navigate(path: string, init?: RequestInit): Promise<Response | null> {
         return this.router.navigate(path, init);
     }
 
@@ -220,7 +226,7 @@ export class App extends Component {
      * @param path The route path to navigate.
      * @returns The response instance for the navigation.
      */
-    replace(path: string, init?: RequestInit): Promise<Response|null> {
+    replace(path: string, init?: RequestInit): Promise<Response | null> {
         return this.router.replace(path, init);
     }
 
@@ -357,7 +363,7 @@ export class App extends Component {
      * Trigger `onRequest` hook.
      */
     @observe('request')
-    protected _onRequestChanged(oldValue: Request|undefined, newValue: Request) {
+    protected _onRequestChanged(oldValue: Request | undefined, newValue: Request) {
         this.onRequest(oldValue, newValue);
     }
 
@@ -365,7 +371,7 @@ export class App extends Component {
      * Trigger `onRequest` hook.
      */
     @observe('response')
-    protected _onResponseChanged(oldValue: Response|undefined, newValue: Response) {
+    protected _onResponseChanged(oldValue: Response | undefined, newValue: Response) {
         this.onResponse(oldValue, newValue);
     }
 
@@ -448,13 +454,15 @@ export class App extends Component {
         middlewares.forEach((middleware) => {
             this.connectedAppRoutes.push(router.middleware(middleware));
         });
-        this.connectedAppRoutes.push(router.middleware({
-            pattern: '*',
-            priority: -Infinity,
-            before: (req) => {
-                this.request = req;
-            },
-        }));
+        this.connectedAppRoutes.push(
+            router.middleware({
+                pattern: '*',
+                priority: -Infinity,
+                before: (req) => {
+                    this.request = req;
+                },
+            })
+        );
     }
 
     /**
@@ -463,7 +471,7 @@ export class App extends Component {
      * @param newValue The new request object.
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onRequest(oldValue: Request|undefined, newValue: Request) {}
+    onRequest(oldValue: Request | undefined, newValue: Request) {}
 
     /**
      * Response changed hook.
@@ -471,5 +479,5 @@ export class App extends Component {
      * @param newValue The new response object.
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onResponse(oldValue: Response|undefined, newValue: Response) {}
+    onResponse(oldValue: Response | undefined, newValue: Response) {}
 }

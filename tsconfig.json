@@ -1,31 +1,33 @@
 {
   "compilerOptions": {
     "target": "es2017",
-    "module": "esnext",
+    "module": "es2020",
     "lib": ["es2017", "dom"],
     "sourceMap": true,
     "inlineSources": true,
     "strict": true,
+    "outDir": "./dist",
     "declaration": true,
-    "emitDeclarationOnly": true,
     "declarationDir": "types",
+    "emitDeclarationOnly": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true,
+    "strictPropertyInitialization": false,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noImplicitThis": true,
-    "allowJs": false,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@chialab/dna",
     "moduleResolution": "node",
+    "paths": {
+      "@chialab/synapse": ["./src/index.ts"],
+    },
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-  ]
+  "include": ["src"],
 }

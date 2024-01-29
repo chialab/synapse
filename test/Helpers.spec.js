@@ -1,7 +1,7 @@
-import { expect } from '@chialab/ginsenghino';
-import { window, document, render, h, DOM } from '@chialab/dna';
-import { getApp, getRouter, loadScript, loadStyleSheet, unloadStyleSheet, isBrowser } from '@chialab/synapse';
-import { createTestApp, createTestHistory, createTestRouter } from './App.test.js';
+import { document, DOM, h, render, window } from '@chialab/dna';
+import { getApp, getRouter, isBrowser, loadScript, loadStyleSheet, unloadStyleSheet } from '@chialab/synapse';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { createTestApp, createTestHistory, createTestRouter } from './App.js';
 
 describe('Helpers', () => {
     describe('App', () => {
@@ -20,61 +20,63 @@ describe('Helpers', () => {
         });
 
         describe('getApp', () => {
-            it('should get null when not part of app', async () => {
-                expect(getApp(DOM.createElement('div'))).to.be.null;
+            test('should get null when not part of app', async () => {
+                expect(getApp(DOM.createElement('div'))).toBeNull();
             });
 
-            it('should get the app', async () => {
+            test('should get the app', async () => {
                 const app = render(h(TestApp, { autostart: '/' }), wrapper);
                 await app.router.waitNavigation();
-                expect(getApp(app.children[0])).to.be.equal(app);
+                expect(getApp(app.children[0])).toBe(app);
             });
 
-            it('should get self app', async () => {
+            test('should get self app', async () => {
                 const app = render(h(TestApp, { autostart: '/' }), wrapper);
-                expect(getApp(app)).to.be.equal(app);
+                expect(getApp(app)).toBe(app);
             });
         });
 
         describe('getRouter', () => {
-            it('should get null when not part of app', async () => {
-                expect(getRouter(DOM.createElement('div'))).to.be.null;
+            test('should get null when not part of app', async () => {
+                expect(getRouter(DOM.createElement('div'))).toBeNull();
             });
 
-            it('should get the app router', async () => {
+            test('should get the app router', async () => {
                 const app = render(h(TestApp, { autostart: '/' }), wrapper);
                 await app.router.waitNavigation();
-                expect(getRouter(app.children[0])).to.be.equal(router);
+                expect(getRouter(app.children[0])).toBe(router);
             });
         });
     });
 
     describe('resources', () => {
         describe('loadScript', () => {
-            it('should load a script', async function() {
+            test('should load a script', async () => {
                 if (isBrowser()) {
-                    const url = new URL('./fixtures/script.test.js', import.meta.url);
+                    const url = new URL('./resources/script.js', import.meta.url);
                     await loadScript(url);
 
-                    expect(globalThis.__TEST_INJECT__).to.be.true;
+                    expect(globalThis.__TEST_INJECT__).toBe(true);
                     delete globalThis.__TEST_INJECT__;
-                } else {
-                    this.skip();
                 }
             });
         });
 
         describe('loadStyleSheet', () => {
-            it('should load a stylesheet', async function() {
+            test('should load a stylesheet', async () => {
                 if (isBrowser()) {
-                    const url = new URL('./fixtures/style.css', import.meta.url);
-                    expect(window.getComputedStyle(document.body).backgroundColor).to.be.oneOf(['rgba(0, 0, 0, 0)', '']);
+                    const url = new URL('./resources/style.css', import.meta.url);
+                    expect(window.getComputedStyle(document.body).backgroundColor).to.be.oneOf([
+                        'rgba(0, 0, 0, 0)',
+                        '',
+                    ]);
                     await loadStyleSheet(url);
                     expect(window.getComputedStyle(document.body).backgroundColor).to.be.oneOf(['rgb(255, 0, 0)']);
                     unloadStyleSheet(url);
-                    expect(window.getComputedStyle(document.body).backgroundColor).to.be.oneOf(['rgba(0, 0, 0, 0)', '']);
-                } else {
-                    this.skip();
+                    expect(window.getComputedStyle(document.body).backgroundColor).to.be.oneOf([
+                        'rgba(0, 0, 0, 0)',
+                        '',
+                    ]);
                 }
             });
         });

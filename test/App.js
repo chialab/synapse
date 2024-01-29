@@ -1,5 +1,5 @@
-import { window, customElements, h } from '@chialab/dna';
-import { App, Router, History, BrowserHistory, isNode } from '@chialab/synapse';
+import { customElements, h, window } from '@chialab/dna';
+import { App, BrowserHistory, History, isNode, Router } from '@chialab/synapse';
 
 let appDelcarations = 1;
 
@@ -15,17 +15,20 @@ export function createTestHistory() {
 }
 
 export function createTestRouter() {
-    return new Router({
-        origin: window.location.origin,
-        base: '/',
-    }, [
+    return new Router(
         {
-            pattern: '/',
-            render() {
-                return h('span', {}, 'Home');
-            },
+            origin: window.location.origin,
+            base: '/',
         },
-    ]);
+        [
+            {
+                pattern: '/',
+                render() {
+                    return h('span', {}, 'Home');
+                },
+            },
+        ]
+    );
 }
 
 export function createTestApp(history, router) {

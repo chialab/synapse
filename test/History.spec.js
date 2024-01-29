@@ -1,13 +1,13 @@
-import { expect } from '@chialab/ginsenghino';
 import { window } from '@chialab/dna';
-import { History, BrowserHistory, isNode, Request } from '@chialab/synapse';
+import { BrowserHistory, History, isNode, Request } from '@chialab/synapse';
+import { afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
 describe('History', () => {
     // eslint-disable-next-line mocha/no-setup-in-describe
     (isNode() ? [History] : [History, BrowserHistory]).forEach((History) => {
         describe(History.name, () => {
             let origin, history;
-            before(() => {
+            beforeAll(() => {
                 origin = isNode() ? 'http://localhost/' : `${window.location.origin}/`;
             });
 
@@ -19,13 +19,13 @@ describe('History', () => {
                 history.unlisten?.();
             });
 
-            it('constructor', () => {
-                expect(history.states).to.have.lengthOf(0);
-                expect(history.index).to.be.equal(-1);
-                expect(history.length).to.be.equal(0);
+            test('constructor', () => {
+                expect(history.states).toHaveLength(0);
+                expect(history.index).toBe(-1);
+                expect(history.length).toBe(0);
             });
 
-            it('should add state', async () => {
+            test('should add state', async () => {
                 const request1 = new Request(origin);
                 await history.pushState({
                     url: origin,
@@ -34,14 +34,14 @@ describe('History', () => {
                     request: request1,
                 });
 
-                expect(history.states).to.have.lengthOf(1);
-                expect(history.state.url).to.be.equal(origin);
+                expect(history.states).toHaveLength(1);
+                expect(history.state.url).toBe(origin);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(origin);
+                    expect(window.location.href).toBe(origin);
                 }
-                expect(history.state.request).to.be.equal(request1);
-                expect(history.index).to.be.equal(0);
-                expect(history.length).to.be.equal(1);
+                expect(history.state.request).toBe(request1);
+                expect(history.index).toBe(0);
+                expect(history.length).toBe(1);
 
                 const request2 = new Request(`${origin}/2`);
                 await history.pushState({
@@ -51,17 +51,17 @@ describe('History', () => {
                     request: request2,
                 });
 
-                expect(history.states).to.have.lengthOf(2);
-                expect(history.state.url).to.be.equal(`${origin}/2`);
+                expect(history.states).toHaveLength(2);
+                expect(history.state.url).toBe(`${origin}/2`);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                    expect(window.location.href).toBe(`${origin}/2`);
                 }
-                expect(history.state.request).to.be.equal(request2);
-                expect(history.index).to.be.equal(1);
-                expect(history.length).to.be.equal(2);
+                expect(history.state.request).toBe(request2);
+                expect(history.index).toBe(1);
+                expect(history.length).toBe(2);
             });
 
-            it('should trigger pushstate event', async () => {
+            test('should trigger pushstate event', async () => {
                 let currentState, previousState;
                 history.on('pushstate', (data) => {
                     currentState = data.state;
@@ -76,11 +76,11 @@ describe('History', () => {
                     request: request1,
                 });
 
-                expect(currentState.url).to.be.equal(origin);
+                expect(currentState.url).toBe(origin);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(origin);
+                    expect(window.location.href).toBe(origin);
                 }
-                expect(currentState.request).to.be.equal(request1);
+                expect(currentState.request).toBe(request1);
 
                 const request2 = new Request(`${origin}/2`);
                 await history.pushState({
@@ -90,16 +90,16 @@ describe('History', () => {
                     request: request2,
                 });
 
-                expect(previousState.url).to.be.equal(origin);
-                expect(previousState.request).to.be.equal(request1);
-                expect(currentState.url).to.be.equal(`${origin}/2`);
+                expect(previousState.url).toBe(origin);
+                expect(previousState.request).toBe(request1);
+                expect(currentState.url).toBe(`${origin}/2`);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                    expect(window.location.href).toBe(`${origin}/2`);
                 }
-                expect(currentState.request).to.be.equal(request2);
+                expect(currentState.request).toBe(request2);
             });
 
-            it('should replace state', async () => {
+            test('should replace state', async () => {
                 const request1 = new Request(origin);
                 await history.replaceState({
                     url: origin,
@@ -108,14 +108,14 @@ describe('History', () => {
                     request: request1,
                 });
 
-                expect(history.states).to.have.lengthOf(1);
-                expect(history.state.url).to.be.equal(origin);
+                expect(history.states).toHaveLength(1);
+                expect(history.state.url).toBe(origin);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(origin);
+                    expect(window.location.href).toBe(origin);
                 }
-                expect(history.state.request).to.be.equal(request1);
-                expect(history.index).to.be.equal(0);
-                expect(history.length).to.be.equal(1);
+                expect(history.state.request).toBe(request1);
+                expect(history.index).toBe(0);
+                expect(history.length).toBe(1);
 
                 const request2 = new Request(`${origin}/2`);
                 await history.replaceState({
@@ -125,17 +125,17 @@ describe('History', () => {
                     request: request2,
                 });
 
-                expect(history.states).to.have.lengthOf(1);
-                expect(history.state.url).to.be.equal(`${origin}/2`);
+                expect(history.states).toHaveLength(1);
+                expect(history.state.url).toBe(`${origin}/2`);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                    expect(window.location.href).toBe(`${origin}/2`);
                 }
-                expect(history.state.request).to.be.equal(request2);
-                expect(history.index).to.be.equal(0);
-                expect(history.length).to.be.equal(1);
+                expect(history.state.request).toBe(request2);
+                expect(history.index).toBe(0);
+                expect(history.length).toBe(1);
             });
 
-            it('should trigger replacestate event', async () => {
+            test('should trigger replacestate event', async () => {
                 let currentState, previousState;
                 history.on('replacestate', (data) => {
                     currentState = data.state;
@@ -150,11 +150,11 @@ describe('History', () => {
                     request: request1,
                 });
 
-                expect(currentState.url).to.be.equal(origin);
+                expect(currentState.url).toBe(origin);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(origin);
+                    expect(window.location.href).toBe(origin);
                 }
-                expect(currentState.request).to.be.equal(request1);
+                expect(currentState.request).toBe(request1);
 
                 const request2 = new Request(`${origin}/2`);
                 await history.replaceState({
@@ -164,16 +164,16 @@ describe('History', () => {
                     request: request2,
                 });
 
-                expect(previousState.url).to.be.equal(origin);
-                expect(previousState.request).to.be.equal(request1);
-                expect(currentState.url).to.be.equal(`${origin}/2`);
+                expect(previousState.url).toBe(origin);
+                expect(previousState.request).toBe(request1);
+                expect(currentState.url).toBe(`${origin}/2`);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                    expect(window.location.href).toBe(`${origin}/2`);
                 }
-                expect(currentState.request).to.be.equal(request2);
+                expect(currentState.request).toBe(request2);
             });
 
-            it('should reset', async () => {
+            test('should reset', async () => {
                 const request1 = new Request(origin);
                 await history.pushState({
                     url: origin,
@@ -182,14 +182,14 @@ describe('History', () => {
                     request: request1,
                 });
 
-                expect(history.states).to.have.lengthOf(1);
-                expect(history.state.url).to.be.equal(origin);
+                expect(history.states).toHaveLength(1);
+                expect(history.state.url).toBe(origin);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(origin);
+                    expect(window.location.href).toBe(origin);
                 }
-                expect(history.state.request).to.be.equal(request1);
-                expect(history.index).to.be.equal(0);
-                expect(history.length).to.be.equal(1);
+                expect(history.state.request).toBe(request1);
+                expect(history.index).toBe(0);
+                expect(history.length).toBe(1);
 
                 history.reset();
 
@@ -201,17 +201,17 @@ describe('History', () => {
                     request: request2,
                 });
 
-                expect(history.states).to.have.lengthOf(1);
-                expect(history.state.url).to.be.equal(`${origin}/2`);
+                expect(history.states).toHaveLength(1);
+                expect(history.state.url).toBe(`${origin}/2`);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                    expect(window.location.href).toBe(`${origin}/2`);
                 }
-                expect(history.state.request).to.be.equal(request2);
-                expect(history.index).to.be.equal(0);
-                expect(history.length).to.be.equal(1);
+                expect(history.state.request).toBe(request2);
+                expect(history.index).toBe(0);
+                expect(history.length).toBe(1);
             });
 
-            it('should navigate history', async () => {
+            test('should navigate history', async () => {
                 const request1 = new Request(origin);
                 await history.pushState({
                     url: origin,
@@ -238,56 +238,56 @@ describe('History', () => {
 
                 await history.go(-2);
 
-                expect(history.state.url).to.be.equal(origin);
+                expect(history.state.url).toBe(origin);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(origin);
+                    expect(window.location.href).toBe(origin);
                 }
-                expect(history.state.request).to.be.equal(request1);
-                expect(history.index).to.be.equal(0);
-                expect(history.length).to.be.equal(3);
+                expect(history.state.request).toBe(request1);
+                expect(history.index).toBe(0);
+                expect(history.length).toBe(3);
 
                 await history.forward();
 
-                expect(history.state.url).to.be.equal(`${origin}/2`);
+                expect(history.state.url).toBe(`${origin}/2`);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                    expect(window.location.href).toBe(`${origin}/2`);
                 }
-                expect(history.state.request).to.be.equal(request2);
-                expect(history.index).to.be.equal(1);
-                expect(history.length).to.be.equal(3);
+                expect(history.state.request).toBe(request2);
+                expect(history.index).toBe(1);
+                expect(history.length).toBe(3);
 
                 await history.forward();
 
-                expect(history.state.url).to.be.equal(`${origin}/3`);
+                expect(history.state.url).toBe(`${origin}/3`);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(`${origin}/3`);
+                    expect(window.location.href).toBe(`${origin}/3`);
                 }
-                expect(history.state.request).to.be.equal(request3);
-                expect(history.index).to.be.equal(2);
-                expect(history.length).to.be.equal(3);
+                expect(history.state.request).toBe(request3);
+                expect(history.index).toBe(2);
+                expect(history.length).toBe(3);
 
                 await history.back();
 
-                expect(history.state.url).to.be.equal(`${origin}/2`);
+                expect(history.state.url).toBe(`${origin}/2`);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(`${origin}/2`);
+                    expect(window.location.href).toBe(`${origin}/2`);
                 }
-                expect(history.state.request).to.be.equal(request2);
-                expect(history.index).to.be.equal(1);
-                expect(history.length).to.be.equal(3);
+                expect(history.state.request).toBe(request2);
+                expect(history.index).toBe(1);
+                expect(history.length).toBe(3);
 
                 await history.back();
 
-                expect(history.state.url).to.be.equal(origin);
+                expect(history.state.url).toBe(origin);
                 if (history instanceof BrowserHistory) {
-                    expect(window.location.href).to.be.equal(origin);
+                    expect(window.location.href).toBe(origin);
                 }
-                expect(history.state.request).to.be.equal(request1);
-                expect(history.index).to.be.equal(0);
-                expect(history.length).to.be.equal(3);
+                expect(history.state.request).toBe(request1);
+                expect(history.index).toBe(0);
+                expect(history.length).toBe(3);
             });
 
-            it('should compare states', async () => {
+            test('should compare states', async () => {
                 const state1 = {
                     url: origin,
                     path: '/',
@@ -312,8 +312,8 @@ describe('History', () => {
                 };
                 await history.pushState(state3);
 
-                expect(history.compareStates(state2, state1)).to.be.equal('back');
-                expect(history.compareStates(state2, state3)).to.be.equal('forward');
+                expect(history.compareStates(state2, state1)).toBe('back');
+                expect(history.compareStates(state2, state3)).toBe('forward');
             });
         });
     });

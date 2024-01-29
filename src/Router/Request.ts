@@ -15,7 +15,7 @@ export type RequestMethod = 'get' | 'post' | 'put' | 'delete' | 'patch' | 'head'
 export interface RequestInit {
     path?: Path;
     method?: RequestMethod | Uppercase<RequestMethod>;
-    data?: FormData|File;
+    data?: FormData | File;
 }
 
 /**
@@ -50,7 +50,7 @@ export class Request<T extends RequestParams = RequestParams> {
     /**
      * The request data.
      */
-    public readonly data?: FormData|File;
+    public readonly data?: FormData | File;
 
     /**
      * A set of params extracted from the request path.
@@ -109,7 +109,7 @@ export class Request<T extends RequestParams = RequestParams> {
 
         this.url = url;
         this.path = init?.path ?? new Path(`${url.pathname}${url.search}${url.hash}`);
-        this.method = init?.method?.toLowerCase() as RequestMethod || 'get';
+        this.method = (init?.method?.toLowerCase() as RequestMethod) || 'get';
         this.data = init?.data;
         this.parent = parent;
     }
@@ -119,7 +119,7 @@ export class Request<T extends RequestParams = RequestParams> {
      * @param url The child url.
      */
     child(url: URL, init?: RequestInit) {
-        return this._childRequest = new Request(url, init, this);
+        return (this._childRequest = new Request(url, init, this));
     }
 
     /**

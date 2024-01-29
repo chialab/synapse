@@ -1,8 +1,8 @@
 import type { PatternRule } from './Pattern';
-import type { Router } from './Router';
+import { Pattern } from './Pattern';
 import type { Request, RequestParams } from './Request';
 import type { Response } from './Response';
-import { Pattern } from './Pattern';
+import type { Router } from './Router';
 
 /**
  * The signature of middleware handler to invoke before routing.
@@ -12,7 +12,12 @@ import { Pattern } from './Pattern';
  * @param router The current router instance.
  * @returns The Response instance.
  */
-export type MiddlewareBeforeHandler = (request: Request, response: Response, params: RequestParams, router: Router) => Response|void|Promise<Response|void>;
+export type MiddlewareBeforeHandler = (
+    request: Request,
+    response: Response,
+    params: RequestParams,
+    router: Router
+) => Response | void | Promise<Response | void>;
 
 /**
  * The signature of middleware handler to invoke after routing.
@@ -22,7 +27,12 @@ export type MiddlewareBeforeHandler = (request: Request, response: Response, par
  * @param router The current router instance.
  * @returns The Response instance.
  */
-export type MiddlewareAfterHandler = (request: Readonly<Request>, response: Response, params: RequestParams, router: Router) => Response|void|Promise<Response|void>;
+export type MiddlewareAfterHandler = (
+    request: Readonly<Request>,
+    response: Response,
+    params: RequestParams,
+    router: Router
+) => Response | void | Promise<Response | void>;
 
 /**
  * The interface of a middleware rule.

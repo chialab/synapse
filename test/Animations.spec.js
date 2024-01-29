@@ -1,23 +1,23 @@
-import { expect, spy, wait } from '@chialab/ginsenghino';
-import { requestAnimationFrame, cancelAnimationFrame } from '@chialab/synapse';
+import { cancelAnimationFrame, requestAnimationFrame } from '@chialab/synapse';
+import { describe, expect, test, vi } from 'vitest';
 
 describe('Animations', () => {
-    it('should tick a request frame', async () => {
-        const callback = spy();
+    test('should tick a request frame', async () => {
+        const callback = vi.fn();
         requestAnimationFrame(callback);
 
-        await wait(100);
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
-        expect(callback).to.be.called.once;
+        expect(callback).toHaveBeenCalledOnce();
     });
 
-    it('should cancel a request frame', async () => {
-        const callback = spy();
+    test('should cancel a request frame', async () => {
+        const callback = vi.fn();
         const req = requestAnimationFrame(callback);
         cancelAnimationFrame(req);
 
-        await wait(100);
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
-        expect(callback).to.not.be.called();
+        expect(callback).not.toHaveBeenCalled();
     });
 });

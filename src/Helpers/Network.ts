@@ -1,5 +1,5 @@
-import type { RequestInfo as NodeRequestInfo, RequestInit as NodeRequestInit } from 'node-fetch';
 import { window } from '@chialab/dna';
+import type { RequestInfo as NodeRequestInfo, RequestInit as NodeRequestInit } from 'node-fetch';
 
 /**
  * Fetch wrapper for support in Node environments.
@@ -14,7 +14,10 @@ export async function fetch(input: RequestInfo, init?: RequestInit | undefined):
 
     try {
         const { default: factory } = await import('node-fetch');
-        return factory(input as unknown as NodeRequestInfo, init as unknown as NodeRequestInit) as unknown as Promise<Response>;
+        return factory(
+            input as unknown as NodeRequestInfo,
+            init as unknown as NodeRequestInit
+        ) as unknown as Promise<Response>;
     } catch {
         //
     }

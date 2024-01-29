@@ -1,9 +1,9 @@
+import type { PatternRule } from './Pattern';
+import { Pattern } from './Pattern';
 import type { Request } from './Request';
 import type { View } from './Response';
-import type { PatternRule } from './Pattern';
-import type { Router } from './Router';
 import { Response } from './Response';
-import { Pattern } from './Pattern';
+import type { Router } from './Router';
 
 /**
  * The signature of the next route rule to invoke.
@@ -12,7 +12,11 @@ import { Pattern } from './Pattern';
  * @param router The current router instance.
  * @returns The next Response instance.
  */
-export type NextHandler = (request: Request, response: Response, router: Router) => Response|void|Promise<Response|void>;
+export type NextHandler = (
+    request: Request,
+    response: Response,
+    router: Router
+) => Response | void | Promise<Response | void>;
 
 /**
  * The signature of a Route handler method.
@@ -22,7 +26,12 @@ export type NextHandler = (request: Request, response: Response, router: Router)
  * @param router The current router instance.
  * @returns The very same input Response instance or a new one.
  */
-export type RouteHandler = (request: Readonly<Request>, response: Readonly<Response>, next: NextHandler, router: Router) => Response|string|void|Promise<Response|string|void>;
+export type RouteHandler = (
+    request: Readonly<Request>,
+    response: Readonly<Response>,
+    next: NextHandler,
+    router: Router
+) => Response | string | void | Promise<Response | string | void>;
 
 /**
  * The interface of a route rule.
@@ -93,7 +102,17 @@ export class Route extends Pattern {
             return response;
         }
         if (this.router) {
-            response.child(await this.router.navigate(request.params?._ || '/', { method: request.method, data: request.data }, {}, false, false, request, response));
+            response.child(
+                await this.router.navigate(
+                    request.params?._ || '/',
+                    { method: request.method, data: request.data },
+                    {},
+                    false,
+                    false,
+                    request,
+                    response
+                )
+            );
         }
 
         return response;

@@ -1,7 +1,7 @@
-import { expect } from '@chialab/ginsenghino';
-import { window, document, h, render, DOM } from '@chialab/dna';
+import { document, DOM, h, render, window } from '@chialab/dna';
 import { Router } from '@chialab/synapse';
-import { createTestApp, createTestHistory, createTestRouter } from './App.test.js';
+import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { createTestApp, createTestHistory, createTestRouter } from './App.js';
 
 describe('App', () => {
     let router, history, TestApp, wrapper;
@@ -18,62 +18,62 @@ describe('App', () => {
         DOM.removeChild(document.body, wrapper);
     });
 
-    it('should initialize a router', () => {
+    test('should initialize a router', () => {
         const app = render(h(TestApp));
 
-        expect(app.router).to.be.instanceOf(Router);
-        expect(app.router.running).to.be.false;
-        expect(app.router.base).to.be.equal('/');
+        expect(app.router).toBeInstanceOf(Router);
+        expect(app.router.running).toBe(false);
+        expect(app.router.base).toBe('/');
     });
 
-    it('should initialize a router with base', () => {
+    test('should initialize a router with base', () => {
         const app = render(h(TestApp, { base: '/base' }), wrapper);
 
-        expect(app.router).to.be.instanceOf(Router);
-        expect(app.router.base).to.be.equal('/base');
-        expect(app.router.running).to.be.false;
+        expect(app.router).toBeInstanceOf(Router);
+        expect(app.router.base).toBe('/base');
+        expect(app.router.running).toBe(false);
     });
 
-    it('should update router base on property change', () => {
+    test('should update router base on property change', () => {
         const app = render(h(TestApp), wrapper);
 
-        expect(app.router.base).to.be.equal('/');
+        expect(app.router.base).toBe('/');
         render(h(TestApp, { base: '/base' }), wrapper);
-        expect(app.router.base).to.be.equal('/base');
+        expect(app.router.base).toBe('/base');
     });
 
-    it('should update router origin on property change', () => {
+    test('should update router origin on property change', () => {
         const app = render(h(TestApp), wrapper);
 
-        expect(app.router.origin).to.be.equal(window.location.origin);
+        expect(app.router.origin).toBe(window.location.origin);
         render(h(TestApp, { origin: 'http://test/' }), wrapper);
-        expect(app.router.origin).to.be.equal('http://test');
+        expect(app.router.origin).toBe('http://test');
     });
 
-    it('should autostoart with bool attribute', () => {
+    test('should autostoart with bool attribute', () => {
         const app = render(h(TestApp, { autostart: true }), wrapper);
 
-        expect(app.router).to.be.instanceOf(Router);
-        expect(app.router.running).to.be.true;
+        expect(app.router).toBeInstanceOf(Router);
+        expect(app.router.running).toBe(true);
     });
 
-    it('should autostoart with string attribute', async () => {
+    test('should autostoart with string attribute', async () => {
         const app = render(h(TestApp, { autostart: '/' }), wrapper);
 
-        expect(app.router).to.be.instanceOf(Router);
-        expect(app.router.running).to.be.true;
+        expect(app.router).toBeInstanceOf(Router);
+        expect(app.router.running).toBe(true);
         await app.router.waitNavigation();
 
-        expect(app.children[0].tagName).to.be.equal('SPAN');
-        expect(app.children[0].textContent).to.be.equal('Home');
+        expect(app.children[0].tagName).toBe('SPAN');
+        expect(app.children[0].textContent).toBe('Home');
     });
 
-    it('should navigate on start', async () => {
+    test('should navigate on start', async () => {
         const app = render(h(TestApp), wrapper);
 
         await app.start('/');
 
-        expect(app.children[0].tagName).to.be.equal('SPAN');
-        expect(app.children[0].textContent).to.be.equal('Home');
+        expect(app.children[0].tagName).toBe('SPAN');
+        expect(app.children[0].textContent).toBe('Home');
     });
 });

@@ -25,7 +25,7 @@ export class Emitter<M extends EventMap = {}> {
      * @param listener The listener callback.
      */
     on<E extends keyof M>(type: E, listener: Listener<M, E>) {
-        const listeners = this.#listeners[type] = this.#listeners[type] || [];
+        const listeners = (this.#listeners[type] = this.#listeners[type] || []);
         listeners.push(listener);
     }
 

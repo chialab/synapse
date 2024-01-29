@@ -1,7 +1,7 @@
 import type { Context } from '@chialab/dna';
-import type { Router } from '../Router/Router';
 import { Node } from '@chialab/dna';
 import { App } from '../App';
+import type { Router } from '../Router/Router';
 
 /**
  * Get parent application element.
@@ -14,7 +14,7 @@ export function getApp(nodeOrContext: Node | Context): App | null {
             return node;
         }
         if (node.parentNode) {
-            return innerGetter((node.parentNode));
+            return innerGetter(node.parentNode);
         }
         return null;
     };

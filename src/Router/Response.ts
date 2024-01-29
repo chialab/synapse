@@ -1,5 +1,5 @@
 import type { Template } from '@chialab/dna';
-import type { RequestInit, Request } from './Request';
+import type { Request, RequestInit } from './Request';
 
 /**
  * A template factory for the response's view.
@@ -49,12 +49,12 @@ export class Response {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public data: any;
 
-    protected _title?: string|undefined;
+    protected _title?: string | undefined;
 
     /**
      * The title of the response.
      */
-    public get title(): string|undefined {
+    public get title(): string | undefined {
         return this._childResponse?.title ?? this._title;
     }
 
@@ -62,16 +62,16 @@ export class Response {
      * Set the title of the response.
      * @deprecated Use setTitle() instead.
      */
-    public set title(title: string|undefined) {
+    public set title(title: string | undefined) {
         this.setTitle(title);
     }
 
-    protected _meta?: Meta|undefined;
+    protected _meta?: Meta | undefined;
 
     /**
      * The metadata associated to the response.
      */
-    public get meta(): Meta|undefined {
+    public get meta(): Meta | undefined {
         return this._childResponse?.meta ?? this._meta;
     }
 
@@ -79,7 +79,7 @@ export class Response {
      * Set the metadata associated to the response.
      * @deprecated Use setMeta() instead.
      */
-    public set meta(meta: Meta|undefined) {
+    public set meta(meta: Meta | undefined) {
         this.setMeta(meta);
     }
 
@@ -110,7 +110,7 @@ export class Response {
      * @param child The child response.
      */
     child(child: Response | null) {
-        return this._childResponse = child;
+        return (this._childResponse = child);
     }
 
     /**
@@ -143,7 +143,7 @@ export class Response {
      * Set the title of the Response.
      * @param title The string to set.
      */
-    setTitle(title: string|undefined) {
+    setTitle(title: string | undefined) {
         this._title = title;
         if (this._childResponse) {
             this._childResponse.setTitle(title);
@@ -154,7 +154,7 @@ export class Response {
      * Set metadata to be associated to the response.
      * @param meta The metadata to set.
      */
-    setMeta(meta: Meta|undefined) {
+    setMeta(meta: Meta | undefined) {
         this._meta = meta;
         if (this._childResponse) {
             this._childResponse.setMeta(meta);

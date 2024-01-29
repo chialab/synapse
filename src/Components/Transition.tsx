@@ -1,7 +1,7 @@
 import type { FunctionComponent, Template } from '@chialab/dna';
-import type { State } from '../Router/State';
+import { Node, window } from '@chialab/dna';
 import type { Router } from '../Router/Router';
-import { window, Node } from '@chialab/dna';
+import type { State } from '../Router/State';
 
 /**
  * Transition page renderer.
@@ -26,7 +26,10 @@ type TransitionProps = {
  * @param context The render context.
  * @returns A template of pages to animate.
  */
-export const Transition: FunctionComponent<TransitionProps> = function Transition({ router, children, renderer: Renderer = TransitionPage }, context) {
+export const Transition: FunctionComponent<TransitionProps> = function Transition(
+    { router, children, renderer: Renderer = TransitionPage },
+    context
+) {
     if (!router) {
         throw new Error('Transition router is required');
     }
@@ -43,21 +46,23 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
     let previousChildren = store.get('previousChildren') as Template[] | undefined;
     if (currentState !== router.state) {
         if (root) {
-            const start = function(event) {
-                if (event.target.parentNode !== root) {
+            const start = function (event: AnimationEvent) {
+                const target = event.target as HTMLElement;
+                if (target.parentNode !== root) {
                     return;
                 }
 
-                const counter = (store.get('counter') as number || 0) + 1;
+                const counter = ((store.get('counter') as number) || 0) + 1;
                 store.set('counter', counter);
             };
 
-            const end = function(event) {
-                if (event.target.parentNode !== root) {
+            const end = function (event: AnimationEvent) {
+                const target = event.target as HTMLElement;
+                if (target.parentNode !== root) {
                     return;
                 }
 
-                const counter = (store.get('counter') as number || 0) - 1;
+                const counter = ((store.get('counter') as number) || 0) - 1;
                 store.set('counter', counter);
 
                 if (counter === 0) {
@@ -65,7 +70,7 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
                 }
             };
 
-            const flush = function() {
+            const flush = function () {
                 root.removeEventListener('animationstart', start);
                 root.removeEventListener('animationend', end);
                 store.delete('previousState');
@@ -102,8 +107,10 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
         store.set('state', router.state);
     }
 
-    return <>
-        {previousState && <Renderer key={previousState}>{previousChildren}</Renderer>}
-        <Renderer key={router.state}>{children}</Renderer>
-    </>;
+    return (
+        <>
+            {previousState && <Renderer key={previousState}>{previousChildren}</Renderer>}
+            <Renderer key={router.state}>{children}</Renderer>
+        </>
+    );
 };

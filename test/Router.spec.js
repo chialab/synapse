@@ -1,191 +1,224 @@
-import { expect } from '@chialab/ginsenghino';
 import { Router } from '@chialab/synapse';
+import { beforeAll, describe, expect, test } from 'vitest';
 
 describe('Router', () => {
-    it('should correctly initialize', () => {
+    test('should correctly initialize', () => {
         const router = new Router();
 
-        expect(router.origin).to.be.a('string');
-        expect(router.base).to.be.equal('/');
+        expect(router.origin).toBeTypeOf('string');
+        expect(router.base).toBe('/');
     });
 
-    it('should normalize base', () => {
-        expect(new Router({ origin: 'http://local', base: '/' }).base).to.be.equal('/');
-        expect(new Router({ origin: 'http://local', base: '' }).base).to.be.equal('/');
-        expect(new Router({ origin: 'http://local', base: 'base' }).base).to.be.equal('/base');
-        expect(new Router({ origin: 'http://local', base: 'base?test' }).base).to.be.equal('/base');
-        expect(new Router({ origin: 'http://local', base: 'base/' }).base).to.be.equal('/base');
-        expect(new Router({ origin: 'http://local', base: '/base' }).base).to.be.equal('/base');
-        expect(new Router({ origin: 'http://local', base: '/base/' }).base).to.be.equal('/base');
+    test('should normalize base', () => {
+        expect(new Router({ origin: 'http://local', base: '/' }).base).toBe('/');
+        expect(new Router({ origin: 'http://local', base: '' }).base).toBe('/');
+        expect(new Router({ origin: 'http://local', base: 'base' }).base).toBe('/base');
+        expect(new Router({ origin: 'http://local', base: 'base?test' }).base).toBe('/base');
+        expect(new Router({ origin: 'http://local', base: 'base/' }).base).toBe('/base');
+        expect(new Router({ origin: 'http://local', base: '/base' }).base).toBe('/base');
+        expect(new Router({ origin: 'http://local', base: '/base/' }).base).toBe('/base');
     });
 
-    it('should get path from url', () => {
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base')).to.be.equal('/');
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base?query')).to.be.equal('/?query');
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/')).to.be.equal('/');
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/?query')).to.be.equal('/?query');
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path')).to.be.equal('/path');
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path?query')).to.be.equal('/path?query');
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://local/base')).to.be.equal('/');
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://local/wrong')).to.be.null;
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://wrong/base')).to.be.null;
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://wrong')).to.be.null;
+    test('should get path from url', () => {
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base')).toBe('/');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base?query')).toBe('/?query');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/')).toBe('/');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/?query')).toBe('/?query');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path')).toBe('/path');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path?query')).toBe(
+            '/path?query'
+        );
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://local/base')).toBe('/');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://local/wrong')).toBeNull();
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://wrong/base')).toBeNull();
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://wrong')).toBeNull();
     });
 
-    it('should resolve a path', () => {
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('')).to.be.equal('/');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/')).to.be.equal('/');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test')).to.be.equal('/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test')).to.be.equal('/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test/')).to.be.equal('/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test/')).to.be.equal('/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('//test//')).to.be.equal('/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test?query')).to.be.equal('/test?query');
+    test('should resolve a path', () => {
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('')).toBe('/');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/')).toBe('/');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test')).toBe('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test')).toBe('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test/')).toBe('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test/')).toBe('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('//test//')).toBe('/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test?query')).toBe('/test?query');
     });
 
-    it('should resolve a full path', () => {
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('', true)).to.be.equal('http://local/');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/', true)).to.be.equal('http://local/');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test', true)).to.be.equal('http://local/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test', true)).to.be.equal('http://local/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test/', true)).to.be.equal('http://local/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test/', true)).to.be.equal('http://local/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('//test//', true)).to.be.equal('http://local/test');
-        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test?query', true)).to.be.equal('http://local/test?query');
+    test('should resolve a full path', () => {
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('', true)).toBe('http://local/');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/', true)).toBe('http://local/');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test', true)).toBe('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test', true)).toBe('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('test/', true)).toBe('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test/', true)).toBe('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('//test//', true)).toBe('http://local/test');
+        expect(new Router({ origin: 'http://local', base: '/' }).resolve('/test?query', true)).toBe(
+            'http://local/test?query'
+        );
     });
 
-    it('should resolve a path with base', () => {
-        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('')).to.be.equal('/base');
-        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/')).to.be.equal('/base');
-        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('test')).to.be.equal('/base/test');
-        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test')).to.be.equal('/base/test');
-        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('test/')).to.be.equal('/base/test');
-        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test/')).to.be.equal('/base/test');
-        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('//test//')).to.be.equal('/base/test');
-        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test?query')).to.be.equal('/base/test?query');
+    test('should resolve a path with base', () => {
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('')).toBe('/base');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/')).toBe('/base');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('test')).toBe('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test')).toBe('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('test/')).toBe('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test/')).toBe('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('//test//')).toBe('/base/test');
+        expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test?query')).toBe('/base/test?query');
     });
 
-    it('should navigate', async () => {
-        const router = new Router({
-            origin: 'http://local',
-        }, [{
-            pattern: '/test',
-            handler: (req, res) => {
-                res.setData(req.url);
-            },
-        }]);
-
-        await router.start();
-
-        const response = await router.navigate('/test?test=1');
-        expect(response.request.path.searchParams.get('test')).to.be.equal('1');
-        expect(response.data.href).to.be.equal('http://local/test?test=1');
-        expect(router.history.states[1].url).to.be.equal('http://local/test?test=1');
-    });
-
-    it('should navigate with base', async () => {
-        const router = new Router({
-            origin: 'http://local',
-            base: '/base',
-        }, [{
-            pattern: '/test',
-            handler: (req, res) => {
-                res.setData(req.url);
-            },
-        }]);
-
-        await router.start();
-
-        const response = await router.navigate('/test');
-        expect(response.data.href).to.be.equal('http://local/base/test');
-        expect(router.history.states[1].url).to.be.equal('http://local/base/test');
-    });
-
-    it('should navigate with hashbang base', async () => {
-        const router = new Router({
-            origin: 'http://local',
-            base: '/#!/',
-        }, [{
-            pattern: '/test',
-            handler: (req, res) => {
-                res.setData(req.url);
-            },
-        }]);
-
-        await router.start();
-
-        const response = await router.navigate('/test?test=1');
-        expect(response.request.path.searchParams.get('test')).to.be.equal('1');
-        expect(response.data.href).to.be.equal('http://local/#!/test?test=1');
-        expect(router.history.states[1].url).to.be.equal('http://local/#!/test?test=1');
-    });
-
-    it('should navigate with hash', async () => {
-        const router = new Router({
-            origin: 'http://local',
-        }, [
+    test('should navigate', async () => {
+        const router = new Router(
             {
-                pattern: '/test',
-                handler: (req, res) => {
-                    res.setData(req.url);
-                },
+                origin: 'http://local',
             },
-        ]);
+            [
+                {
+                    pattern: '/test',
+                    handler: (req, res) => {
+                        res.setData(req.url);
+                    },
+                },
+            ]
+        );
+
+        await router.start();
+
+        const response = await router.navigate('/test?test=1');
+        expect(response.request.path.searchParams.get('test')).toBe('1');
+        expect(response.data.href).toBe('http://local/test?test=1');
+        expect(router.history.states[1].url).toBe('http://local/test?test=1');
+    });
+
+    test('should navigate with base', async () => {
+        const router = new Router(
+            {
+                origin: 'http://local',
+                base: '/base',
+            },
+            [
+                {
+                    pattern: '/test',
+                    handler: (req, res) => {
+                        res.setData(req.url);
+                    },
+                },
+            ]
+        );
 
         await router.start();
 
         const response = await router.navigate('/test');
-        expect(response.data.href).to.be.equal('http://local/test');
-        expect(router.history.states[1].url).to.be.equal('http://local/test');
+        expect(response.data.href).toBe('http://local/base/test');
+        expect(router.history.states[1].url).toBe('http://local/base/test');
+    });
+
+    test('should navigate with hashbang base', async () => {
+        const router = new Router(
+            {
+                origin: 'http://local',
+                base: '/#!/',
+            },
+            [
+                {
+                    pattern: '/test',
+                    handler: (req, res) => {
+                        res.setData(req.url);
+                    },
+                },
+            ]
+        );
+
+        await router.start();
+
+        const response = await router.navigate('/test?test=1');
+        expect(response.request.path.searchParams.get('test')).toBe('1');
+        expect(response.data.href).toBe('http://local/#!/test?test=1');
+        expect(router.history.states[1].url).toBe('http://local/#!/test?test=1');
+    });
+
+    test('should navigate with hash', async () => {
+        const router = new Router(
+            {
+                origin: 'http://local',
+            },
+            [
+                {
+                    pattern: '/test',
+                    handler: (req, res) => {
+                        res.setData(req.url);
+                    },
+                },
+            ]
+        );
+
+        await router.start();
+
+        const response = await router.navigate('/test');
+        expect(response.data.href).toBe('http://local/test');
+        expect(router.history.states[1].url).toBe('http://local/test');
         const response2 = await router.navigate('/test#test');
-        expect(response2.data.href).to.be.equal('http://local/test#test');
-        expect(router.history.states[2].url).to.be.equal('http://local/test#test');
+        expect(response2.data.href).toBe('http://local/test#test');
+        expect(router.history.states[2].url).toBe('http://local/test#test');
     });
 
     describe('patterns', () => {
         let router;
-        before(() => {
-            router = new Router({
-                base: '/base',
-            }, [
+        beforeAll(() => {
+            router = new Router(
                 {
-                    pattern: '/params/:action/:id',
+                    base: '/base',
                 },
-                {
-                    pattern: '/params/:id',
-                },
-                {
-                    pattern: '/params',
-                },
-            ]);
+                [
+                    {
+                        pattern: '/params/:action/:id',
+                    },
+                    {
+                        pattern: '/params/:id',
+                    },
+                    {
+                        pattern: '/params',
+                    },
+                ]
+            );
         });
 
-        it('should match empty params', async () => {
-            const { request: { params } } = await router.navigate('/params');
+        test('should match empty params', async () => {
+            const {
+                request: { params },
+            } = await router.navigate('/params');
 
-            expect(Object.keys(params)).to.have.lengthOf(0);
+            expect(Object.keys(params)).toHaveLength(0);
         });
 
-        it('should match single param', async () => {
-            const { request: { params } } = await router.navigate('/params/123');
+        test('should match single param', async () => {
+            const {
+                request: { params },
+            } = await router.navigate('/params/123');
 
-            expect(Object.keys(params)).to.have.lengthOf(1);
-            expect(params.id).to.be.equal('123');
+            expect(Object.keys(params)).toHaveLength(1);
+            expect(params.id).toBe('123');
         });
 
-        it('should match single param with query string', async () => {
-            const { request: { params } } = await router.navigate('/params/123?test');
+        test('should match single param with query string', async () => {
+            const {
+                request: { params },
+            } = await router.navigate('/params/123?test');
 
-            expect(Object.keys(params)).to.have.lengthOf(1);
-            expect(params.id).to.be.equal('123');
+            expect(Object.keys(params)).toHaveLength(1);
+            expect(params.id).toBe('123');
         });
 
-        it('should match multiple params', async () => {
-            const { request: { params } } = await router.navigate('/params/view/123');
+        test('should match multiple params', async () => {
+            const {
+                request: { params },
+            } = await router.navigate('/params/view/123');
 
-            expect(Object.keys(params)).to.have.lengthOf(2);
-            expect(params.action).to.be.equal('view');
-            expect(params.id).to.be.equal('123');
+            expect(Object.keys(params)).toHaveLength(2);
+            expect(params.action).toBe('view');
+            expect(params.id).toBe('123');
         });
     });
 });

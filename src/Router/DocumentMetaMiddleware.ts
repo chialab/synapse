@@ -1,10 +1,10 @@
-import type { Request } from './Request';
-import type { Meta, Response } from './Response';
 import { document } from '@chialab/dna';
 import { Middleware } from './Middleware';
+import type { Request } from './Request';
+import type { Meta, Response } from './Response';
 
 export type TitleBuilder = (title: string | undefined, response: Response) => string;
-export type MetaBuilder = (meta: Meta|undefined, response: Response) => Meta;
+export type MetaBuilder = (meta: Meta | undefined, response: Response) => Meta;
 
 /**
  * Middleware to set the document title and meta tags upon navigation.

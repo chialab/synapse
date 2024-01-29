@@ -1,22 +1,18 @@
-import { expect } from '@chialab/ginsenghino';
-import { isNode, isBrowser } from '@chialab/synapse';
+import { isBrowser, isNode } from '@chialab/synapse';
+import { describe, expect, test } from 'vitest';
 
 describe('Env', () => {
-    it('should detect browser', function() {
+    test('should detect browser', () => {
         if (typeof window !== 'undefined') {
-            expect(isBrowser()).to.be.true;
-            expect(isNode()).to.be.false;
-        } else {
-            this.skip();
+            expect(isBrowser()).toBe(true);
+            expect(isNode()).toBe(false);
         }
     });
 
-    it('should detect node', function() {
+    test('should detect node', () => {
         if (typeof process !== 'undefined') {
-            expect(isNode()).to.be.true;
-            expect(isBrowser()).to.be.false;
-        } else {
-            this.skip();
+            expect(isNode()).toBe(true);
+            expect(isBrowser()).toBe(false);
         }
     });
 });

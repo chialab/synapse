@@ -1,19 +1,19 @@
-import type { MiddlewareRule, MiddlewareBeforeHandler, MiddlewareAfterHandler } from './Middleware';
-import type { RequestInit } from './Request';
-import type { ErrorHandler } from './ErrorHandler';
-import type { RouteRule, RouteHandler, NextHandler } from './Route';
-import type { State } from './State';
-import type { HistoryState } from './History';
 import { window } from '@chialab/dna';
+import { Emitter } from '../Helpers/Emitter';
+import { BrowserHistory } from './BrowserHistory';
+import type { ErrorHandler } from './ErrorHandler';
+import DEFAULT_ERROR_HANDLER from './ErrorHandler';
+import type { HistoryState } from './History';
 import { History, isStateful } from './History';
+import type { MiddlewareAfterHandler, MiddlewareBeforeHandler, MiddlewareRule } from './Middleware';
+import { Middleware } from './Middleware';
 import { Path, trimSlash, trimSlashStart } from './Path';
+import type { RequestInit } from './Request';
 import { Request } from './Request';
 import { Response } from './Response';
+import type { NextHandler, RouteHandler, RouteRule } from './Route';
 import { Route } from './Route';
-import { Middleware } from './Middleware';
-import { BrowserHistory } from './BrowserHistory';
-import { Emitter } from '../Helpers/Emitter';
-import DEFAULT_ERROR_HANDLER from './ErrorHandler';
+import type { State } from './State';
 
 /**
  * The options to pass to the router.
@@ -25,16 +25,17 @@ export interface RouterOptions {
     errorHandler?: ErrorHandler;
 }
 
-const DEFAULT_ORIGIN = window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'http://local';
+const DEFAULT_ORIGIN =
+    window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'http://local';
 const DEFAULT_BASE = '/';
 
 /**
  * A router implementation for app navigation.
  */
 export class Router extends Emitter<{
-    'pushstate': [{ state: State; previous?: State }, void];
-    'replacestate': [{ state: State; previous?: State }, void];
-    'popstate': [{ state: State; previous?: State }, void];
+    pushstate: [{ state: State; previous?: State }, void];
+    replacestate: [{ state: State; previous?: State }, void];
+    popstate: [{ state: State; previous?: State }, void];
 }> {
     /**
      * The router error handler.
@@ -139,7 +140,11 @@ export class Router extends Emitter<{
      * @param routes A list of routes to connect.
      * @param middlewares A list of middlewares to connect.
      */
-    constructor(options: RouterOptions = {}, routes: (Route | RouteRule)[] = [], middlewares: (Middleware | MiddlewareRule)[] = []) {
+    constructor(
+        options: RouterOptions = {},
+        routes: (Route | RouteRule)[] = [],
+        middlewares: (Middleware | MiddlewareRule)[] = []
+    ) {
         super();
 
         if (options.history) {
@@ -177,7 +182,7 @@ export class Router extends Emitter<{
      * Set the location origin of the router.
      * @param origin The origin value.
      */
-    setOrigin(origin: string|null) {
+    setOrigin(origin: string | null) {
         if (this.running) {
             throw new Error('Cannot set origin after router is started.');
         }
@@ -189,7 +194,7 @@ export class Router extends Emitter<{
      * Set the routing url base.
      * @param base The base value.
      */
-    setBase(base: string|null) {
+    setBase(base: string | null) {
         if (this.running) {
             throw new Error('Cannot set base after router is started.');
         }
@@ -227,7 +232,7 @@ export class Router extends Emitter<{
                 continue;
             }
             try {
-                response = await middleware.hookBefore(request, response, params, this) || response;
+                response = (await middleware.hookBefore(request, response, params, this)) || response;
             } catch (error) {
                 request.reject(error as Error);
                 throw error;
@@ -249,7 +254,7 @@ export class Router extends Emitter<{
                 }
                 req.setMatcher(route);
                 req.setParams(params);
-                const newResponse = await route.exec(req, res, next, this) ?? res;
+                const newResponse = (await route.exec(req, res, next, this)) ?? res;
                 if (newResponse.redirected) {
                     return newResponse;
                 }
@@ -283,7 +288,7 @@ export class Router extends Emitter<{
                 continue;
             }
             try {
-                response = await middleware.hookAfter(request, response, params, this) || response;
+                response = (await middleware.hookAfter(request, response, params, this)) || response;
             } catch (error) {
                 request.reject(error as Error);
                 throw error;
@@ -305,7 +310,15 @@ export class Router extends Emitter<{
      * @returns The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async navigate(path: Path | string, init?: RequestInit, data: any = null, trigger = true, force = false, parentRequest?: Request, parentResponse?: Response): Promise<Response | null> {
+    async navigate(
+        path: Path | string,
+        init?: RequestInit,
+        data: any = null,
+        trigger = true,
+        force = false,
+        parentRequest?: Request,
+        parentResponse?: Response
+    ): Promise<Response | null> {
         return this.setCurrentNavigation(async () => {
             path = typeof path === 'string' ? new Path(path) : path;
             init = { ...init, path };
@@ -331,18 +344,28 @@ export class Router extends Emitter<{
             }
 
             if (response.redirected != null) {
-                return this.replace(response.redirected, response.redirectInit, data, trigger, parentRequest, parentResponse);
+                return this.replace(
+                    response.redirected,
+                    response.redirectInit,
+                    data,
+                    trigger,
+                    parentRequest,
+                    parentResponse
+                );
             }
 
             const title = response.title || window.document.title;
-            await this.pushState({
-                url: response.redirected || url.href,
-                path: path.href,
-                title,
-                request,
-                response,
-                data: response.getData(),
-            }, trigger);
+            await this.pushState(
+                {
+                    url: response.redirected || url.href,
+                    path: path.href,
+                    title,
+                    request,
+                    response,
+                    data: response.getData(),
+                },
+                trigger
+            );
 
             return response;
         });
@@ -354,7 +377,14 @@ export class Router extends Emitter<{
      * @returns The final response instance.
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async replace(path: Path | string, init?: RequestInit, data: any = null, trigger = true, parentRequest?: Request, parentResponse?: Response): Promise<Response> {
+    async replace(
+        path: Path | string,
+        init?: RequestInit,
+        data: any = null,
+        trigger = true,
+        parentRequest?: Request,
+        parentResponse?: Response
+    ): Promise<Response> {
         return this.setCurrentNavigation(async () => {
             path = typeof path === 'string' ? new Path(path) : path;
             init = { ...init, path };
@@ -379,14 +409,17 @@ export class Router extends Emitter<{
             }
 
             const title = response.title || window.document.title;
-            await this.replaceState({
-                url: response.redirected || url.href,
-                path: path.href,
-                title,
-                request,
-                response,
-                data: response.getData(),
-            }, trigger);
+            await this.replaceState(
+                {
+                    url: response.redirected || url.href,
+                    path: path.href,
+                    title,
+                    request,
+                    response,
+                    data: response.getData(),
+                },
+                trigger
+            );
 
             return response;
         }) as Promise<Response>;
@@ -424,7 +457,11 @@ export class Router extends Emitter<{
      */
     middleware(middleware: Middleware | MiddlewareRule): Middleware;
     middleware(path: string, after?: MiddlewareAfterHandler, before?: MiddlewareBeforeHandler): Middleware;
-    middleware(middlewareOrPath: Middleware | MiddlewareRule | string, after?: MiddlewareAfterHandler, before?: MiddlewareBeforeHandler): Middleware {
+    middleware(
+        middlewareOrPath: Middleware | MiddlewareRule | string,
+        after?: MiddlewareAfterHandler,
+        before?: MiddlewareBeforeHandler
+    ): Middleware {
         let middleware: Middleware;
         if (middlewareOrPath instanceof Middleware) {
             middleware = middlewareOrPath;
@@ -560,10 +597,13 @@ export class Router extends Emitter<{
      * @returns A url.
      */
     urlFromPath(path: Path | string) {
-        return new URL(`/${[this.base, typeof path === 'string' ? path : path.href]
-            .map((chunk) => trimSlash(chunk))
-            .filter((chunk) => !!chunk)
-            .join('/')}`, this.origin);
+        return new URL(
+            `/${[this.base, typeof path === 'string' ? path : path.href]
+                .map((chunk) => trimSlash(chunk))
+                .filter((chunk) => !!chunk)
+                .join('/')}`,
+            this.origin
+        );
     }
 
     /**
@@ -580,7 +620,7 @@ export class Router extends Emitter<{
      * @returns The navigation response.
      */
     private setCurrentNavigation(callback: () => Promise<Response | null>) {
-        return this.#navigationPromise = callback();
+        return (this.#navigationPromise = callback());
     }
 
     /**
@@ -588,7 +628,7 @@ export class Router extends Emitter<{
      * @param request The request instance.
      */
     private setCurrentRequest(request: Request) {
-        return this.#currentRequest = request;
+        return (this.#currentRequest = request);
     }
 
     /**
@@ -653,15 +693,14 @@ export class Router extends Emitter<{
      * Handle History pop state event.
      * @param data Event data.
      */
-    private onPopState = (entry: { state: State | HistoryState; previous?: State }|{ url: string }) => {
+    private onPopState = (entry: { state: State | HistoryState; previous?: State } | { url: string }) => {
         if (isStateful(entry)) {
-            this.replace(entry.state.path, undefined, entry.state.data, false)
-                .then(() => {
-                    this.trigger('popstate', {
-                        state: this.state as State,
-                        previous: entry.previous,
-                    });
+            this.replace(entry.state.path, undefined, entry.state.data, false).then(() => {
+                this.trigger('popstate', {
+                    state: this.state as State,
+                    previous: entry.previous,
                 });
+            });
         } else if (entry.url) {
             this.navigate(this.pathFromUrl(window.location.href) || '/');
         }

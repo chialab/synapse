@@ -1,34 +1,34 @@
-import { expect } from '@chialab/ginsenghino';
 import { h, render, window } from '@chialab/dna';
 import { Page, Response } from '@chialab/synapse';
+import { describe, expect, test } from 'vitest';
 
 describe('Page', () => {
-    it('render empty response', () => {
+    test('render empty response', () => {
         const response = new Response();
         const contents = render(h(Page, { response }));
 
-        expect(contents).to.be.instanceOf(window.Comment);
+        expect(contents).toBeInstanceOf(window.Comment);
     });
 
-    it('render textual response', () => {
+    test('render textual response', () => {
         const response = new Response();
         response.setView(() => 'test');
 
         const contents = render(h(Page, { response }));
 
-        expect(contents[0]).to.be.instanceOf(window.Comment);
-        expect(contents[1]).to.be.instanceOf(window.Text);
-        expect(contents[1].textContent).to.be.equal('test');
+        expect(contents[0]).toBeInstanceOf(window.Comment);
+        expect(contents[1]).toBeInstanceOf(window.Text);
+        expect(contents[1].textContent).toBe('test');
     });
 
-    it('render html response', () => {
+    test('render html response', () => {
         const response = new Response();
         response.setView(() => h('span', {}, 'test'));
 
         const contents = render(h(Page, { response }));
 
-        expect(contents[0]).to.be.instanceOf(window.Comment);
-        expect(contents[1].tagName).to.be.equal('SPAN');
-        expect(contents[1].textContent).to.be.equal('test');
+        expect(contents[0]).toBeInstanceOf(window.Comment);
+        expect(contents[1].tagName).toBe('SPAN');
+        expect(contents[1].textContent).toBe('test');
     });
 });

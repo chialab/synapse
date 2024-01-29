@@ -16,33 +16,20 @@
 
 ## Get the library
 
-Usage via [unpkg.com](https://unpkg.com/), as UMD package:
+Install via NPM or Yarn:
 
-```html
-<script src="https://unpkg.com/@chialab/synapse" type="text/javascript"></script>
+```
+npm i @chialab/synapse
 ```
 
-or as ES6 module:
-
-```tsx
-import { App, Router, ... } from 'https://unpkg.com/@chialab/synapse?module';
 ```
-
-Install via NPM:
-
-```sh
-$ npm i @chialab/synapse
-$ yarn add @chialab/synapse
-```
-
-```tsx
-import { App, Router, ... } from '@chialab/synapse';
+yarn add @chialab/synapse
 ```
 
 ## Create an application
 
 ```tsx
-import { html, customElement, render } from '@chialab/dna';
+import { customElement, html, render } from '@chialab/dna';
 import { App } from '@chialab/synapse';
 
 @customElement('demo-app')
@@ -51,9 +38,11 @@ class DemoApp extends App {
         {
             pattern: '/',
             render(req, res) {
-                return <main>
-                    <h1>Home</h1>
-                </main>;
+                return (
+                    <main>
+                        <h1>Home</h1>
+                    </main>
+                );
             },
         },
         {
@@ -61,36 +50,38 @@ class DemoApp extends App {
                 res.data = new Error('not found');
             },
             render(req, res) {
-                return <main>
-                    <details>
-                        <summary>${res.data.message}</summary>
-                        <pre>${res.data.stack}</pre>
-                    </details>
-                </main>;
+                return (
+                    <main>
+                        <details>
+                            <summary>${res.data.message}</summary>
+                            <pre>${res.data.stack}</pre>
+                        </details>
+                    </main>
+                );
             },
         },
     ];
 
     render() {
-        return <>
-            <header>
-                <h1>Synapse 3.0</h1>
-            </header>
-            <nav>
-                <ul>
-                    <li>
-                        <a href={router.resolve('/')}>Home</a>
-                    </li>
-                </ul>
-            </nav>
-            {super.render()}
-        </>;
+        return (
+            <>
+                <header>
+                    <h1>Synapse 3.0</h1>
+                </header>
+                <nav>
+                    <ul>
+                        <li>
+                            <a href={router.resolve('/')}>Home</a>
+                        </li>
+                    </ul>
+                </nav>
+                {super.render()}
+            </>
+        );
     }
 }
 
-const app = render(<DemoApp
-    base="/"
-/>, document.getElementById('app'));
+const app = render(<DemoApp base="/" />, document.getElementById('app'));
 
 app.start('/');
 ```
@@ -102,26 +93,24 @@ app.start('/');
 [![Build status](https://github.com/chialab/synapse/workflows/Main/badge.svg)](https://github.com/chialab/synapse/actions?query=workflow%3ABuild)
 [![codecov](https://codecov.io/gh/chialab/synapse/branch/main/graph/badge.svg)](https://codecov.io/gh/chialab/synapse)
 
-### Build the project
+### Build
 
-Install the dependencies and run the `build` script:
-```
-$ yarn install
-$ yarn build
-```
-
-This will generate the UMD and ESM bundles in the `dist` folder, as well as the declaration file.
-
-### Test the project
-
-Run the `test` script:
+Install the dependencies
 
 ```
-$ yarn test
+yarn
 ```
+
+and run the `build` script:
+
+```
+yarn build
+```
+
+This will generate the ESM and CJS bundles in the `dist` folder and declaration files in the `types` folder.
 
 ---
 
 ## License
 
-Synapse is released under the [MIT](https://github.com/chialab/synapse/blob/master/LICENSE) license.
+Synapse is released under the [MIT](https://github.com/chialab/synapse/blob/main/LICENSE) license.
