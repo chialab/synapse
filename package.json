@@ -17,6 +17,7 @@
     }
   },
   "scripts": {
+    "dev": "vite",
     "build": "rimraf 'dist' 'types' && yarn types && yarn build:esm && yarn build:node && yarn build:cjs",
     "build:esm": "esbuild src/index.ts --outfile=dist/synapse.js --format=esm --bundle --packages=external --sourcemap --platform=browser",
     "build:node": "esbuild src/index.ts --outfile=dist/synapse.node.js --format=esm --bundle --packages=external --sourcemap --platform=node",
@@ -26,8 +27,7 @@
     "test:browser": "vitest run --config vitest.browser.ts",
     "test:node": "vitest run --config vitest.node.ts",
     "lint": "prettier --check . && eslint src test",
-    "example:serve": "vite",
-    "example:build": "vite build",
+    "pages:build": "vite build",
     "prepack": "yarn build && publint"
   },
   "files": [
