@@ -1,6 +1,4 @@
-import { window } from '@chialab/dna';
-import type { HistoryState } from './History';
-import { History, isHistoryState } from './History';
+import { History, isHistoryState, type HistoryState } from './History';
 import type { State } from './State';
 
 /**

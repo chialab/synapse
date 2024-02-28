@@ -32,18 +32,7 @@
         </style>
     </head>
     <body></body>
-    <script type="module">
-        import { document, html, render, window } from '@chialab/dna';
-        import { BrowserHistory } from './src/index.ts';
-        import './examples/navigation/App.js';
-
-        const app = render(
-            html`<demo-app
-                base=${`${window.location.pathname}#!/`}
-                history=${new BrowserHistory()} />`,
-            document.body
-        );
-
-        app.start();
-    </script>
+    <script
+        type="module"
+        src="./examples/navigation/index.js"></script>
 </html>

@@ -1,7 +1,7 @@
 import { html } from '@chialab/dna';
 import { getRouter } from '@chialab/synapse';
 
-export function Link({ children, href }, context) {
+export function Link({ children, href }, hooks, context) {
     const router = getRouter(context);
     const isCurrentPage = href === router?.current;
 

@@ -1,5 +1,3 @@
-import { DOM, window } from '@chialab/dna';
-
 /**
  * Cache links promises.
  */
@@ -17,7 +15,7 @@ export function loadStyleSheet(url: string | URL, reload = false): Promise<HTMLL
 
     let promise;
     if (!loader || reload) {
-        const link = DOM.createElement('link');
+        const link = document.createElement('link');
         link.type = 'text/css';
         link.rel = 'stylesheet';
         link.href = href;

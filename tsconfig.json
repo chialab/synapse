@@ -21,6 +21,7 @@
     "checkJs": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": false,
     "isolatedModules": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@chialab/dna",

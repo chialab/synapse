@@ -1,4 +1,4 @@
-import { h, render, window } from '@chialab/dna';
+import { h, render } from '@chialab/dna';
 import { Page, Response } from '@chialab/synapse';
 import { describe, expect, test } from 'vitest';
 
@@ -7,7 +7,7 @@ describe('Page', () => {
         const response = new Response();
         const contents = render(h(Page, { response }));
 
-        expect(contents).toBeInstanceOf(window.Comment);
+        expect(contents).toBeInstanceOf(Comment);
     });
 
     test('render textual response', () => {
@@ -16,8 +16,8 @@ describe('Page', () => {
 
         const contents = render(h(Page, { response }));
 
-        expect(contents[0]).toBeInstanceOf(window.Comment);
-        expect(contents[1]).toBeInstanceOf(window.Text);
+        expect(contents[0]).toBeInstanceOf(Comment);
+        expect(contents[1]).toBeInstanceOf(Text);
         expect(contents[1].textContent).toBe('test');
     });
 
@@ -27,7 +27,7 @@ describe('Page', () => {
 
         const contents = render(h(Page, { response }));
 
-        expect(contents[0]).toBeInstanceOf(window.Comment);
+        expect(contents[0]).toBeInstanceOf(Comment);
         expect(contents[1].tagName).toBe('SPAN');
         expect(contents[1].textContent).toBe('test');
     });

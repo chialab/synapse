@@ -1,18 +1,17 @@
-import { window } from '@chialab/dna';
 import { Emitter } from '../Helpers/Emitter';
 import { BrowserHistory } from './BrowserHistory';
-import type { ErrorHandler } from './ErrorHandler';
-import DEFAULT_ERROR_HANDLER from './ErrorHandler';
-import type { HistoryState } from './History';
-import { History, isStateful } from './History';
-import type { MiddlewareAfterHandler, MiddlewareBeforeHandler, MiddlewareRule } from './Middleware';
-import { Middleware } from './Middleware';
+import DEFAULT_ERROR_HANDLER, { type ErrorHandler } from './ErrorHandler';
+import { History, isStateful, type HistoryState } from './History';
+import {
+    Middleware,
+    type MiddlewareAfterHandler,
+    type MiddlewareBeforeHandler,
+    type MiddlewareRule,
+} from './Middleware';
 import { Path, trimSlash, trimSlashStart } from './Path';
-import type { RequestInit } from './Request';
-import { Request } from './Request';
+import { Request, type RequestInit } from './Request';
 import { Response } from './Response';
-import type { NextHandler, RouteHandler, RouteRule } from './Route';
-import { Route } from './Route';
+import { Route, type NextHandler, type RouteHandler, type RouteRule } from './Route';
 import type { State } from './State';
 
 /**

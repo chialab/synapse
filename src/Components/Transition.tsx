@@ -1,5 +1,4 @@
 import type { FunctionComponent, Template } from '@chialab/dna';
-import { Node, window } from '@chialab/dna';
 import type { Router } from '../Router/Router';
 import type { State } from '../Router/State';
 
@@ -23,28 +22,29 @@ type TransitionProps = {
 /**
  * Render responses with page transitions.
  * @param data Page data to render.
+ * @param hooks The render hooks.
  * @param context The render context.
  * @returns A template of pages to animate.
  */
 export const Transition: FunctionComponent<TransitionProps> = function Transition(
     { router, children, renderer: Renderer = TransitionPage },
+    { useState },
     context
 ) {
     if (!router) {
         throw new Error('Transition router is required');
     }
 
-    const { start, store, requestUpdate } = context;
-    if (!start) {
+    if (!context.node) {
         return <Renderer key={router.state}>{children}</Renderer>;
     }
 
-    const currentState = store.get('state') as State | undefined;
-    const root = start.parentElement;
+    const root = context.node.parentElement;
+    const [counter, setCounter] = useState(0);
+    const [routerState, setRouterState] = useState<State | null>(null);
+    const [currentChildren, setCurrentChildren] = useState<Template>(null);
 
-    let previousState = store.get('previousState') as State | undefined;
-    let previousChildren = store.get('previousChildren') as Template[] | undefined;
-    if (currentState !== router.state) {
+    if (routerState !== router.state) {
         if (root) {
             const start = function (event: AnimationEvent) {
                 const target = event.target as HTMLElement;
@@ -52,8 +52,7 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
                     return;
                 }
 
-                const counter = ((store.get('counter') as number) || 0) + 1;
-                store.set('counter', counter);
+                setCounter(counter + 1);
             };
 
             const end = function (event: AnimationEvent) {
@@ -62,8 +61,7 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
                     return;
                 }
 
-                const counter = ((store.get('counter') as number) || 0) - 1;
-                store.set('counter', counter);
+                setCounter(counter - 1);
 
                 if (counter === 0) {
                     flush();
@@ -73,16 +71,14 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
             const flush = function () {
                 root.removeEventListener('animationstart', start);
                 root.removeEventListener('animationend', end);
-                store.delete('previousState');
-                store.delete('previousChildren');
-                requestUpdate?.();
+                setRouterState(null);
             };
 
             root.addEventListener('animationstart', start);
             root.addEventListener('animationend', end);
             setTimeout(() => {
-                let node = context.start as Node;
-                while (node && node !== context.end) {
+                let node = context.node as Node;
+                while (node && node !== context.end?.node) {
                     node = node.nextSibling as Node;
                     if (node.nodeType === Node.ELEMENT_NODE) {
                         const style = window.getComputedStyle(node as HTMLElement);
@@ -98,18 +94,13 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
             });
         }
 
-        previousState = currentState;
-        previousChildren = store.get('children') as Template[] | undefined;
-        store.set('previousState', previousState);
-        store.set('previousChildren', previousChildren);
-        store.set('counter', 0);
-        store.set('children', children);
-        store.set('state', router.state);
+        setCurrentChildren(children);
+        setRouterState(router.state || null);
     }
 
     return (
         <>
-            {previousState && <Renderer key={previousState}>{previousChildren}</Renderer>}
+            {routerState && <Renderer key={routerState}>{currentChildren}</Renderer>}
             <Renderer key={router.state}>{children}</Renderer>
         </>
     );

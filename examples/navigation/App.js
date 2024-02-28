@@ -1,4 +1,4 @@
-import { customElements, html } from '@chialab/dna';
+import { define, html } from '@chialab/dna';
 import { App, DocumentMetaMiddleware } from '@chialab/synapse';
 import { Link } from './Elements/Link.js';
 import { Dashboard } from './Pages/Dashboard.js';
@@ -6,22 +6,24 @@ import { NotFound } from './Pages/NotFound.js';
 import { Projects } from './Pages/Projects.js';
 import { Team } from './Pages/Team.js';
 
-export class DemoApp extends App {
-    static get routes() {
-        return [
-            new Dashboard({ pattern: '/' }),
-            new Team({ pattern: '/team' }),
-            new Projects({ pattern: '/projects' }),
-            new NotFound({ pattern: '*' }),
-        ];
-    }
+export const DemoApp = define(
+    'demo-app',
+    class DemoApp extends App {
+        static get routes() {
+            return [
+                new Dashboard({ pattern: '/' }),
+                new Team({ pattern: '/team' }),
+                new Projects({ pattern: '/projects' }),
+                new NotFound({ pattern: '*' }),
+            ];
+        }
 
-    static get middlewares() {
-        return [new DocumentMetaMiddleware()];
-    }
+        static get middlewares() {
+            return [new DocumentMetaMiddleware()];
+        }
 
-    render() {
-        return html`<div class="min-h-full flex flex-col">
+        render() {
+            return html`<div class="min-h-full flex flex-col">
             <nav class="bg-gray-800 flex-none">
                 <div class="px-4">
                     <div class="flex h-16 items-center justify-between">
@@ -48,7 +50,6 @@ export class DemoApp extends App {
                 </div>
             </main>
         </div>`;
+        }
     }
-}
-
-customElements.define('demo-app', DemoApp);
+);

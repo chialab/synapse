@@ -1,4 +1,3 @@
-import { document } from '@chialab/dna';
 import { Middleware } from './Middleware';
 import type { Request } from './Request';
 import type { Meta, Response } from './Response';

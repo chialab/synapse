@@ -1,5 +1,4 @@
-import type { PatternRule } from './Pattern';
-import { Pattern } from './Pattern';
+import { Pattern, type PatternRule } from './Pattern';
 import type { Request, RequestParams } from './Request';
 import type { Response } from './Response';
 import type { Router } from './Router';
