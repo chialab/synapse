@@ -58,6 +58,9 @@ jobs:
       - name: Install project dependencies
         run: yarn install
 
+      - name: Install chromium
+        run: yarn playwright install --with-deps chromium
+
       - name: Run tests
         run: yarn test --coverage
 

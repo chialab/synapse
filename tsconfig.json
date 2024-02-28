@@ -27,8 +27,8 @@
     "jsxImportSource": "@chialab/dna",
     "moduleResolution": "node",
     "paths": {
-      "@chialab/synapse": ["./src/index.ts"],
-    },
+      "@chialab/synapse": ["./src/index.ts"]
+    }
   },
-  "include": ["src"],
+  "include": ["src"]
 }
