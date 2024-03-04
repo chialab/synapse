@@ -4,5 +4,8 @@
   "initialVersions": {
     "@chialab/synapse": "3.0.3"
   },
-  "changesets": []
+  "changesets": [
+    "brave-pugs-change",
+    "lovely-lamps-remain"
+  ]
 }

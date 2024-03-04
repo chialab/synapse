@@ -1,5 +1,12 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 4.0.0-alpha.0
+
+### Major Changes
+
+- 4dc995f: Remove node server support.
+- 4dc995f: Migrate to DNA 4.
+
 ## 3.0.3
 
 ### Patch Changes
