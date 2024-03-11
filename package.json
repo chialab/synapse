@@ -36,7 +36,7 @@
   },
   "author": "Chialab <dev@chialab.io> (https://www.chialab.it)",
   "dependencies": {
-    "@chialab/dna": "^4.0.0-alpha.5"
+    "@chialab/dna": "^4.0.0"
   },
   "devDependencies": {
     "@changesets/cli": "^2.22.0",
