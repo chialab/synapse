@@ -8,6 +8,7 @@
   "types": "types/index.d.ts",
   "exports": {
     ".": {
+      "types": "./types/index.d.ts",
       "require": "./dist/synapse.cjs",
       "default": "./dist/synapse.js"
     }
