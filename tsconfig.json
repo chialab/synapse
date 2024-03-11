@@ -25,7 +25,7 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "jsxImportSource": "@chialab/dna",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "paths": {
       "@chialab/synapse": ["./src/index.ts"]
     }
