@@ -1,5 +1,3 @@
-import { DOM, window } from '@chialab/dna';
-
 /**
  * Cache scripts promises.
  */
@@ -16,7 +14,7 @@ export function loadScript(url: string | URL, reload = false) {
 
     let promise = SCRIPTS.get(href);
     if (!promise || reload) {
-        const script = DOM.createElement('script');
+        const script = document.createElement('script');
         script.src = href;
 
         promise = new Promise<void>((resolve, reject) => {

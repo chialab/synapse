@@ -1,4 +1,4 @@
-import { Component, customElementPrototype, listen, observe, property, state, window } from '@chialab/dna';
+import { Component, listen, observe, property, state } from '@chialab/dna';
 import { Page } from './Components/Page';
 import { History, NavigationDirection } from './Router/History';
 import type { Middleware } from './Router/Middleware';
@@ -12,7 +12,6 @@ import type { State } from './Router/State';
 /**
  * A Web Component which handles routing.
  */
-@customElementPrototype
 export class App extends Component {
     /**
      * Default routes to connect.
@@ -146,8 +145,8 @@ export class App extends Component {
     /**
      * @inheritdoc
      */
-    constructor(...args: any[]) {
-        super(...args);
+    initialize() {
+        super.initialize();
 
         this.routes = (this.constructor as typeof App).routes;
         this.middlewares = (this.constructor as typeof App).middlewares;

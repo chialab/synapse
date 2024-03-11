@@ -1,6 +1,5 @@
 import type { Request } from './Request';
-import type { View } from './Response';
-import { Response } from './Response';
+import { Response, type View } from './Response';
 import type { Router } from './Router';
 
 export type ErrorHandler = (request: Request, error: Error, router: Router) => Response | View;

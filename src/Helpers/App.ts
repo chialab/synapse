@@ -1,5 +1,4 @@
 import type { Context } from '@chialab/dna';
-import { Node } from '@chialab/dna';
 import { App } from '../App';
 import type { Router } from '../Router/Router';
 
@@ -21,8 +20,8 @@ export function getApp(nodeOrContext: Node | Context): App | null {
     if (nodeOrContext instanceof Node) {
         return innerGetter(nodeOrContext);
     }
-    if (nodeOrContext.start) {
-        return innerGetter(nodeOrContext.start);
+    if (nodeOrContext.node) {
+        return innerGetter(nodeOrContext.node);
     }
     return null;
 }

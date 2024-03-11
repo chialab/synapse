@@ -1,14 +1,12 @@
-import { window } from '@chialab/dna';
-import { BrowserHistory, History, isNode, Request } from '@chialab/synapse';
+import { BrowserHistory, History, Request } from '@chialab/synapse';
 import { afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
 describe('History', () => {
-    // eslint-disable-next-line mocha/no-setup-in-describe
-    (isNode() ? [History] : [History, BrowserHistory]).forEach((History) => {
+    [History, BrowserHistory].forEach((History) => {
         describe(History.name, () => {
             let origin, history;
             beforeAll(() => {
-                origin = isNode() ? 'http://localhost/' : `${window.location.origin}/`;
+                origin = `${window.location.origin}/`;
             });
 
             beforeEach(() => {

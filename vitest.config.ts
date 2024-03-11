@@ -12,6 +12,13 @@ export default defineConfig({
             all: false,
             include: ['src'],
             reporter: [['clover'], ['html']],
+            provider: 'istanbul',
+        },
+        browser: {
+            enabled: true,
+            headless: true,
+            name: 'chromium',
+            provider: 'playwright',
         },
     },
 });

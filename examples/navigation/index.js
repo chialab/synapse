@@ -1,4 +1,4 @@
-import { document, html, render, window } from '@chialab/dna';
+import { html, render } from '@chialab/dna';
 import { BrowserHistory } from '@chialab/synapse';
 import './App.js';
 

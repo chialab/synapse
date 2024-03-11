@@ -1,0 +1,11 @@
+{
+  "mode": "exit",
+  "tag": "alpha",
+  "initialVersions": {
+    "@chialab/synapse": "3.0.3"
+  },
+  "changesets": [
+    "brave-pugs-change",
+    "lovely-lamps-remain"
+  ]
+}

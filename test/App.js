@@ -1,16 +1,9 @@
-import { customElements, h, window } from '@chialab/dna';
-import { App, BrowserHistory, History, isNode, Router } from '@chialab/synapse';
+import { define, h } from '@chialab/dna';
+import { App, BrowserHistory, Router } from '@chialab/synapse';
 
 let appDelcarations = 1;
 
 export function createTestHistory() {
-    if (isNode()) {
-        window._jsdom.reconfigure({
-            url: 'http://localhost/',
-        });
-        return new History();
-    }
-
     return new BrowserHistory();
 }
 
@@ -31,12 +24,6 @@ export function createTestRouter() {
     );
 }
 
-export function createTestApp(history, router) {
-    const TestApp = class extends App {
-        history = history;
-        router = router;
-    };
-    customElements.define(`test-app-${appDelcarations++}`, TestApp);
-
-    return TestApp;
+export function createTestApp() {
+    return define(`test-app-${appDelcarations++}`, class extends App {});
 }
