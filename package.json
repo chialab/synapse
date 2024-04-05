@@ -1,6 +1,6 @@
 {
   "name": "@chialab/synapse",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "type": "module",
   "description": "Application framework built on the top of DNA Web Components.",
   "main": "dist/synapse.cjs",
