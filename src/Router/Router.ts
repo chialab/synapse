@@ -569,7 +569,7 @@ export class Router extends Emitter<{
             return url.href;
         }
 
-        return `${url.pathname}${url.search}${url.hash}`;
+        return `${url.pathname}${url.search}${url.hash || (this.base.endsWith('#') ? '#' : '')}`;
     }
 
     /**
