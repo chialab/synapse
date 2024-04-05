@@ -69,6 +69,17 @@ describe('Router', () => {
         expect(new Router({ origin: 'http://local', base: '/base' }).resolve('/test?query')).toBe('/base/test?query');
     });
 
+    test('should resolve a path with base hash', () => {
+        expect(new Router({ origin: 'http://local', base: '/base#' }).resolve('')).toBe('/base#');
+        expect(new Router({ origin: 'http://local', base: '/base#' }).resolve('/')).toBe('/base#');
+        expect(new Router({ origin: 'http://local', base: '/base#' }).resolve('test')).toBe('/base#/test');
+        expect(new Router({ origin: 'http://local', base: '/base#' }).resolve('/test')).toBe('/base#/test');
+        expect(new Router({ origin: 'http://local', base: '/base#' }).resolve('test/')).toBe('/base#/test');
+        expect(new Router({ origin: 'http://local', base: '/base#' }).resolve('/test/')).toBe('/base#/test');
+        expect(new Router({ origin: 'http://local', base: '/base#' }).resolve('//test//')).toBe('/base#/test');
+        expect(new Router({ origin: 'http://local', base: '/base#' }).resolve('/test?query')).toBe('/base#/test?query');
+    });
+
     test('should navigate', async () => {
         const router = new Router(
             {
