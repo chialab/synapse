@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 4.0.1
+
+### Patch Changes
+
+- b739ae5: Preserve final base hash in resolved urls.
+
 ## 4.0.0
 
 ### Major Changes
