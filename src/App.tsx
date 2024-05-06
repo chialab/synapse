@@ -1,5 +1,6 @@
 import { Component, listen, observe, property, state } from '@chialab/dna';
 import { Page } from './Components/Page';
+import { BrowserHistory } from './Router/BrowserHistory';
 import { History, NavigationDirection } from './Router/History';
 import type { Middleware } from './Router/Middleware';
 import type { RequestInit, RequestMethod } from './Router/Request';
@@ -271,7 +272,7 @@ export class App extends Component {
             throw new Error('Application has not started yet');
         }
 
-        const href = node.href;
+        const href = this.history instanceof BrowserHistory ? node.href : node.getAttribute('href');
         if (!href) {
             return;
         }
