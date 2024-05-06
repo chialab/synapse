@@ -470,7 +470,7 @@ export class App extends Component {
      * @param newValue The new request object.
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onRequest(oldValue: Request | undefined, newValue: Request) {}
+    protected onRequest(oldValue: Request | undefined, newValue: Request) {}
 
     /**
      * Response changed hook.
@@ -478,5 +478,5 @@ export class App extends Component {
      * @param newValue The new response object.
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onResponse(oldValue: Response | undefined, newValue: Response) {}
+    protected onResponse(oldValue: Response | undefined, newValue: Response) {}
 }
