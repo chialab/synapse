@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 4.0.2
+
+### Patch Changes
+
+- 01e2ed1: Use computed link href.
+
 ## 4.0.1
 
 ### Patch Changes
