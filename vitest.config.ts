@@ -15,9 +15,10 @@ export default defineConfig({
             provider: 'istanbul',
         },
         browser: {
+            name: 'chromium',
             enabled: true,
             headless: true,
-            name: 'chromium',
+            fileParallelism: false,
             provider: 'playwright',
         },
     },
