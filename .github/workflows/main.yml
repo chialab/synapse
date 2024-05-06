@@ -64,8 +64,7 @@ jobs:
         run: yarn playwright install --with-deps chromium
 
       - name: Run tests
-        # run: yarn test --coverage
-        run: yarn test
+        run: yarn test --coverage
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v4
