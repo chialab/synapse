@@ -64,14 +64,14 @@ jobs:
         run: yarn playwright install --with-deps chromium
 
       - name: Run tests
-        run: yarn test --coverage
+        run: yarn test
 
-      - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: coverage/clover.xml
+      # - name: Upload coverage to codecov
+      #   uses: codecov/codecov-action@v4
+      #   if: always()
+      #   with:
+      #     token: ${{ secrets.CODECOV_TOKEN }}
+      #     file: coverage/clover.xml
 
   release:
     name: Release
