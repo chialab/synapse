@@ -1,5 +1,15 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 4.1.0
+
+### Minor Changes
+
+- 8c9d915: Add `start` and `stop` methods to history interfaces.
+
+### Patch Changes
+
+- 98b01a1: Use anchor .href property only when using browser history.
+
 ## 4.0.3
 
 ### Patch Changes
