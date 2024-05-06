@@ -239,7 +239,7 @@ export class App extends Component {
         if (!this.router.running) {
             return;
         }
-        return this.handleLink(event, node as HTMLElement);
+        return this.handleLink(event, node as HTMLAnchorElement);
     }
 
     /**
@@ -263,7 +263,7 @@ export class App extends Component {
      * @param event The click event.
      * @param node The anchor node.
      */
-    async handleLink(event: Event, node: HTMLElement) {
+    async handleLink(event: Event, node: HTMLAnchorElement) {
         if (event.defaultPrevented) {
             return;
         }
@@ -271,7 +271,7 @@ export class App extends Component {
             throw new Error('Application has not started yet');
         }
 
-        const href = node.getAttribute('href');
+        const href = node.href;
         if (!href) {
             return;
         }
