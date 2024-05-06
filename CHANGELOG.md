@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 4.0.3
+
+### Patch Changes
+
+- 939275a: Make `onRequest` and `onResponse` protected methods.
+
 ## 4.0.2
 
 ### Patch Changes
