@@ -28,13 +28,13 @@ type TransitionProps = {
  */
 export const Transition: FunctionComponent<TransitionProps> = function Transition(
     { router, children, renderer: Renderer = TransitionPage },
-    { useState },
-    context
+    { useState, useRenderContext }
 ) {
     if (!router) {
         throw new Error('Transition router is required');
     }
 
+    const context = useRenderContext();
     if (!context.node) {
         return <Renderer key={router.state}>{children}</Renderer>;
     }
