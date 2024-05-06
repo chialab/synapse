@@ -15,7 +15,7 @@ describe('App', () => {
     });
 
     afterEach(() => {
-        history.unlisten?.();
+        history.stop();
         wrapper?.remove();
     });
 

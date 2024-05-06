@@ -16,7 +16,7 @@ describe('Helpers', () => {
         });
 
         afterEach(() => {
-            history.unlisten?.();
+            history.stop();
             wrapper?.remove();
         });
 

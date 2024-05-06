@@ -528,7 +528,7 @@ export class Router extends Emitter<{
      */
     async start(pathname?: string): Promise<Response> {
         this.#running = true;
-        this.history.reset();
+        this.history.start();
         this.history.on('popstate', this.onPopState);
 
         if (this.history instanceof BrowserHistory) {
@@ -545,6 +545,7 @@ export class Router extends Emitter<{
         this.#running = false;
         if (this.history) {
             this.history.off('popstate', this.onPopState);
+            this.history.stop();
         }
     }
 

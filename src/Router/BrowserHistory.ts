@@ -2,9 +2,9 @@ import { History, isHistoryState, type HistoryState } from './History';
 import type { State } from './State';
 
 /**
- * Flag listening state for global `popstate` event.
+ * The active browser history instance.
  */
-let listening = false;
+let listening: BrowserHistory | false = false;
 
 /**
  * Ensure that the history state con be used as history state.
@@ -25,26 +25,49 @@ export class BrowserHistory extends History {
     constructor(adapter = window.history) {
         super();
         this.#adapter = adapter;
-        this.listen();
     }
 
     /**
-     * Add global `popstate` listener.
+     * @inheritdoc
      */
-    listen() {
-        if (listening) {
+    start() {
+        if (listening && listening !== this) {
             throw new Error('You cannot initialize more than one "BrowserHistory".');
         }
-        listening = true;
+        if (this.active) {
+            return;
+        }
+        super.start();
+        listening = this;
         window.addEventListener('popstate', this.onPopState);
     }
 
     /**
-     * Remove global `popstate` listener.
+     * @inheritdoc
      */
-    unlisten() {
+    stop() {
+        if (!this.active) {
+            return;
+        }
+        super.stop();
         listening = false;
         window.removeEventListener('popstate', this.onPopState);
+    }
+
+    /**
+     * Add global `popstate` listener.
+     * @deprecated Use `start` instead.
+     */
+    listen() {
+        return this.start();
+    }
+
+    /**
+     * Remove global `popstate` listener.
+     * @deprecated Use `stop` instead.
+     */
+    unlisten() {
+        return this.stop();
     }
 
     /**

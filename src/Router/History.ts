@@ -64,10 +64,18 @@ export class History extends Emitter<{
     protected _map: Map<HistoryState, State> = new Map();
     protected _index = -1;
     protected _id: string;
+    protected _active = false;
 
     constructor() {
         super();
         this._id = `${Date.now()}-${instances++}`;
+    }
+
+    /**
+     * Get history active status.
+     */
+    get active() {
+        return this._active;
     }
 
     /**
@@ -96,6 +104,24 @@ export class History extends Emitter<{
      */
     get length() {
         return this._entries.length;
+    }
+
+    /**
+     * Start listening history changes.
+     */
+    start() {
+        if (this.active) {
+            return;
+        }
+        this._active = true;
+        this.reset();
+    }
+
+    /**
+     * Stop listening history changes.
+     */
+    stop() {
+        this._active = false;
     }
 
     /**

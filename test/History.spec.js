@@ -11,10 +11,11 @@ describe('History', () => {
 
             beforeEach(() => {
                 history = new History();
+                history.start();
             });
 
             afterEach(() => {
-                history.unlisten?.();
+                history.stop();
             });
 
             test('constructor', () => {
