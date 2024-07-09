@@ -11,6 +11,7 @@
   "types": "types/index.d.ts",
   "exports": {
     ".": {
+      "types": "./types/index.d.ts",
       "require": "./dist/synapse.cjs",
       "node": "./dist/synapse.node.js",
       "default": "./dist/synapse.js"
