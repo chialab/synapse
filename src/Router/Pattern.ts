@@ -104,7 +104,7 @@ export class Pattern {
      * @returns False if does not match, grouped values if it does.
      */
     matches(path: string): RequestParams | false {
-        path = path.split('?')[0];
+        path = path.split('#')[0].split('?')[0];
         if (this.cache[path]) {
             return this.cache[path];
         }

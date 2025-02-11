@@ -25,13 +25,23 @@ describe('Router', () => {
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/')).toBe('/');
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/?query')).toBe('/?query');
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path')).toBe('/path');
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path#hash')).toBe(
+            '/path#hash'
+        );
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path?query')).toBe(
             '/path?query'
+        );
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path?query#hash')).toBe(
+            '/path?query#hash'
         );
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://local/base')).toBe('/');
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://local/wrong')).toBeNull();
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://wrong/base')).toBeNull();
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('http://wrong')).toBeNull();
+        expect(new Router({ origin: 'http://local', base: '/base#' }).pathFromUrl('/base#/hash')).toBe('/hash');
+        expect(new Router({ origin: 'http://local', base: '/base#' }).pathFromUrl('/base#/hash?query')).toBe(
+            '/hash?query'
+        );
     });
 
     test('should resolve a path', () => {
