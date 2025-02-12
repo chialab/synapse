@@ -25,9 +25,7 @@ describe('Router', () => {
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/')).toBe('/');
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/?query')).toBe('/?query');
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path')).toBe('/path');
-        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path#hash')).toBe(
-            '/path#hash'
-        );
+        expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path#hash')).toBe('/path#hash');
         expect(new Router({ origin: 'http://local', base: '/base' }).pathFromUrl('/base/path?query')).toBe(
             '/path?query'
         );
