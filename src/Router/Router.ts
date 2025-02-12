@@ -588,7 +588,7 @@ export class Router extends Emitter<{
             return null;
         }
         const path = new Path(pathname.replace(this.base, ''));
-        return `${path.pathname}${path.search}`;
+        return `${path.pathname}${path.search}${path.hash?.length > 1 ? path.hash : ''}`;
     }
 
     /**
