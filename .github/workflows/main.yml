@@ -61,7 +61,7 @@ jobs:
         run: yarn install
 
       - name: Install chromium
-        run: yarn playwright install --with-deps chromium
+        run: yarn playwright install
 
       - name: Run tests
         run: yarn test:browser --coverage
