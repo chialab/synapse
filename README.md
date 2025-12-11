@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://www.chialab.io/p/synapse">
+    <a href="https://github.com/chialab/synapse">
         <img alt="Synapse logo" width="144" height="144" src="https://raw.githack.com/chialab/synapse/main/logo.svg" />
     </a>
 </p>
