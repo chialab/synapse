@@ -1,4 +1,4 @@
-import { History, isHistoryState, type HistoryState } from './History';
+import { History, type HistoryState, isHistoryState } from './History';
 import type { State } from './State';
 
 /**
@@ -20,7 +20,7 @@ function serializeHistoryState(historyState: HistoryState) {
  */
 export class BrowserHistory extends History {
     #adapter: typeof window.history;
-    #currentPopRequest?: { resolve: Function; reject: Function };
+    #currentPopRequest?: { resolve: () => void; reject: () => void };
 
     constructor(adapter = window.history) {
         super();

@@ -8,7 +8,7 @@ export interface State {
     url: string;
     path: string;
     title: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: We need to allow any data here
     data: any;
     request: Request;
     response?: Response;

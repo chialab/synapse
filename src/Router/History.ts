@@ -14,7 +14,7 @@ export interface HistoryState {
     url: string;
     path: string;
     title: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: We need to allow any data here
     data: any;
     index: number;
     type: 'push' | 'replace';
@@ -36,11 +36,12 @@ export function isStateful(
  * @param historyState The state to check.
  * @returns True if it is a HistoryState.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isHistoryState(historyState: any): historyState is HistoryState {
+export function isHistoryState(historyState: unknown): historyState is HistoryState {
     return (
-        historyState &&
+        !!historyState &&
         typeof historyState === 'object' &&
+        'historyId' in historyState &&
+        'index' in historyState &&
         typeof historyState.historyId === 'string' &&
         typeof historyState.index === 'number'
     );
@@ -56,9 +57,9 @@ let instances = 0;
  * An abstraction of the window.history object.
  */
 export class History extends Emitter<{
-    pushstate: [{ state: State; previous?: State }, void];
-    replacestate: [{ state: State; previous?: State }, void];
-    popstate: [{ state: State | HistoryState; previous?: State } | { url: string }, void];
+    pushstate: [{ state: State; previous?: State }, undefined];
+    replacestate: [{ state: State; previous?: State }, undefined];
+    popstate: [{ state: State | HistoryState; previous?: State } | { url: string }, undefined];
 }> {
     protected _entries: HistoryState[] = [];
     protected _map: Map<HistoryState, State> = new Map();

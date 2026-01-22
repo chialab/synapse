@@ -105,10 +105,10 @@ export class Request<T extends RequestParams = RequestParams> {
      * @param parent The parent request.
      */
     constructor(url: URL | string, init?: RequestInit, parent?: Request) {
-        url = typeof url === 'string' ? new URL(url) : url;
+        const normalizedUrl = typeof url === 'string' ? new URL(url) : url;
 
-        this.url = url;
-        this.path = init?.path ?? new Path(`${url.pathname}${url.search}${url.hash}`);
+        this.url = normalizedUrl;
+        this.path = init?.path ?? new Path(`${normalizedUrl.pathname}${normalizedUrl.search}${normalizedUrl.hash}`);
         this.method = (init?.method?.toLowerCase() as RequestMethod) || 'get';
         this.data = init?.data;
         this.parent = parent;
@@ -119,7 +119,8 @@ export class Request<T extends RequestParams = RequestParams> {
      * @param url The child url.
      */
     child(url: URL, init?: RequestInit) {
-        return (this._childRequest = new Request(url, init, this));
+        this._childRequest = new Request(url, init, this);
+        return this._childRequest;
     }
 
     /**

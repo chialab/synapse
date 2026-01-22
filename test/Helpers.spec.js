@@ -1,12 +1,14 @@
 import { h, render } from '@chialab/dna';
-import { dangerouslyEnterRealms } from '@chialab/quantum';
 import { getApp, getRouter, loadScript, loadStyleSheet, unloadStyleSheet } from '@chialab/synapse';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { createTestApp, createTestHistory, createTestRouter } from './App.js';
 
 describe('Helpers', () => {
     describe('App', () => {
-        let router, history, TestApp, wrapper;
+        let router;
+        let history;
+        let TestApp;
+        let wrapper;
         beforeEach(() => {
             history = createTestHistory();
             router = createTestRouter();
@@ -36,9 +38,7 @@ describe('Helpers', () => {
                 );
                 await app.router.waitNavigation();
 
-                dangerouslyEnterRealms(() => {
-                    expect(getApp(app.children[0])).toBe(app);
-                });
+                expect(getApp(app.children[0])).toBe(app);
             });
 
             test('should get self app', async () => {
@@ -70,9 +70,7 @@ describe('Helpers', () => {
                 );
                 await app.router.waitNavigation();
 
-                dangerouslyEnterRealms(() => {
-                    expect(getRouter(app.children[0])).toBe(router);
-                });
+                expect(getRouter(app.children[0])).toBe(router);
             });
         });
     });
@@ -84,7 +82,7 @@ describe('Helpers', () => {
                 await loadScript(url);
 
                 expect(globalThis.__TEST_INJECT__).toBe(true);
-                delete globalThis.__TEST_INJECT__;
+                globalThis.__TEST_INJECT__ = undefined;
             });
         });
 

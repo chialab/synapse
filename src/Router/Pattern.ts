@@ -104,20 +104,20 @@ export class Pattern {
      * @returns False if does not match, grouped values if it does.
      */
     matches(path: string): RequestParams | false {
-        path = path.split('?')[0];
-        if (this.cache[path]) {
-            return this.cache[path];
+        const normalizedPath = path.split('?')[0];
+        if (this.cache[normalizedPath]) {
+            return this.cache[normalizedPath];
         }
-        const match = path.match(this.regex);
+        const match = normalizedPath.match(this.regex);
         if (!match) {
-            this.cache[path] = false;
+            this.cache[normalizedPath] = false;
             return false;
         }
         const params: RequestParams = {};
         this.names.forEach((n, index) => {
             params[n] = match[index + 1];
         });
-        this.cache[path] = params;
+        this.cache[normalizedPath] = params;
         return params;
     }
 }

@@ -46,7 +46,7 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
 
     if (routerState !== router.state) {
         if (root) {
-            const start = function (event: AnimationEvent) {
+            const start = (event: AnimationEvent) => {
                 const target = event.target as HTMLElement;
                 if (target.parentNode !== root) {
                     return;
@@ -55,7 +55,7 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
                 setCounter(counter + 1);
             };
 
-            const end = function (event: AnimationEvent) {
+            const end = (event: AnimationEvent) => {
                 const target = event.target as HTMLElement;
                 if (target.parentNode !== root) {
                     return;
@@ -68,7 +68,7 @@ export const Transition: FunctionComponent<TransitionProps> = function Transitio
                 }
             };
 
-            const flush = function () {
+            const flush = () => {
                 root.removeEventListener('animationstart', start);
                 root.removeEventListener('animationend', end);
                 setRouterState(null);

@@ -1,18 +1,8 @@
-<p align="center">
-    <a href="https://github.com/chialab/synapse">
-        <img alt="Synapse logo" width="144" height="144" src="https://raw.githack.com/chialab/synapse/main/logo.svg" />
-    </a>
-</p>
+# Synapse
 
-<p align="center">
-    <strong>Synapse</strong> • Application framework built on the top of DNA Web Components.
-</p>
+Application framework built on the top of DNA Web Components.
 
-<p align="center">
-    <a href="https://www.npmjs.com/package/@chialab/synapse"><img alt="NPM" src="https://img.shields.io/npm/v/@chialab/synapse"></a>
-</p>
-
----
+[![NPM](https://img.shields.io/npm/v/@chialab/synapse.svg)](https://www.npmjs.com/package/@chialab/synapse)
 
 ## Get the library
 

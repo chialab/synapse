@@ -18,7 +18,8 @@ export type Meta = { [key: string]: string };
 /**
  * A class representing the response for a new page request in the app.
  */
-export class Response {
+// biome-ignore lint/suspicious/noExplicitAny: We need to allow any data here
+export class Response<T = any> {
     private _childResponse?: Response | null;
 
     /**
@@ -46,8 +47,7 @@ export class Response {
     /**
      * The data bound to the response.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    public data: any;
+    public data: T | null = null;
 
     protected _title?: string | undefined;
 
@@ -110,7 +110,8 @@ export class Response {
      * @param child The child response.
      */
     child(child: Response | null) {
-        return (this._childResponse = child);
+        this._childResponse = child;
+        return this._childResponse;
     }
 
     /**
@@ -125,8 +126,7 @@ export class Response {
      * Get stored data.
      * @param defaultValue Default value if missing data.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    getData(defaultValue: any = null) {
+    getData(defaultValue: T | null = null) {
         return this.data ?? defaultValue;
     }
 
@@ -134,8 +134,7 @@ export class Response {
      * Set data for the Response.
      * @param data Data to set.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    setData(data: any) {
+    setData(data: T) {
         this.data = data;
     }
 

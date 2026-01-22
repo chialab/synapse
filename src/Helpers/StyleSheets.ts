@@ -13,7 +13,7 @@ export function loadStyleSheet(url: string | URL, reload = false): Promise<HTMLL
     const href = typeof url === 'string' ? url : url.href;
     const loader = LINKS.get(href);
 
-    let promise;
+    let promise: Promise<HTMLLinkElement>;
     if (!loader || reload) {
         const link = document.createElement('link');
         link.type = 'text/css';

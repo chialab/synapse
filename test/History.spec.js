@@ -4,7 +4,8 @@ import { afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest
 describe('History', () => {
     [History, BrowserHistory].forEach((History) => {
         describe(History.name, () => {
-            let origin, history;
+            let origin;
+            let history;
             beforeAll(() => {
                 origin = `${window.location.origin}/`;
             });
@@ -61,7 +62,8 @@ describe('History', () => {
             });
 
             test('should trigger pushstate event', async () => {
-                let currentState, previousState;
+                let currentState;
+                let previousState;
                 history.on('pushstate', (data) => {
                     currentState = data.state;
                     previousState = data.previous;
@@ -135,7 +137,8 @@ describe('History', () => {
             });
 
             test('should trigger replacestate event', async () => {
-                let currentState, previousState;
+                let currentState;
+                let previousState;
                 history.on('replacestate', (data) => {
                     currentState = data.state;
                     previousState = data.previous;

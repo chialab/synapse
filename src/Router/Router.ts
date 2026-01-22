@@ -1,7 +1,7 @@
 import { Emitter } from '../Helpers/Emitter';
 import { BrowserHistory } from './BrowserHistory';
 import DEFAULT_ERROR_HANDLER, { type ErrorHandler } from './ErrorHandler';
-import { History, isStateful, type HistoryState } from './History';
+import { History, type HistoryState, isStateful } from './History';
 import {
     Middleware,
     type MiddlewareAfterHandler,
@@ -11,7 +11,7 @@ import {
 import { Path, trimSlash, trimSlashStart } from './Path';
 import { Request, type RequestInit } from './Request';
 import { Response } from './Response';
-import { Route, type NextHandler, type RouteHandler, type RouteRule } from './Route';
+import { type NextHandler, Route, type RouteHandler, type RouteRule } from './Route';
 import type { State } from './State';
 
 /**
@@ -32,9 +32,9 @@ const DEFAULT_BASE = '/';
  * A router implementation for app navigation.
  */
 export class Router extends Emitter<{
-    pushstate: [{ state: State; previous?: State }, void];
-    replacestate: [{ state: State; previous?: State }, void];
-    popstate: [{ state: State; previous?: State }, void];
+    pushstate: [{ state: State; previous?: State }, undefined];
+    replacestate: [{ state: State; previous?: State }, undefined];
+    popstate: [{ state: State; previous?: State }, undefined];
 }> {
     /**
      * The router error handler.
@@ -100,7 +100,7 @@ export class Router extends Emitter<{
     /**
      * Running flag.
      */
-    #running: boolean = false;
+    #running = false;
 
     /**
      * The router is running.
@@ -159,10 +159,14 @@ export class Router extends Emitter<{
             this.setErrorHandler(options.errorHandler);
         }
         if (routes) {
-            routes.forEach((route) => this.connect(route));
+            routes.forEach((route) => {
+                this.connect(route);
+            });
         }
         if (middlewares) {
-            middlewares.forEach((middleware) => this.middleware(middleware));
+            middlewares.forEach((middleware) => {
+                this.middleware(middleware);
+            });
         }
     }
 
@@ -185,8 +189,7 @@ export class Router extends Emitter<{
         if (this.running) {
             throw new Error('Cannot set origin after router is started.');
         }
-        origin = origin ?? DEFAULT_ORIGIN;
-        this.#origin = trimSlash(origin);
+        this.#origin = trimSlash(origin ?? DEFAULT_ORIGIN);
     }
 
     /**
@@ -197,8 +200,11 @@ export class Router extends Emitter<{
         if (this.running) {
             throw new Error('Cannot set base after router is started.');
         }
-        base = base ?? DEFAULT_BASE;
-        this.#base = base.indexOf('#') !== -1 ? `/${trimSlash(base)}` : `/${trimSlash(base.split('?')[0])}`;
+        const computedBase = base ?? DEFAULT_BASE;
+        this.#base =
+            computedBase.indexOf('#') !== -1
+                ? `/${trimSlash(computedBase)}`
+                : `/${trimSlash(computedBase.split('?')[0])}`;
     }
 
     /**
@@ -216,7 +222,7 @@ export class Router extends Emitter<{
      * @param data Initial response data.
      * @returns The final response instance.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: We need to allow any data here
     protected async handle(request: Request, parentResponse?: Response, data: any = null): Promise<Response> {
         const routes = this.connectedRoutes;
         const middlewares = this.connectedMiddlewares;
@@ -257,11 +263,10 @@ export class Router extends Emitter<{
                 if (newResponse.redirected) {
                     return newResponse;
                 }
-                res = newResponse;
                 if (route.view) {
-                    res.setView(route.view);
+                    newResponse.setView(route.view);
                 }
-                return res;
+                return newResponse;
             },
             () => {
                 throw new Error('Not found');
@@ -306,12 +311,18 @@ export class Router extends Emitter<{
     /**
      * Trigger a router navigation.
      * @param path The path to navigate.
+     * @param init The request init options.
+     * @param data Initial response data.
+     * @param trigger Should trigger the event.
+     * @param force Force navigation even if the path is the current one.
+     * @param parentRequest The parent request instance.
+     * @param parentResponse The parent response instance.
      * @returns The final response instance.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async navigate(
         path: Path | string,
         init?: RequestInit,
+        // biome-ignore lint/suspicious/noExplicitAny: We need to allow any data here
         data: any = null,
         trigger = true,
         force = false,
@@ -319,16 +330,18 @@ export class Router extends Emitter<{
         parentResponse?: Response
     ): Promise<Response | null> {
         return this.setCurrentNavigation(async () => {
-            path = typeof path === 'string' ? new Path(path) : path;
-            init = { ...init, path };
+            const normalizedPath = typeof path === 'string' ? new Path(path) : path;
+            const normalizedOptions = { ...init, path: normalizedPath };
 
-            const url = this.urlFromPath(path);
+            const url = this.urlFromPath(normalizedPath);
             if (!this.shouldNavigate(url) && !force) {
                 this.fragment(url.hash || '');
                 return null;
             }
 
-            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            const request = parentRequest
+                ? parentRequest.child(url, normalizedOptions)
+                : new Request(url, normalizedOptions);
             this.setCurrentRequest(request);
 
             let response: Response;
@@ -357,7 +370,7 @@ export class Router extends Emitter<{
             await this.pushState(
                 {
                     url: response.redirected || url.href,
-                    path: path.href,
+                    path: normalizedPath.href,
                     title,
                     request,
                     response,
@@ -373,23 +386,29 @@ export class Router extends Emitter<{
     /**
      * Trigger a router navigation.
      * @param path The path to navigate.
+     * @param init The request init options.
+     * @param data Initial response data.
+     * @param trigger Should trigger the event.
+     * @param parentRequest The parent request instance.
+     * @param parentResponse The parent response instance.
      * @returns The final response instance.
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async replace(
         path: Path | string,
         init?: RequestInit,
+        // biome-ignore lint/suspicious/noExplicitAny: We need to allow any data here
         data: any = null,
         trigger = true,
         parentRequest?: Request,
         parentResponse?: Response
     ): Promise<Response> {
         return this.setCurrentNavigation(async () => {
-            path = typeof path === 'string' ? new Path(path) : path;
-            init = { ...init, path };
-
-            const url = this.urlFromPath(path);
-            const request = parentRequest ? parentRequest.child(url, init) : new Request(url, init);
+            const normalizedPath = typeof path === 'string' ? new Path(path) : path;
+            const normalizedOptions = { ...init, path: normalizedPath };
+            const url = this.urlFromPath(normalizedPath);
+            const request = parentRequest
+                ? parentRequest.child(url, normalizedOptions)
+                : new Request(url, normalizedOptions);
             this.setCurrentRequest(request);
 
             let response: Response;
@@ -411,7 +430,7 @@ export class Router extends Emitter<{
             await this.replaceState(
                 {
                     url: response.redirected || url.href,
-                    path: path.href,
+                    path: normalizedPath.href,
                     title,
                     request,
                     response,
@@ -620,7 +639,8 @@ export class Router extends Emitter<{
      * @returns The navigation response.
      */
     private setCurrentNavigation(callback: () => Promise<Response | null>) {
-        return (this.#navigationPromise = callback());
+        this.#navigationPromise = callback();
+        return this.#navigationPromise;
     }
 
     /**
@@ -628,7 +648,8 @@ export class Router extends Emitter<{
      * @param request The request instance.
      */
     private setCurrentRequest(request: Request) {
-        return (this.#currentRequest = request);
+        this.#currentRequest = request;
+        return this.#currentRequest;
     }
 
     /**
@@ -704,6 +725,7 @@ export class Router extends Emitter<{
         } else if (entry.url) {
             this.navigate(this.pathFromUrl(window.location.href) || '/');
         }
+        return undefined;
     };
 
     /**

@@ -11,7 +11,7 @@ export type Listener<M extends EventMap, K extends keyof M> = (arg: Arg<M, K>, r
 /**
  * Base Emitter class.
  */
-export class Emitter<M extends EventMap = {}> {
+export class Emitter<M extends EventMap = EventMap> {
     /**
      * Map of listeners.
      */
@@ -25,8 +25,8 @@ export class Emitter<M extends EventMap = {}> {
      * @param listener The listener callback.
      */
     on<E extends keyof M>(type: E, listener: Listener<M, E>) {
-        const listeners = (this.#listeners[type] = this.#listeners[type] || []);
-        listeners.push(listener);
+        this.#listeners[type] ??= [];
+        this.#listeners[type].push(listener);
     }
 
     /**

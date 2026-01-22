@@ -50,7 +50,7 @@ export class App extends Component {
         return this.getInnerPropertyValue('history');
     }
     set history(history: History) {
-        if (this.router && this.router.running) {
+        if (this.router?.running) {
             throw new Error('Cannot change application router while running.');
         }
         this.setInnerPropertyValue('history', history);
@@ -66,7 +66,7 @@ export class App extends Component {
         return this.getInnerPropertyValue('router');
     }
     set router(router: Router) {
-        if (this.router && this.router.running) {
+        if (this.router?.running) {
             throw new Error('Cannot change application router while running.');
         }
         this.setInnerPropertyValue('router', router);
@@ -82,7 +82,7 @@ export class App extends Component {
         return this.getInnerPropertyValue('routes');
     }
     set routes(routes: Route[]) {
-        if (this.router && this.router.running) {
+        if (this.router?.running) {
             throw new Error('Cannot change application router while running.');
         }
         this.setInnerPropertyValue('routes', routes);
@@ -98,7 +98,7 @@ export class App extends Component {
         return this.getInnerPropertyValue('middlewares');
     }
     set middlewares(middlewares: Middleware[]) {
-        if (this.router && this.router.running) {
+        if (this.router?.running) {
             throw new Error('Cannot change application router while running.');
         }
         this.setInnerPropertyValue('middlewares', middlewares);
@@ -185,7 +185,7 @@ export class App extends Component {
      * Start the routing of the application.
      * @param path The initial path to navigate.
      */
-    async start(path?: string): Promise<Response | void> {
+    async start(path?: string): Promise<Response | undefined> {
         const router = this.router;
         if (router.running) {
             throw new Error('Application has already started');
@@ -200,6 +200,7 @@ export class App extends Component {
             this.response = response;
             return response;
         }
+        return undefined;
     }
 
     /**
@@ -344,6 +345,7 @@ export class App extends Component {
         this.request = data.state.request;
         this.onPopState(data);
         this.response = data.state.response;
+        return undefined;
     };
 
     /**
@@ -457,9 +459,10 @@ export class App extends Component {
         this.connectedAppRoutes.push(
             router.middleware({
                 pattern: '*',
-                priority: -Infinity,
+                priority: Number.NEGATIVE_INFINITY,
                 before: (req) => {
                     this.request = req;
+                    return undefined;
                 },
             })
         );

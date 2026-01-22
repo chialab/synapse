@@ -1,11 +1,13 @@
 import { h, render } from '@chialab/dna';
-import { dangerouslyEnterRealms } from '@chialab/quantum';
 import { Router } from '@chialab/synapse';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { createTestApp, createTestHistory, createTestRouter } from './App.js';
 
 describe('App', () => {
-    let router, history, TestApp, wrapper;
+    let router;
+    let history;
+    let TestApp;
+    let wrapper;
     beforeEach(() => {
         history = createTestHistory();
         router = createTestRouter();
@@ -70,12 +72,11 @@ describe('App', () => {
 
         expect(app.router).toBeInstanceOf(Router);
         expect(app.router.running).toBe(true);
+
         await app.router.waitNavigation();
 
-        dangerouslyEnterRealms(() => {
-            expect(app.children[0].tagName).toBe('SPAN');
-            expect(app.children[0].textContent).toBe('Home');
-        });
+        expect(app.children[0].tagName).toBe('SPAN');
+        expect(app.children[0].textContent).toBe('Home');
     });
 
     test('should navigate on start', async () => {
@@ -89,9 +90,7 @@ describe('App', () => {
 
         await app.start('/');
 
-        dangerouslyEnterRealms(() => {
-            expect(app.children[0].tagName).toBe('SPAN');
-            expect(app.children[0].textContent).toBe('Home');
-        });
+        expect(app.children[0].tagName).toBe('SPAN');
+        expect(app.children[0].textContent).toBe('Home');
     });
 });

@@ -14,11 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
+          node-version: latest
           cache: yarn
 
       - name: Install project dependencies
@@ -32,11 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
+          node-version: latest
           cache: yarn
 
       - name: Install project dependencies
@@ -50,11 +52,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
+          node-version: latest
           cache: yarn
 
       - name: Install project dependencies
@@ -83,15 +86,19 @@ jobs:
       - test
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
+          node-version: latest
           cache: yarn
 
       - name: Install project dependencies
         run: yarn install
+
+      - name: Update NPM to latest version
+        run: npm install -g npm@latest
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets

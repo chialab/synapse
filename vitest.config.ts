@@ -1,4 +1,5 @@
 import { fileURLToPath } from 'node:url';
+import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -9,17 +10,16 @@ export default defineConfig({
     },
     test: {
         coverage: {
-            all: false,
             include: ['src'],
             reporter: [['clover'], ['html']],
             provider: 'istanbul',
         },
         browser: {
-            name: 'chromium',
             enabled: true,
             headless: true,
             fileParallelism: false,
-            provider: 'playwright',
+            provider: playwright(),
+            instances: [{ browser: 'chromium' }],
         },
     },
 });
