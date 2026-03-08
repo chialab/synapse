@@ -84,6 +84,10 @@ jobs:
       - lint
       - build
       - test
+    permissions:
+      id-token: write # Required for OIDC
+      contents: write # Required to create the release
+      pull-requests: write # Required to create the release PR
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v6
@@ -96,6 +100,12 @@ jobs:
 
       - name: Install project dependencies
         run: yarn install
+
+      - name: Run build script
+        run: yarn build
+
+      - name: Lint package
+        run: yarn publint --pack npm
 
       - name: Update NPM to latest version
         run: npm install -g npm@latest

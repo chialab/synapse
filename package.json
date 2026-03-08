@@ -15,8 +15,7 @@
     "types": "tsc",
     "test": "vitest run",
     "lint": "biome check",
-    "pages:build": "vite build",
-    "prepack": "yarn build && publint --pack npm"
+    "pages:build": "vite build"
   },
   "files": [
     "dist",
