@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 4.1.1
+
+### Patch Changes
+
+- 2b5ee40: Fix `Transition` element state.
+
 ## 4.1.0
 
 ### Minor Changes
