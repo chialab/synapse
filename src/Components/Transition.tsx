@@ -1,107 +1,86 @@
-import type { FunctionComponent, Template } from '@chialab/dna';
+import type { Context, FunctionComponent, Template } from '@chialab/dna';
+import type { Response } from '../Router/Response';
 import type { Router } from '../Router/Router';
-import type { State } from '../Router/State';
 
 /**
  * Transition page renderer.
  * @param data Page children.
  * @returns The page template.
  */
-const TransitionPage: FunctionComponent = function TransitionPage({ children }) {
+const TransitionPage: FunctionComponent<{
+    response: Response;
+}> = function TransitionPage({ children }) {
     return children;
 };
 
 /**
- * Transition component properties.
- */
-type TransitionProps = {
-    router: Router;
-    renderer?: FunctionComponent;
-};
-
-/**
  * Render responses with page transitions.
- * @param data Page data to render.
- * @param hooks The render hooks.
- * @param context The render context.
  * @returns A template of pages to animate.
  */
-export const Transition: FunctionComponent<TransitionProps> = function Transition(
-    { router, children, renderer: Renderer = TransitionPage },
-    { useState, useRenderContext }
-) {
-    if (!router) {
-        throw new Error('Transition router is required');
-    }
+export const Transition: FunctionComponent<{
+    router: Router;
+    renderer?: FunctionComponent;
+}> = ({ router, renderer: Render = TransitionPage, children }, { useRenderContext, useEffect, useState }) => {
+    const ctx: Context & {
+        __response?: Response | null;
+        __children?: Template;
+    } = useRenderContext();
+    const root = ctx.node as HTMLElement;
+    const response = router.state?.response;
+    const previousResponse = ctx.__response || response;
+    const previousChildren = ctx.__children || children;
+    const [, updateResponse] = useState(response);
+    ctx.__response = response;
+    ctx.__children = children;
+    if (previousResponse && previousResponse !== response) {
+        useEffect(() => {
+            const previousElement = root.firstElementChild;
+            if (!previousElement) {
+                return;
+            }
+            const style = getComputedStyle(previousElement);
+            const hasAnimations =
+                (style.animationName !== 'none' && Number.parseFloat(style.animationDuration) > 0) ||
+                (style.transitionDuration && Number.parseFloat(style.transitionDuration) > 0);
+            if (!hasAnimations) {
+                return;
+            }
 
-    const context = useRenderContext();
-    if (!context.node) {
-        return <Renderer key={router.state}>{children}</Renderer>;
-    }
-
-    const root = context.node.parentElement;
-    const [counter, setCounter] = useState(0);
-    const [routerState, setRouterState] = useState<State | null>(null);
-    const [currentChildren, setCurrentChildren] = useState<Template>(null);
-
-    if (routerState !== router.state) {
-        if (root) {
-            const start = (event: AnimationEvent) => {
-                const target = event.target as HTMLElement;
-                if (target.parentNode !== root) {
-                    return;
-                }
-
-                setCounter(counter + 1);
+            let animationCount = 0;
+            const onAnimationStart = () => {
+                animationCount++;
             };
-
-            const end = (event: AnimationEvent) => {
-                const target = event.target as HTMLElement;
-                if (target.parentNode !== root) {
-                    return;
-                }
-
-                setCounter(counter - 1);
-
-                if (counter === 0) {
-                    flush();
+            const onAnimationEnd = () => {
+                if (--animationCount === 0) {
+                    updateResponse(response);
                 }
             };
+            root.addEventListener('animationstart', onAnimationStart, true);
+            root.addEventListener('transitionstart', onAnimationStart, true);
+            root.addEventListener('animationend', onAnimationEnd, true);
+            root.addEventListener('animationcancel', onAnimationEnd, true);
+            root.addEventListener('transitionend', onAnimationEnd, true);
 
-            const flush = () => {
-                root.removeEventListener('animationstart', start);
-                root.removeEventListener('animationend', end);
-                setRouterState(null);
+            return () => {
+                root.removeEventListener('animationstart', onAnimationStart, true);
+                root.removeEventListener('transitionstart', onAnimationStart, true);
+                root.removeEventListener('animationend', onAnimationEnd, true);
+                root.removeEventListener('animationcancel', onAnimationEnd, true);
+                root.removeEventListener('transitionend', onAnimationEnd, true);
             };
+        }, [response]);
 
-            root.addEventListener('animationstart', start);
-            root.addEventListener('animationend', end);
-            setTimeout(() => {
-                let node = context.node as Node;
-                while (node && node !== context.end?.node) {
-                    node = node.nextSibling as Node;
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const style = window.getComputedStyle(node as HTMLElement);
-                        const animation = style.getPropertyValue('animation-name');
-                        const duration = style.getPropertyValue('animation-duration');
-                        if (animation !== 'none' && duration !== '0s') {
-                            return;
-                        }
-                    }
-                }
-
-                flush();
-            });
-        }
-
-        setCurrentChildren(children);
-        setRouterState(router.state || null);
+        return (
+            <>
+                {previousResponse && <Render response={previousResponse}>{previousChildren}</Render>}
+                {response && <Render response={response}>{children}</Render>}
+            </>
+        );
     }
 
-    return (
-        <>
-            {routerState && <Renderer key={routerState}>{currentChildren}</Renderer>}
-            <Renderer key={router.state}>{children}</Renderer>
-        </>
-    );
+    if (!response) {
+        return null;
+    }
+
+    return <Render response={response}>{children}</Render>;
 };
