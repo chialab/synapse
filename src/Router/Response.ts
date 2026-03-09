@@ -118,8 +118,9 @@ export class Response<T = any> {
      * Set the DNA template of the Response.
      * @param template The view to render.
      */
-    setView(template: View) {
+    setView(template: View): this {
         this.view = template;
+        return this;
     }
 
     /**
@@ -134,30 +135,33 @@ export class Response<T = any> {
      * Set data for the Response.
      * @param data Data to set.
      */
-    setData(data: T) {
+    setData(data: T): this {
         this.data = data;
+        return this;
     }
 
     /**
      * Set the title of the Response.
      * @param title The string to set.
      */
-    setTitle(title: string | undefined) {
+    setTitle(title: string | undefined): this {
         this._title = title;
         if (this._childResponse) {
             this._childResponse.setTitle(title);
         }
+        return this;
     }
 
     /**
-     * Set metadata to be associated to the response.
+     * Set metadata to be associated to the response.`
      * @param meta The metadata to set.
      */
-    setMeta(meta: Meta | undefined) {
+    setMeta(meta: Meta | undefined): this {
         this._meta = meta;
         if (this._childResponse) {
             this._childResponse.setMeta(meta);
         }
+        return this;
     }
 
     /**
@@ -171,10 +175,10 @@ export class Response<T = any> {
     /**
      * Trigger a redirect for the response.
      * @param path The new path to navigate.
-     * @returns The new navigation Promise.
      */
-    redirect(path: string, init?: RequestInit) {
+    redirect(path: string, init?: RequestInit): this {
         this.redirected = path;
         this.redirectInit = init;
+        return this;
     }
 }

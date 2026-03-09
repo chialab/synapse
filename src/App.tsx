@@ -185,7 +185,7 @@ export class App extends Component {
      * Start the routing of the application.
      * @param path The initial path to navigate.
      */
-    async start(path?: string): Promise<Response | undefined> {
+    async start(path?: string): Promise<Response | void> {
         const router = this.router;
         if (router.running) {
             throw new Error('Application has already started');
@@ -200,7 +200,6 @@ export class App extends Component {
             this.response = response;
             return response;
         }
-        return undefined;
     }
 
     /**

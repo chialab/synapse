@@ -71,6 +71,7 @@
         "noClassAssign": "off",
         "noConfusingLabels": "warn",
         "noExplicitAny": "warn",
+        "noConfusingVoidType": "off",
         "noConsole": {
           "level": "warn",
           "options": { "allow": ["error", "warn"] }

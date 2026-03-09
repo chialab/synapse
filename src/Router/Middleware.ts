@@ -16,7 +16,7 @@ export type MiddlewareBeforeHandler = (
     response: Response,
     params: RequestParams,
     router: Router
-) => Response | undefined | Promise<Response | undefined>;
+) => Response | void | Promise<Response | void>;
 
 /**
  * The signature of middleware handler to invoke after routing.
@@ -31,7 +31,7 @@ export type MiddlewareAfterHandler = (
     response: Response,
     params: RequestParams,
     router: Router
-) => Response | undefined | Promise<Response | undefined>;
+) => Response | void | Promise<Response | void>;
 
 /**
  * The interface of a middleware rule.

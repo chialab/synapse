@@ -14,7 +14,7 @@ export type NextHandler = (
     request: Request,
     response: Response,
     router: Router
-) => Response | undefined | Promise<Response | undefined>;
+) => Response | void | Promise<Response | void>;
 
 /**
  * The signature of a Route handler method.
@@ -29,7 +29,7 @@ export type RouteHandler = (
     response: Readonly<Response>,
     next: NextHandler,
     router: Router
-) => Response | string | undefined | Promise<Response | string | undefined>;
+) => Response | string | void | Promise<Response | string | void>;
 
 /**
  * The interface of a route rule.
