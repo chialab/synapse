@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 4.1.3
+
+### Patch Changes
+
+- 95c05a8: Fix `Transition` without animations.
+
 ## 4.1.2
 
 ### Patch Changes
