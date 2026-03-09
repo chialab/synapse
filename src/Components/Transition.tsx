@@ -36,6 +36,7 @@ export const Transition: FunctionComponent<{
         useEffect(() => {
             const previousElement = root.firstElementChild;
             if (!previousElement) {
+                requestAnimationFrame(() => updateResponse(response));
                 return;
             }
             const style = getComputedStyle(previousElement);
@@ -43,6 +44,7 @@ export const Transition: FunctionComponent<{
                 (style.animationName !== 'none' && Number.parseFloat(style.animationDuration) > 0) ||
                 (style.transitionDuration && Number.parseFloat(style.transitionDuration) > 0);
             if (!hasAnimations) {
+                requestAnimationFrame(() => updateResponse(response));
                 return;
             }
 
