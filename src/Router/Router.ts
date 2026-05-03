@@ -25,7 +25,9 @@ export interface RouterOptions {
 }
 
 const DEFAULT_ORIGIN =
-    window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'http://local';
+    typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null'
+        ? window.location.origin
+        : 'http://local';
 const DEFAULT_BASE = '/';
 
 /**
