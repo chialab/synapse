@@ -1,5 +1,11 @@
 # [2.5.0](https://github.com/chialab/synapse/compare/v2.4.0...v2.5.0) (2022-05-24)
 
+## 4.1.4
+
+### Patch Changes
+
+- 84fdd2e: Fix import for SSR.
+
 ## 4.1.3
 
 ### Patch Changes
