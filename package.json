@@ -15,7 +15,11 @@
     "types": "tsc",
     "test": "vitest run",
     "lint": "biome check",
-    "pages:build": "vite build"
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "demo:build": "vite build",
+    "pages:build": "yarn docs:build && yarn demo:build"
   },
   "files": [
     "dist",
@@ -46,6 +50,7 @@
     "rimraf": "^6.0.0",
     "typescript": "^5.0.0",
     "vite": "^7.0.0",
+    "vitepress": "^2.0.0-alpha.0",
     "vitest": "^4.0.0"
   }
 }

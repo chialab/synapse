@@ -4,6 +4,8 @@ Application framework built on the top of DNA Web Components.
 
 [![NPM](https://img.shields.io/npm/v/@chialab/synapse.svg)](https://www.npmjs.com/package/@chialab/synapse)
 
+📖 [Documentation](https://chialab.github.io/synapse/) — 🚀 [Live demo](https://chialab.github.io/synapse/guide/demo)
+
 ## Get the library
 
 Install via NPM or Yarn:
@@ -98,6 +100,22 @@ yarn build
 ```
 
 This will generate the ESM and CJS bundles in the `dist` folder and declaration files in the `types` folder.
+
+### Demo
+
+The `demo` folder contains a small routing example app used to try out the library. Run it locally with:
+
+```
+yarn dev
+```
+
+### Documentation
+
+The documentation site lives in the `docs` folder and is built with [VitePress](https://vitepress.dev). Run it locally with:
+
+```
+yarn docs:dev
+```
 
 ---
 
