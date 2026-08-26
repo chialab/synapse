@@ -12,8 +12,7 @@
   "scripts": {
     "dev": "vite --config vite.demo.config.ts",
     "build": "vite build",
-    "types": "tsc",
-    "test": "yarn types && vitest run",
+    "test": "vitest run",
     "lint": "biome check",
     "pages:build": "vite build --config vite.demo.config.ts"
   },

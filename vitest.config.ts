@@ -9,6 +9,10 @@ export default defineConfig({
         },
     },
     test: {
+        typecheck: {
+            enabled: true,
+            include: ['src/**/*.{ts,tsx}'],
+        },
         coverage: {
             include: ['src'],
             reporter: [['clover'], ['html']],
