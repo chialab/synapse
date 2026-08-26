@@ -12,8 +12,8 @@ export default defineConfig({
             },
             formats: ['es'],
         },
-        rollupOptions: {
-            external: (source) => !/^[./]/.test(source),
+        rolldownOptions: {
+            external: (source) => /^@chialab\/dna(\/|$)/.test(source),
             output: {
                 entryFileNames: '[name].js',
                 chunkFileNames: '[name]-[hash].js',

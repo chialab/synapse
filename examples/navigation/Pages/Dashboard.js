@@ -1,5 +1,5 @@
 import { html } from '@chialab/dna';
-import { Route } from '@chialab/synapse';
+import { Route } from '../../../src/index.ts';
 
 export class Dashboard extends Route {
     async exec(request, response) {

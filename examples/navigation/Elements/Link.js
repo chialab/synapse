@@ -1,5 +1,5 @@
 import { html } from '@chialab/dna';
-import { getRouter } from '@chialab/synapse';
+import { getRouter } from '../../../src/index.ts';
 
 export function Link({ children, href }, hooks, context) {
     const router = getRouter(context);
