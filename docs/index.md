@@ -3,7 +3,6 @@ layout: home
 
 hero:
   name: Synapse
-  text: Application framework for DNA Web Components.
   tagline: Client-side routing, middlewares and page transitions on top of Web Components.
   actions:
     - theme: brand

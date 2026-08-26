@@ -2,8 +2,8 @@
 npm-debug.log
 yarn-error.log
 .env
-.eslintcache
-/coverage
-/dist
-/public
-/types
+docs/.vitepress/cache
+coverage
+dist
+public
+types
