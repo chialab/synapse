@@ -75,42 +75,42 @@ export class History extends Emitter<{
     /**
      * Get history active status.
      */
-    get active() {
+    get active(): boolean {
         return this._active;
     }
 
     /**
      * Get history states.
      */
-    get states() {
+    get states(): (State | undefined)[] {
         return this._entries.map((entry) => this._map.get(entry));
     }
 
     /**
      * Get current state.
      */
-    get state() {
+    get state(): State | undefined {
         return this.states[this._index] ?? undefined;
     }
 
     /**
      * Get current index.
      */
-    get index() {
+    get index(): number {
         return this._index;
     }
 
     /**
      * Get history length.
      */
-    get length() {
+    get length(): number {
         return this._entries.length;
     }
 
     /**
      * Start listening history changes.
      */
-    start() {
+    start(): void {
         if (this.active) {
             return;
         }
@@ -121,14 +121,14 @@ export class History extends Emitter<{
     /**
      * Stop listening history changes.
      */
-    stop() {
+    stop(): void {
         this._active = false;
     }
 
     /**
      * Start listening history changes.
      */
-    reset() {
+    reset(): void {
         this._id = `${Date.now()}-${instances++}`;
         this._entries.splice(0, this._entries.length);
         this._index = -1;
@@ -138,7 +138,7 @@ export class History extends Emitter<{
      * Move in the history.
      * @param shift The shift movement in the history.
      */
-    async go(shift: number) {
+    async go(shift: number): Promise<void> {
         if (shift === 0) {
             return;
         }
@@ -155,7 +155,7 @@ export class History extends Emitter<{
      * Move back in the history by one entry. Same as `.go(-1)`
      * @returns A promise which resolves the new current state.
      */
-    async back() {
+    async back(): Promise<void> {
         return this.go(-1);
     }
 
@@ -163,7 +163,7 @@ export class History extends Emitter<{
      * Move forward in the history by one entry. Same as `.go(1)`
      * @returns A promise which resolves the new current state.
      */
-    async forward() {
+    async forward(): Promise<void> {
         return this.go(1);
     }
 
@@ -172,7 +172,7 @@ export class History extends Emitter<{
      * @param state The state properties.
      * @returns The new current state.
      */
-    async pushState(state: State) {
+    async pushState(state: State): Promise<HistoryState> {
         const historyState: HistoryState = {
             historyId: this._id,
             url: state.url,
@@ -197,7 +197,7 @@ export class History extends Emitter<{
      * @param state The state properties.
      * @returns The new current state.
      */
-    async replaceState(state: State) {
+    async replaceState(state: State): Promise<HistoryState> {
         const historyState: HistoryState = {
             historyId: this._id,
             url: state.url,
@@ -220,7 +220,7 @@ export class History extends Emitter<{
      * @param state1 The first state.
      * @param state2 The second state.
      */
-    compareStates(state1: State, state2: State) {
+    compareStates(state1: State, state2: State): NavigationDirection {
         const states = this.states;
         return states.indexOf(state2) < states.indexOf(state1) ? NavigationDirection.back : NavigationDirection.forward;
     }

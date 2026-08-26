@@ -3,7 +3,7 @@
  * @param token The string to trim.
  * @returns THe trimmed string.
  */
-export function trimSlashStart(token: string) {
+export function trimSlashStart(token: string): string {
     return token.replace(/^\/*/, '');
 }
 
@@ -12,7 +12,7 @@ export function trimSlashStart(token: string) {
  * @param token The string to trim.
  * @returns THe trimmed string.
  */
-export function trimSlashEnd(token: string) {
+export function trimSlashEnd(token: string): string {
     return token.replace(/\/*$/, '');
 }
 
@@ -21,7 +21,7 @@ export function trimSlashEnd(token: string) {
  * @param token The string to trim.
  * @returns THe trimmed string.
  */
-export function trimSlash(token: string) {
+export function trimSlash(token: string): string {
     return trimSlashStart(trimSlashEnd(token));
 }
 
@@ -43,28 +43,28 @@ export class Path {
     /**
      * Pathname part.
      */
-    get pathname() {
+    get pathname(): string {
         return this.#internalUrl.pathname;
     }
 
     /**
      * Hash part.
      */
-    get hash() {
+    get hash(): string {
         return this.#internalUrl.hash;
     }
 
     /**
      * Search part.
      */
-    get search() {
+    get search(): string {
         return this.#internalUrl.search;
     }
 
     /**
      * Path search params.
      */
-    get searchParams() {
+    get searchParams(): URLSearchParams {
         return new URLSearchParams(this.#internalUrl.searchParams);
     }
 

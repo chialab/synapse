@@ -24,7 +24,7 @@ export class Emitter<M extends EventMap = EventMap> {
      * @param type The event name.
      * @param listener The listener callback.
      */
-    on<E extends keyof M>(type: E, listener: Listener<M, E>) {
+    on<E extends keyof M>(type: E, listener: Listener<M, E>): void {
         this.#listeners[type] ??= [];
         this.#listeners[type].push(listener);
     }
@@ -34,7 +34,7 @@ export class Emitter<M extends EventMap = EventMap> {
      * @param type The event name.
      * @param listener The listener callback to remove.
      */
-    off<E extends keyof M>(type: E, listener: Listener<M, E>) {
+    off<E extends keyof M>(type: E, listener: Listener<M, E>): void {
         const listeners = this.#listeners[type];
         if (!listeners) {
             return;

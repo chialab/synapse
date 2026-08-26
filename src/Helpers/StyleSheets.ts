@@ -39,7 +39,7 @@ export function loadStyleSheet(url: string | URL, reload = false): Promise<HTMLL
  * Unload a stylesheet.
  * @param url Url of the stylesheet to unload.
  */
-export function unloadStyleSheet(url: string | URL) {
+export function unloadStyleSheet(url: string | URL): void {
     const href = typeof url === 'string' ? url : url.href;
 
     const loader = LINKS.get(href);

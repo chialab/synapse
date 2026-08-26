@@ -60,42 +60,42 @@ export class Request<T extends RequestParams = RequestParams> {
     /**
      * The resolving state of the request.
      */
-    get resolving() {
+    get resolving(): boolean {
         return !this.response && !this.error;
     }
 
     /**
      * The resolved state of the request.
      */
-    get resolved() {
+    get resolved(): boolean {
         return !!this.response || !!this.error;
     }
 
     /**
      * The child request in case of subrouting.
      */
-    get childRequest() {
+    get childRequest(): Request | undefined {
         return this._childRequest;
     }
 
     /**
      * The response instance for the request.
      */
-    get response() {
+    get response(): Response | undefined {
         return this._response;
     }
 
     /**
      * The last matched route instance.
      */
-    get matcher() {
+    get matcher(): Route | undefined {
         return this._matcher;
     }
 
     /**
      * The error instance for the request.
      */
-    get error() {
+    get error(): Error | undefined {
         return this._error;
     }
 
@@ -118,7 +118,7 @@ export class Request<T extends RequestParams = RequestParams> {
      * Create a child request for subrouting.
      * @param url The child url.
      */
-    child(url: URL, init?: RequestInit) {
+    child(url: URL, init?: RequestInit): Request {
         this._childRequest = new Request(url, init, this);
         return this._childRequest;
     }
@@ -127,7 +127,7 @@ export class Request<T extends RequestParams = RequestParams> {
      * Set the matched route rule.
      * @param route The route rule.
      */
-    setMatcher(route: Route) {
+    setMatcher(route: Route): void {
         this._matcher = route;
     }
 
@@ -135,7 +135,7 @@ export class Request<T extends RequestParams = RequestParams> {
      * Set params to the request.
      * @param params The params to set.
      */
-    setParams(params: T) {
+    setParams(params: T): void {
         this.params = params;
     }
 
@@ -143,7 +143,7 @@ export class Request<T extends RequestParams = RequestParams> {
      * Resolve the request.
      * @param res The response which resolves the request.
      */
-    resolve(res: Response) {
+    resolve(res: Response): void {
         this._response = res;
     }
 
@@ -151,7 +151,7 @@ export class Request<T extends RequestParams = RequestParams> {
      * Mark the request as errored.
      * @param err The error which rejectes the request.
      */
-    reject(err: Error) {
+    reject(err: Error): void {
         this._error = err;
     }
 
@@ -159,7 +159,7 @@ export class Request<T extends RequestParams = RequestParams> {
      * Check if a request is a subrouter request.
      * @param request The current request.
      */
-    isSubRouteRequest(request: Request) {
+    isSubRouteRequest(request: Request): boolean {
         const matcher = this.matcher;
         if (!matcher) {
             return false;

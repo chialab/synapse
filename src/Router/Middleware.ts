@@ -80,7 +80,12 @@ export class Middleware extends Pattern {
      * @param router The current router instance.
      * @returns The very same input Response instance or a new one.
      */
-    hookBefore(request: Request, response: Response, params: RequestParams, router: Router) {
+    hookBefore(
+        request: Request,
+        response: Response,
+        params: RequestParams,
+        router: Router
+    ): Response | void | Promise<Response | void> {
         return this.before?.(request, response, params, router);
     }
 
@@ -92,7 +97,12 @@ export class Middleware extends Pattern {
      * @param router The current router instance.
      * @returns The very same input Response instance or a new one.
      */
-    hookAfter(request: Readonly<Request>, response: Response, params: RequestParams, router: Router) {
+    hookAfter(
+        request: Readonly<Request>,
+        response: Response,
+        params: RequestParams,
+        router: Router
+    ): Response | void | Promise<Response | void> {
         return this.after?.(request, response, params, router);
     }
 }

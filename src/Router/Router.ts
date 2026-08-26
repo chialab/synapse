@@ -71,7 +71,7 @@ export class Router extends Emitter<{
     /**
      * The browser's history like implementation for state management.
      */
-    get history() {
+    get history(): History {
         return this.#history;
     }
 
@@ -83,7 +83,7 @@ export class Router extends Emitter<{
     /**
      * The origin of the router.
      */
-    get origin() {
+    get origin(): string {
         return this.#origin;
     }
 
@@ -95,7 +95,7 @@ export class Router extends Emitter<{
     /**
      * The base routing path.
      */
-    get base() {
+    get base(): string {
         return this.#base;
     }
 
@@ -107,7 +107,7 @@ export class Router extends Emitter<{
     /**
      * The router is running.
      */
-    get running() {
+    get running(): boolean {
         return this.#running;
     }
 
@@ -115,14 +115,14 @@ export class Router extends Emitter<{
      * The router is started.
      * @deprecated Use `running` property.
      */
-    get started() {
+    get started(): boolean {
         return this.#running;
     }
 
     /**
      * The current router state.
      */
-    get state() {
+    get state(): State | undefined {
         if (!this.history) {
             return undefined;
         }
@@ -132,7 +132,7 @@ export class Router extends Emitter<{
     /**
      * The current router path.
      */
-    get current() {
+    get current(): string | undefined {
         return this.state?.path;
     }
 
@@ -176,7 +176,7 @@ export class Router extends Emitter<{
      * Set the history object of the router.
      * @param history The history instance.
      */
-    setHistory(history: History) {
+    setHistory(history: History): void {
         if (this.running) {
             throw new Error('Cannot set history after router is started.');
         }
@@ -187,7 +187,7 @@ export class Router extends Emitter<{
      * Set the location origin of the router.
      * @param origin The origin value.
      */
-    setOrigin(origin: string | null) {
+    setOrigin(origin: string | null): void {
         if (this.running) {
             throw new Error('Cannot set origin after router is started.');
         }
@@ -198,7 +198,7 @@ export class Router extends Emitter<{
      * Set the routing url base.
      * @param base The base value.
      */
-    setBase(base: string | null) {
+    setBase(base: string | null): void {
         if (this.running) {
             throw new Error('Cannot set base after router is started.');
         }
@@ -213,7 +213,7 @@ export class Router extends Emitter<{
      * Set the error handler of the router.
      * @param errorHandler The error handler or undefined to restore the default error handler.
      */
-    setErrorHandler(errorHandler?: ErrorHandler) {
+    setErrorHandler(errorHandler?: ErrorHandler): void {
         this.errorHandler = errorHandler ?? DEFAULT_ERROR_HANDLER;
     }
 
@@ -451,7 +451,7 @@ export class Router extends Emitter<{
      * @param path The path to use to restart the router.
      * @returns Resolve the navigation response.
      */
-    refresh(path?: string) {
+    refresh(path?: string): Promise<Response> {
         return this.replace(path || this.current || '/');
     }
 
@@ -459,7 +459,7 @@ export class Router extends Emitter<{
      * Update page hash.
      * @param hash The hash to set.
      */
-    fragment(hash: string) {
+    fragment(hash: string): void {
         if (this.history instanceof BrowserHistory) {
             if (window.location.hash !== hash) {
                 window.location.hash = hash;
@@ -562,7 +562,7 @@ export class Router extends Emitter<{
     /**
      * Unbind the Router from a History model (if bound).
      */
-    stop() {
+    stop(): void {
         this.#running = false;
         if (this.history) {
             this.history.off('popstate', this.onPopState);
@@ -574,8 +574,8 @@ export class Router extends Emitter<{
      * Unbind the Router from a History model (if bound).
      * @deprecated Use `stop` method instead.
      */
-    end() {
-        return this.stop();
+    end(): void {
+        this.stop();
     }
 
     /**
@@ -584,7 +584,7 @@ export class Router extends Emitter<{
      *
      * @returns The full url.
      */
-    resolve(pathname: string, full = false) {
+    resolve(pathname: string, full = false): string {
         const url = this.urlFromPath(pathname);
         if (full) {
             return url.href;
@@ -598,7 +598,7 @@ export class Router extends Emitter<{
      * @param uri The full url.
      * @returns A path.
      */
-    pathFromUrl(uri: URL | string) {
+    pathFromUrl(uri: URL | string): string | null {
         const url = typeof uri === 'string' ? new URL(uri, this.origin) : uri;
         if (url.origin !== this.origin) {
             return null;
@@ -617,7 +617,7 @@ export class Router extends Emitter<{
      * @param path The path.
      * @returns A url.
      */
-    urlFromPath(path: Path | string) {
+    urlFromPath(path: Path | string): URL {
         return new URL(
             `/${[this.base, typeof path === 'string' ? path : path.href]
                 .map((chunk) => trimSlash(chunk))
@@ -631,7 +631,7 @@ export class Router extends Emitter<{
      * Get the latest navigation promise.
      * @returns The navigation promise.
      */
-    waitNavigation() {
+    waitNavigation(): Promise<Response | null> | undefined {
         return this.#navigationPromise;
     }
 
