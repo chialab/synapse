@@ -1,14 +1,25 @@
 import { fileURLToPath } from 'node:url';
+import UnpluginIsolatedDecl from 'unplugin-isolated-decl/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-    base: '/synapse',
+    plugins: [UnpluginIsolatedDecl()],
     build: {
-        outDir: 'public',
-    },
-    resolve: {
-        alias: {
-            '@chialab/synapse': fileURLToPath(new URL('./src/index.ts', import.meta.url)),
+        target: 'es2020',
+        lib: {
+            entry: {
+                synapse: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
+            },
+            formats: ['es'],
         },
+        rollupOptions: {
+            external: (source) => !/^[./]/.test(source),
+            output: {
+                entryFileNames: '[name].js',
+                chunkFileNames: '[name]-[hash].js',
+            },
+        },
+        sourcemap: true,
+        emptyOutDir: true,
     },
 });
