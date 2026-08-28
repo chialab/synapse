@@ -1,5 +1,5 @@
 import { define, html } from '@chialab/dna';
-import { App, DocumentMetaMiddleware } from '../../src/index.ts';
+import { App, DocumentMetaMiddleware } from '@chialab/synapse';
 import { Link } from './Elements/Link.js';
 import { Dashboard } from './Pages/Dashboard.js';
 import { NotFound } from './Pages/NotFound.js';

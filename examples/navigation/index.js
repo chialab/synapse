@@ -1,5 +1,5 @@
 import { html, render } from '@chialab/dna';
-import { BrowserHistory } from '../../src/index.ts';
+import { BrowserHistory } from '@chialab/synapse';
 import './App.js';
 
 const app = render(
