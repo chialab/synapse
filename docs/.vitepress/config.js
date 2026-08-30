@@ -60,6 +60,7 @@ export default defineConfig({
                     { text: 'Middleware', link: '/guide/middleware' },
                     { text: 'History', link: '/guide/history' },
                     { text: 'Page & Transition', link: '/guide/components' },
+                    { text: 'Hooks', link: '/guide/hooks' },
                     { text: 'Demo', link: '/guide/demo' },
                 ],
             },

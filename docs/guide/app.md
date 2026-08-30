@@ -83,3 +83,9 @@ Both no-op if the router hasn't started, and both can be overridden to customize
 - `onPopState({ state, previous })` — called for every router `popstate`/`pushstate`/`replacestate` event, after `this.request` is updated and before `this.response` is; the default implementation computes `navigationDirection` (`'back'` or `'forward'`) by comparing `state`/`previous` with `history.compareStates()`.
 
 Override any of them in a subclass (calling `super` is not required, they're empty by default except `onPopState`) to react to navigation, e.g. to send analytics or scroll to top.
+
+::: tip
+
+Need the `App` or `Router` from a function component rendered inside it, rather than a subclass? See the [`useApp`/`useRouter` hooks](./hooks).
+
+:::
