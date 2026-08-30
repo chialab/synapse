@@ -4,7 +4,29 @@ Application framework built on the top of DNA Web Components.
 
 [![NPM](https://img.shields.io/npm/v/@chialab/synapse.svg)](https://www.npmjs.com/package/@chialab/synapse)
 
-📖 [Documentation](https://chialab.github.io/synapse/) — 🚀 [Live demo](https://chialab.github.io/synapse/guide/demo)
+## Features
+
+Synapse brings **declarative routing** and **request/response semantics** on top of [DNA](https://github.com/chialab/dna) Web Components, so an `App` can drive navigation like a small client-side framework.
+
+### Web Components first
+
+`App` extends DNA's `Component`, so routing is just another Web Component in your page — no separate root or portal needed.
+
+### Request/Response pipeline
+
+Routes and middlewares work like a server-side framework: `Request` and `Response` objects flow through a `before`/`after` pipeline, with priorities and pattern matching.
+
+### Declarative route patterns
+
+Routes match Express-style patterns — static segments, `:name` params, `:name*` wildcards and a catch-all `*` — resolved by a `Router` you can also use standalone.
+
+### Pluggable history
+
+Swap between the in-memory `History` and `BrowserHistory` implementations to control how navigation is tracked and persisted.
+
+### Hooks for function components
+
+Use the `useApp` and `useRouter` hooks to access the parent application and router instance from a function component, without threading props down manually.
 
 ## Get the library
 
@@ -25,36 +47,27 @@ pnpm add @chialab/synapse
 ## Create an application
 
 ```tsx
-import { customElement, html, render } from '@chialab/dna';
+import { customElement, render } from '@chialab/dna';
 import { App } from '@chialab/synapse';
 
 @customElement('demo-app')
 class DemoApp extends App {
-    routes = [
+    static routes = [
         {
             pattern: '/',
-            render(req, res) {
-                return (
-                    <main>
-                        <h1>Home</h1>
-                    </main>
-                );
-            },
+            render: () => (
+                <main>
+                    <h1>Home</h1>
+                </main>
+            ),
         },
         {
-            handler(req, res) {
-                res.data = new Error('not found');
-            },
-            render(req, res) {
-                return (
-                    <main>
-                        <details>
-                            <summary>${res.data.message}</summary>
-                            <pre>${res.data.stack}</pre>
-                        </details>
-                    </main>
-                );
-            },
+            pattern: '*',
+            render: () => (
+                <main>
+                    <h1>Not found</h1>
+                </main>
+            ),
         },
     ];
 
@@ -62,14 +75,10 @@ class DemoApp extends App {
         return (
             <>
                 <header>
-                    <h1>Synapse 3.0</h1>
+                    <h1>Synapse</h1>
                 </header>
                 <nav>
-                    <ul>
-                        <li>
-                            <a href={router.resolve('/')}>Home</a>
-                        </li>
-                    </ul>
+                    <a href={this.router.resolve('/')}>Home</a>
                 </nav>
                 {super.render()}
             </>
@@ -82,78 +91,34 @@ const app = render(<DemoApp base="/" />, document.getElementById('app'));
 app.start('/');
 ```
 
----
-
-## Hooks
-
-Use the `useApp` and `useRouter` hooks to access the parent application and router instances from a function component rendered inside an `App`:
-
-```tsx
-import type { FunctionComponent } from '@chialab/dna';
-import { useApp, useRouter } from '@chialab/synapse';
-
-const NavBar: FunctionComponent = () => {
-    const app = useApp();
-    const router = useRouter();
-
-    return (
-        <nav>
-            <a href={router?.resolve('/')}>Home</a>
-            <button onclick={() => app?.navigate('/')}>Go home</button>
-        </nav>
-    );
-};
-```
-
-Both hooks return `null` when the component is not rendered inside an `App` instance.
-
----
-
 ## Development
 
-[![Build status](https://github.com/chialab/synapse/workflows/Main/badge.svg)](https://github.com/chialab/synapse/actions?query=workflow%3ABuild)
-[![codecov](https://codecov.io/gh/chialab/synapse/branch/main/graph/badge.svg)](https://codecov.io/gh/chialab/synapse)
+[![Build status](https://github.com/chialab/synapse/workflows/Main/badge.svg)](https://github.com/chialab/synapse/actions?query=workflow%3AMain)
 
 ### Build
 
-Install the dependencies
+Install the dependencies and run the `build` script:
 
 ```
 pnpm install
 ```
 
-and run the `build` script:
-
 ```
 pnpm build
 ```
 
+This will generate the ESM bundle in the `dist` folder, as well as the declaration files.
+
 ### Test
 
-Run the `test` script to execute the unit tests:
+Run the `test` script:
 
 ```
 pnpm test
-```
-
-### Demo
-
-The `demo` folder contains a small routing example app used to try out the library. Run it locally with:
-
-```
-yarn dev
-```
-
-### Documentation
-
-The documentation site lives in the `docs` folder and is built with [VitePress](https://vitepress.dev). Run it locally with:
-
-```
-yarn docs:dev
 ```
 
 ---
 
 ## License
 
-Synapse is released under the [MIT](https://github.com/chialab/synapse/blob/main/LICENSE) license.
+**Synapse** is released under the [MIT](https://github.com/chialab/synapse/blob/main/LICENSE) license.

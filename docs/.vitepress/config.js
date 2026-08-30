@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress';
+import llmstxt from 'vitepress-plugin-llms';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -6,6 +7,11 @@ export default defineConfig({
     description: 'Application framework built on the top of DNA Web Components.',
     base: '/synapse/',
     outDir: '../public',
+    appearance: 'force-auto',
+
+    vite: {
+        plugins: [llmstxt()],
+    },
 
     head: [
         ['link', { rel: 'icon', href: '/synapse/favicon.png' }],
@@ -69,8 +75,8 @@ export default defineConfig({
         socialLinks: [{ icon: 'github', link: 'https://github.com/chialab/synapse' }],
 
         footer: {
-            message: 'Released under the MIT License.',
-            copyright: 'Copyright © 2023-present Chialab',
+            message: 'Client-side routing, middlewares and page transitions on top of Web Components.',
+            copyright: '© 2026 Chia Lab Srl. MIT license.',
         },
     },
     lastUpdated: true,
