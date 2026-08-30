@@ -5,6 +5,7 @@ export * from './Components/Transition';
 export * from './Helpers/App';
 export * from './Helpers/Scripts';
 export * from './Helpers/StyleSheets';
+export * from './hooks';
 export { BrowserHistory } from './Router/BrowserHistory';
 export { DocumentMetaMiddleware } from './Router/DocumentMetaMiddleware';
 export type { ErrorHandler } from './Router/ErrorHandler';
