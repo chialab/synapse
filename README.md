@@ -6,7 +6,7 @@ Application framework built on the top of DNA Web Components.
 
 ## Get the library
 
-Install via NPM or Yarn:
+Install via NPM:
 
 ```
 npm i @chialab/synapse
@@ -14,6 +14,10 @@ npm i @chialab/synapse
 
 ```
 yarn add @chialab/synapse
+```
+
+```
+pnpm add @chialab/synapse
 ```
 
 ## Create an application
@@ -88,13 +92,13 @@ app.start('/');
 Install the dependencies
 
 ```
-yarn
+pnpm install
 ```
 
 and run the `build` script:
 
 ```
-yarn build
+pnpm build
 ```
 
 This will generate the ESM and CJS bundles in the `dist` folder and declaration files in the `types` folder.

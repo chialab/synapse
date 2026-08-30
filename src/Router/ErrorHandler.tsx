@@ -23,7 +23,7 @@ function formatStack(error: Error) {
  * @param error The thrown error.
  * @returns An error response object.
  */
-export default function (request: Request, error: Error) {
+export default function (request: Request, error: Error): Response {
     const response = new Response(request);
     response.setTitle(error.message);
     response.setView(() => (

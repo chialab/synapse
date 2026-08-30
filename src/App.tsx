@@ -1,3 +1,4 @@
+import type { Template } from '@chialab/dna';
 import { Component, listen, observe, property, state } from '@chialab/dna';
 import { Page } from './Components/Page';
 import { BrowserHistory } from './Router/BrowserHistory';
@@ -146,7 +147,7 @@ export class App extends Component {
     /**
      * @inheritdoc
      */
-    initialize() {
+    initialize(): void {
         super.initialize();
 
         this.routes = (this.constructor as typeof App).routes;
@@ -163,7 +164,7 @@ export class App extends Component {
     /**
      * @inheritdoc
      */
-    connectedCallback() {
+    connectedCallback(): void {
         super.connectedCallback();
         if (this.autostart) {
             this.start(typeof this.autostart === 'string' ? this.autostart : undefined);
@@ -173,7 +174,7 @@ export class App extends Component {
     /**
      * @inheritdoc
      */
-    render() {
+    render(): Template | undefined {
         if (!this.response) {
             return null;
         }
@@ -205,7 +206,7 @@ export class App extends Component {
     /**
      * Stop the router.
      */
-    stop() {
+    stop(): void {
         this.router.off('popstate', this._onPopState);
         this.router.off('pushstate', this._onPopState);
         this.router.off('replacestate', this._onPopState);
@@ -236,7 +237,7 @@ export class App extends Component {
      * @param node The anchor node.
      */
     @listen('click', 'a')
-    protected _handleLink(event: Event, node?: Node) {
+    protected _handleLink(event: Event, node?: Node): Promise<void> | undefined {
         if (!this.router.running) {
             return;
         }
@@ -249,7 +250,7 @@ export class App extends Component {
      * @param node The form node.
      */
     @listen('submit', 'form')
-    protected _handleSubmit(event: Event, node?: Node) {
+    protected _handleSubmit(event: Event, node?: Node): Promise<void> | undefined {
         if (event.defaultPrevented) {
             return;
         }
@@ -264,7 +265,7 @@ export class App extends Component {
      * @param event The click event.
      * @param node The anchor node.
      */
-    async handleLink(event: Event, node: HTMLAnchorElement) {
+    async handleLink(event: Event, node: HTMLAnchorElement): Promise<void> {
         if (event.defaultPrevented) {
             return;
         }
@@ -297,7 +298,7 @@ export class App extends Component {
      * @param event The click event.
      * @param node The anchor node.
      */
-    async handleSubmit(event: Event, node: HTMLFormElement) {
+    async handleSubmit(event: Event, node: HTMLFormElement): Promise<void> {
         if (!this.router.running) {
             throw new Error('Application has not started yet');
         }
@@ -337,7 +338,7 @@ export class App extends Component {
      * Popstate listener.
      * @param data Popstate data.
      */
-    protected _onPopState = (data: { state: State; previous?: State }) => {
+    protected _onPopState = (data: { state: State; previous?: State }): undefined => {
         if (!data.state) {
             return;
         }
@@ -351,7 +352,7 @@ export class App extends Component {
      * Handle popstate event from the router.
      * @param data The event triggered by the router.
      */
-    onPopState(data: { state: State; previous?: State }) {
+    onPopState(data: { state: State; previous?: State }): void {
         const { state, previous } = data;
         if (this.history && state && previous) {
             this.navigationDirection = this.history.compareStates(previous, state);
@@ -364,7 +365,7 @@ export class App extends Component {
      * Trigger `onRequest` hook.
      */
     @observe('request')
-    protected _onRequestChanged(oldValue: Request | undefined, newValue: Request) {
+    protected _onRequestChanged(oldValue: Request | undefined, newValue: Request): void {
         this.onRequest(oldValue, newValue);
     }
 
@@ -372,7 +373,7 @@ export class App extends Component {
      * Trigger `onRequest` hook.
      */
     @observe('response')
-    protected _onResponseChanged(oldValue: Response | undefined, newValue: Response) {
+    protected _onResponseChanged(oldValue: Response | undefined, newValue: Response): void {
         this.onResponse(oldValue, newValue);
     }
 
@@ -380,7 +381,7 @@ export class App extends Component {
      * Hook for origin property changes.
      */
     @observe('origin')
-    protected _onOriginChanged() {
+    protected _onOriginChanged(): void {
         if (this.router) {
             this.router.setOrigin(this.origin || null);
         }
@@ -390,7 +391,7 @@ export class App extends Component {
      * Hook for base property changes.
      */
     @observe('base')
-    protected _onBaseChanged() {
+    protected _onBaseChanged(): void {
         if (this.router) {
             let base = this.base;
             if (base && base[0] === '#') {
@@ -405,7 +406,7 @@ export class App extends Component {
      */
     @observe('routes')
     @observe('middlewares')
-    protected _onRoutesChanged() {
+    protected _onRoutesChanged(): void {
         if (this.router) {
             this.disconnectAppRoutes();
             this.connectAppRoutes();
@@ -416,7 +417,7 @@ export class App extends Component {
      * Handle history changes.
      */
     @observe('history')
-    protected _onHistoryChanged(oldHistory?: History, newHistory?: History) {
+    protected _onHistoryChanged(oldHistory?: History, newHistory?: History): void {
         if (this.router && newHistory) {
             this.router.setHistory(newHistory);
         }
@@ -426,7 +427,7 @@ export class App extends Component {
      * Handle router changes.
      */
     @observe('router')
-    protected _onRouterChanged(oldRouter: Router | undefined, newRouter: Router) {
+    protected _onRouterChanged(oldRouter: Router | undefined, newRouter: Router): void {
         if (this.origin) {
             newRouter.setOrigin(this.origin);
         }
@@ -440,14 +441,14 @@ export class App extends Component {
         this.connectAppRoutes(newRouter);
     }
 
-    protected disconnectAppRoutes(router: Router = this.router) {
+    protected disconnectAppRoutes(router: Router = this.router): void {
         this.connectedAppRoutes.forEach((route) => {
             router.disconnect(route);
         });
         this.connectedAppRoutes = [];
     }
 
-    protected connectAppRoutes(router: Router = this.router) {
+    protected connectAppRoutes(router: Router = this.router): void {
         const { routes, middlewares } = this;
         routes.forEach((route) => {
             this.connectedAppRoutes.push(router.connect(route));
@@ -473,7 +474,7 @@ export class App extends Component {
      * @param newValue The new request object.
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected onRequest(oldValue: Request | undefined, newValue: Request) {}
+    protected onRequest(oldValue: Request | undefined, newValue: Request): void {}
 
     /**
      * Response changed hook.
@@ -481,5 +482,5 @@ export class App extends Component {
      * @param newValue The new response object.
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected onResponse(oldValue: Response | undefined, newValue: Response) {}
+    protected onResponse(oldValue: Response | undefined, newValue: Response): void {}
 }

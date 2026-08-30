@@ -9,7 +9,7 @@ const SCRIPTS: Map<string, Promise<void>> = new Map();
  * @param reload Should reload the script.
  * @returns A promise that resolves on script load.
  */
-export function loadScript(url: string | URL, reload = false) {
+export function loadScript(url: string | URL, reload = false): Promise<void> {
     const href = typeof url === 'string' ? url : url.href;
 
     let promise = SCRIPTS.get(href);

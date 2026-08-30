@@ -22,7 +22,7 @@ export class BrowserHistory extends History {
     #adapter: typeof window.history;
     #currentPopRequest?: { resolve: () => void; reject: () => void };
 
-    constructor(adapter = window.history) {
+    constructor(adapter: typeof window.history = window.history) {
         super();
         this.#adapter = adapter;
     }
@@ -30,7 +30,7 @@ export class BrowserHistory extends History {
     /**
      * @inheritdoc
      */
-    start() {
+    start(): void {
         if (listening && listening !== this) {
             throw new Error('You cannot initialize more than one "BrowserHistory".');
         }
@@ -45,7 +45,7 @@ export class BrowserHistory extends History {
     /**
      * @inheritdoc
      */
-    stop() {
+    stop(): void {
         if (!this.active) {
             return;
         }
@@ -58,22 +58,22 @@ export class BrowserHistory extends History {
      * Add global `popstate` listener.
      * @deprecated Use `start` instead.
      */
-    listen() {
-        return this.start();
+    listen(): void {
+        this.start();
     }
 
     /**
      * Remove global `popstate` listener.
      * @deprecated Use `stop` instead.
      */
-    unlisten() {
-        return this.stop();
+    unlisten(): void {
+        this.stop();
     }
 
     /**
      * @inheritdoc
      */
-    async go(shift: number) {
+    async go(shift: number): Promise<void> {
         if (this.#currentPopRequest) {
             this.#currentPopRequest.reject();
         }
@@ -86,7 +86,7 @@ export class BrowserHistory extends History {
     /**
      * @inheritdoc
      */
-    async pushState(state: State) {
+    async pushState(state: State): Promise<HistoryState> {
         const historyState = await super.pushState(state);
         this.#adapter.pushState(serializeHistoryState(historyState), historyState.title, historyState.url);
 
@@ -96,7 +96,7 @@ export class BrowserHistory extends History {
     /**
      * @inheritdoc
      */
-    async replaceState(state: State) {
+    async replaceState(state: State): Promise<HistoryState> {
         const historyState = await super.replaceState(state);
         this.#adapter.replaceState(serializeHistoryState(historyState), historyState.title, historyState.url);
 
