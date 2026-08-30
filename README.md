@@ -8,7 +8,7 @@ Application framework built on the top of DNA Web Components.
 
 ## Get the library
 
-Install via NPM or Yarn:
+Install via NPM:
 
 ```
 npm i @chialab/synapse
@@ -16,6 +16,10 @@ npm i @chialab/synapse
 
 ```
 yarn add @chialab/synapse
+```
+
+```
+pnpm add @chialab/synapse
 ```
 
 ## Create an application
@@ -80,6 +84,31 @@ app.start('/');
 
 ---
 
+## Hooks
+
+Use the `useApp` and `useRouter` hooks to access the parent application and router instances from a function component rendered inside an `App`:
+
+```tsx
+import type { FunctionComponent } from '@chialab/dna';
+import { useApp, useRouter } from '@chialab/synapse';
+
+const NavBar: FunctionComponent = () => {
+    const app = useApp();
+    const router = useRouter();
+
+    return (
+        <nav>
+            <a href={router?.resolve('/')}>Home</a>
+            <button onclick={() => app?.navigate('/')}>Go home</button>
+        </nav>
+    );
+};
+```
+
+Both hooks return `null` when the component is not rendered inside an `App` instance.
+
+---
+
 ## Development
 
 [![Build status](https://github.com/chialab/synapse/workflows/Main/badge.svg)](https://github.com/chialab/synapse/actions?query=workflow%3ABuild)
@@ -90,16 +119,22 @@ app.start('/');
 Install the dependencies
 
 ```
-yarn
+pnpm install
 ```
 
 and run the `build` script:
 
 ```
-yarn build
+pnpm build
 ```
 
-This will generate the ESM and CJS bundles in the `dist` folder and declaration files in the `types` folder.
+### Test
+
+Run the `test` script to execute the unit tests:
+
+```
+pnpm test
+```
 
 ### Demo
 

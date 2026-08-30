@@ -25,7 +25,7 @@ export class Response<T = any> {
     /**
      * The child response in case of subrouting.
      */
-    get childResponse() {
+    get childResponse(): Response | null | undefined {
         return this._childResponse;
     }
 
@@ -109,7 +109,7 @@ export class Response<T = any> {
      * Set the child response in case of subrouting.
      * @param child The child response.
      */
-    child(child: Response | null) {
+    child(child: Response | null): Response | null {
         this._childResponse = child;
         return this._childResponse;
     }
@@ -127,7 +127,7 @@ export class Response<T = any> {
      * Get stored data.
      * @param defaultValue Default value if missing data.
      */
-    getData(defaultValue: T | null = null) {
+    getData(defaultValue: T | null = null): T | null {
         return this.data ?? defaultValue;
     }
 
