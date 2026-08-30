@@ -16,9 +16,7 @@
     "lint": "biome check",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
-    "demo:build": "vite build --config vite.demo.config.ts",
-    "pages:build": "pnpm docs:build && pnpm demo:build"
+    "docs:preview": "vitepress preview docs"
   },
   "files": [
     "dist",

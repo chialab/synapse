@@ -1,12 +1,13 @@
 <script setup>
-import DemoFrame from '../.vitepress/theme/components/DemoFrame.vue';
+import Sandbox from '../.vitepress/theme/components/Sandbox.vue';
+import { customSetup, files } from '../.vitepress/theme/sandboxes/routing.js';
 </script>
 
 # Demo
 
-A small single-page application built with Synapse, showing routing between pages, active-link highlighting and per-route document titles.
+A small single-page application built with Synapse, showing routing between pages, active-link highlighting and per-route document titles. Edit the code below to try it live.
 
-<DemoFrame />
+<Sandbox :files="files" :customSetup="customSetup" />
 
 ## What it shows
 

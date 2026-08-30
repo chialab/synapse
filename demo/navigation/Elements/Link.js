@@ -1,9 +1,8 @@
 import { html } from '@chialab/dna';
-import { getRouter } from '@chialab/synapse';
+import { useRouter } from '@chialab/synapse';
 
-export function Link({ children, href }, { useRenderContext }) {
-    const context = useRenderContext();
-    const router = getRouter(context);
+export function Link({ children, href }) {
+    const router = useRouter();
     const isCurrentPage = href === router?.current;
 
     return html`<a
