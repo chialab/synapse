@@ -1,6 +1,6 @@
 # Synapse
 
-Application framework built on the top of DNA Web Components.
+Client-side routing framework
 
 [![NPM](https://img.shields.io/npm/v/@chialab/synapse.svg)](https://www.npmjs.com/package/@chialab/synapse)
 
@@ -14,7 +14,7 @@ Synapse brings **declarative routing** and **request/response semantics** on top
 
 ### Request/Response pipeline
 
-Routes and middlewares work like a server-side framework: `Request` and `Response` objects flow through a `before`/`after` pipeline, with priorities and pattern matching.
+Routes and middlewares connect through a `before`/`after` pipeline: `Request` and `Response` objects flow through each step, with priorities and pattern matching.
 
 ### Declarative route patterns
 
@@ -23,10 +23,6 @@ Routes match Express-style patterns — static segments, `:name` params, `:name*
 ### Pluggable history
 
 Swap between the in-memory `History` and `BrowserHistory` implementations to control how navigation is tracked and persisted.
-
-### Hooks for function components
-
-Use the `useApp` and `useRouter` hooks to access the parent application and router instance from a function component, without threading props down manually.
 
 ## Get the library
 

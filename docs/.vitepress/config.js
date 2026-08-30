@@ -4,7 +4,7 @@ import llmstxt from 'vitepress-plugin-llms';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
     title: 'Synapse',
-    description: 'Application framework built on the top of DNA Web Components.',
+    description: 'Client-side routing framework',
     base: '/synapse/',
     outDir: '../public',
     appearance: 'force-auto',
@@ -60,7 +60,7 @@ export default defineConfig({
                 text: 'Guide',
                 items: [
                     { text: 'Get started', link: '/guide/' },
-                    { text: 'The App component', link: '/guide/app' },
+                    { text: 'App', link: '/guide/app' },
                     { text: 'Routing', link: '/guide/router' },
                     { text: 'Request & Response', link: '/guide/request-response' },
                     { text: 'Middleware', link: '/guide/middleware' },
@@ -75,7 +75,7 @@ export default defineConfig({
         socialLinks: [{ icon: 'github', link: 'https://github.com/chialab/synapse' }],
 
         footer: {
-            message: 'Client-side routing, middlewares and page transitions on top of Web Components.',
+            message: 'Client-side routing framework',
             copyright: '© 2026 Chia Lab Srl. MIT license.',
         },
     },

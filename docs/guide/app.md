@@ -1,4 +1,4 @@
-# The App component
+# App
 
 `App` is a DNA `Component` subclass that owns a `Router` and a `History`, renders the current `Response` and wires up navigation for its whole subtree. Every Synapse application starts by extending it.
 

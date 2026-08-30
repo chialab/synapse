@@ -69,7 +69,7 @@ app.start('/');
 
 `render()` from `@chialab/dna` mounts the `DemoApp` element and returns the instance; calling `start()` afterwards binds the router to the (default, in-memory) `History` and resolves the first `Response`, which `App.render()` hands to the built-in [`Page`](./components) component via `super.render()`.
 
-Anchors and forms rendered inside the app are intercepted automatically: clicking a same-origin `<a href>` (with no `target` or `target="_self"`) calls `navigate()` instead of causing a full page load, so the `<a href={this.router.resolve('/')}>` link above just works once the app has started. See [The App component](./app) for the full API, [Routing](./router) for how routes and patterns are matched, and [Request & Response](./request-response) for what handlers receive and return.
+Anchors and forms rendered inside the app are intercepted automatically: clicking a same-origin `<a href>` (with no `target` or `target="_self"`) calls `navigate()` instead of causing a full page load, so the `<a href={this.router.resolve('/')}>` link above just works once the app has started. See [App](./app) for the full API, [Routing](./router) for how routes and patterns are matched, and [Request & Response](./request-response) for what handlers receive and return.
 
 ::: tip
 
