@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-    base: '/synapse',
+    root: 'demo',
+    base: '/synapse/demo/',
     build: {
-        outDir: 'public',
+        outDir: '../public/demo',
+        emptyOutDir: true,
     },
 });

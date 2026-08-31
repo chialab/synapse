@@ -40,11 +40,8 @@ jobs:
       - name: Install project dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run build script
-        run: pnpm build
-
-      - name: Run build pages
-        run: pnpm pages:build
+      - name: Build documentation
+        run: pnpm docs:build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4

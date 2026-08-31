@@ -6,6 +6,7 @@
     "sourceMap": true,
     "inlineSources": true,
     "strict": true,
+    "rootDir": ".",
     "outDir": "./dist",
     "noEmit": true,
     "declaration": true,
