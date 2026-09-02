@@ -2,7 +2,7 @@ import DefaultTheme from 'vitepress/theme';
 import { h } from 'vue';
 import Footer from './components/Footer.vue';
 import Sandbox from './components/Sandbox.vue';
-import { customSetup, files } from './sandboxes/getting-started.js';
+import { customSetup, files } from './sandboxes/navigation.js';
 import './theme.css';
 
 export default {

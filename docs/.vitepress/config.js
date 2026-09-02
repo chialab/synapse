@@ -15,7 +15,10 @@ export default defineConfig({
 
     head: [
         ['link', { rel: 'icon', href: '/synapse/favicon.png' }],
-        ['script', {}, `var _paq = window._paq = window._paq || [];
+        [
+            'script',
+            {},
+            `var _paq = window._paq = window._paq || [];
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
     _paq.push(["setDomains", ["*.chialab.github.io/dna","*.chialab.github.io/loock","*.chialab.github.io/rna","*.chialab.github.io/synapse"]]);
     _paq.push(["disableCookies"]);
@@ -27,7 +30,8 @@ export default defineConfig({
         _paq.push(['setSiteId', '2']);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
         g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
-    })();`]
+    })();`,
+        ],
     ],
 
     themeConfig: {
@@ -67,7 +71,6 @@ export default defineConfig({
                     { text: 'History', link: '/guide/history' },
                     { text: 'Page & Transition', link: '/guide/components' },
                     { text: 'Hooks', link: '/guide/hooks' },
-                    { text: 'Demo', link: '/guide/demo' },
                 ],
             },
         ],
@@ -75,7 +78,7 @@ export default defineConfig({
         socialLinks: [{ icon: 'github', link: 'https://github.com/chialab/synapse' }],
 
         footer: {
-            message: 'Client-side routing framework',
+            message: 'Client-side routing framework.',
             copyright: '© 2026 Chia Lab Srl. MIT license.',
         },
     },

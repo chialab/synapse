@@ -195,6 +195,20 @@
         }
     }
 
+    .VPNavScreen {
+        padding: 0;
+    }
+
+    .VPMenu {
+        min-width: 0;
+    }
+
+    .VPLink {
+        &::after {
+            border: 0;
+        }
+    }
+
     .VPButton {
         font-weight: 400;
         border-radius: 0.5rem;

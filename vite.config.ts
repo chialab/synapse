@@ -4,6 +4,11 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
     plugins: [UnpluginIsolatedDecl()],
+    resolve: {
+        alias: {
+            '@chialab/synapse': fileURLToPath(new URL('./src/index.ts', import.meta.url)),
+        },
+    },
     build: {
         target: 'es2020',
         lib: {

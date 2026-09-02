@@ -34,9 +34,9 @@ const DEFAULT_BASE = '/';
  * A router implementation for app navigation.
  */
 export class Router extends Emitter<{
-    pushstate: [{ state: State; previous?: State }, undefined];
-    replacestate: [{ state: State; previous?: State }, undefined];
-    popstate: [{ state: State; previous?: State }, undefined];
+    pushstate: [{ state: State; previous?: State }, void];
+    replacestate: [{ state: State; previous?: State }, void];
+    popstate: [{ state: State; previous?: State }, void];
 }> {
     /**
      * The router error handler.
@@ -716,7 +716,7 @@ export class Router extends Emitter<{
      * Handle History pop state event.
      * @param data Event data.
      */
-    private onPopState = (entry: { state: State | HistoryState; previous?: State } | { url: string }) => {
+    private onPopState = (entry: { state: State | HistoryState; previous?: State } | { url: string }): void => {
         if (isStateful(entry)) {
             this.replace(entry.state.path, undefined, entry.state.data, false).then(() => {
                 this.trigger('popstate', {
@@ -727,7 +727,6 @@ export class Router extends Emitter<{
         } else if (entry.url) {
             this.navigate(this.pathFromUrl(window.location.href) || '/');
         }
-        return undefined;
     };
 
     /**

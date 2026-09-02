@@ -89,7 +89,7 @@ export class Route extends Pattern {
      * @param router The current router instance.
      * @returns The very same input Response instance or a new one.
      */
-    async exec(request: Request, response: Response, next: NextHandler, router: Router): Promise<Response> {
+    async exec(request: Request, response: Response, next: NextHandler, router: Router): Promise<Response | void> {
         const data = await this.handler?.(request, response, next, router);
         if (data instanceof Response) {
             if (data !== response) {

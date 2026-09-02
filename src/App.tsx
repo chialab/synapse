@@ -345,7 +345,6 @@ export class App extends Component {
         this.request = data.state.request;
         this.onPopState(data);
         this.response = data.state.response;
-        return undefined;
     };
 
     /**
@@ -462,7 +461,6 @@ export class App extends Component {
                 priority: Number.NEGATIVE_INFINITY,
                 before: (req) => {
                     this.request = req;
-                    return undefined;
                 },
             })
         );
@@ -473,14 +471,16 @@ export class App extends Component {
      * @param oldValue The previous request object.
      * @param newValue The new request object.
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected onRequest(oldValue: Request | undefined, newValue: Request): void {}
+    protected onRequest(oldValue: Request | undefined, newValue: Request): void {
+        //
+    }
 
     /**
      * Response changed hook.
      * @param oldValue The previous response object.
      * @param newValue The new response object.
      */
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected onResponse(oldValue: Response | undefined, newValue: Response): void {}
+    protected onResponse(oldValue: Response | undefined, newValue: Response): void {
+        //
+    }
 }

@@ -57,9 +57,9 @@ let instances = 0;
  * An abstraction of the window.history object.
  */
 export class History extends Emitter<{
-    pushstate: [{ state: State; previous?: State }, undefined];
-    replacestate: [{ state: State; previous?: State }, undefined];
-    popstate: [{ state: State | HistoryState; previous?: State } | { url: string }, undefined];
+    pushstate: [{ state: State; previous?: State }, void];
+    replacestate: [{ state: State; previous?: State }, void];
+    popstate: [{ state: State | HistoryState; previous?: State } | { url: string }, void];
 }> {
     protected _entries: HistoryState[] = [];
     protected _map: Map<HistoryState, State> = new Map();

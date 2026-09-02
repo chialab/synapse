@@ -10,7 +10,7 @@
     }
   },
   "scripts": {
-    "dev": "vite --config vite.demo.config.ts",
+    "dev": "vite ./demo/navigation/",
     "build": "vite build",
     "test": "vitest run",
     "lint": "biome check",
@@ -47,7 +47,8 @@
     "vite": "^8.0.0",
     "vitepress": "^2.0.0-alpha.0",
     "vitepress-plugin-llms": "^1.13.5",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.0",
+    "vue": "^3.5.42"
   },
   "packageManager": "pnpm@12.2.1+sha512.f55ca68aacb9eb5ab69c66f828a98af89a32286703aef1f8da131ca7eab4d677f34bfa85e186467a919c0799df8b6f4aa240f7dc2919b33b3273190104162616"
 }

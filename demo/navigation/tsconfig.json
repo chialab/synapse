@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@chialab/dna",
+    "paths": {
+      "@chialab/synapse": ["../../src/index.ts"]
+    }
+  }
+}
