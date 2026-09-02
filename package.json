@@ -1,6 +1,6 @@
 {
   "name": "@chialab/synapse",
-  "version": "4.1.4",
+  "version": "4.2.0",
   "type": "module",
   "description": "Client-side routing framework",
   "exports": {
