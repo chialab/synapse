@@ -4,7 +4,7 @@
     const ESBUILD_WASM_BINARY_URL = `https://esm.sh/esbuild-wasm@${ESBUILD_WASM_VERSION}/esbuild.wasm`;
 
     function languageForPath(path, { javascript, css, html }) {
-        if (/\.(tsx?|jsx?|mjs|cjs)$/.test(path)) {
+        if (/\.(tsx?|jsx?|mjs|cjs|json)$/.test(path)) {
             return javascript({ jsx: true, typescript: /\.tsx?$/.test(path) });
         }
         if (/\.css$/.test(path)) {
@@ -108,11 +108,11 @@
 
     function buildPreviewHtml({ indexHtml, importMap, css, entry, js }) {
         const head = `<script type="importmap">${JSON.stringify(importMap)}<\/script>${css ? `<style>${css}</style>` : ''}`;
-        let html = indexHtml.replace('<head>', `<head>${head}`);
         const entryScriptPattern = new RegExp(`<script[^>]*\\ssrc=["'](?:\.\/|\/)?${escapeRegExp(entry)}["'][^>]*><\\/script>`);
-        html = html.replace(entryScriptPattern, `<script type="module">${js}<\/script>`);
 
-        return html;
+        return indexHtml
+            .replace('<head>', `<head>${head}`)
+            .replace(entryScriptPattern, `<script type="module">${js}<\/script>`);
     }
 
     function buildErrorHtml(error) {
