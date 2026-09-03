@@ -1,11 +1,12 @@
 import { render } from '@chialab/dna';
-import { type App, BrowserHistory } from '@chialab/synapse';
+import { type App, BrowserHistory, History } from '@chialab/synapse';
 import './App';
 
+const isEmbedded = window.location.href === 'about:srcdoc';
 const app = render(
     <demo-app
         base={`${window.location.pathname}#!/`}
-        history={new BrowserHistory()}
+        history={isEmbedded ? new History() : new BrowserHistory()}
     />,
     document.body
 ) as App;

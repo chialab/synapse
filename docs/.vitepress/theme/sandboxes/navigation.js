@@ -12,6 +12,8 @@ export const files = {
         code: JSON.stringify({
             compilerOptions: {
                 moduleResolution: 'bundler',
+                jsx: 'react-jsx',
+                jsxImportSource: '@chialab/dna',
             },
         }),
         hidden: true,

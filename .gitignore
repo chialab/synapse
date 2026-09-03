@@ -2,6 +2,8 @@
 npm-debug.log
 yarn-error.log
 .env
+.vitest-attachments
+test/__screenshots__
 docs/.vitepress/cache
 coverage
 dist
