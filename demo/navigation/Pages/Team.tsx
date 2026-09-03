@@ -3,7 +3,6 @@ import { type Request, type Response, Route } from '@chialab/synapse';
 export class Team extends Route {
     async exec(request: Request, response: Response) {
         response.setTitle('Team');
-
         response.setView(() => (
             <ul class="list-disc">
                 <li>Alan</li>
