@@ -28,7 +28,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Setup pnpm
+      - name: Setup Node
         uses: pnpm/setup@v2
         with:
           runtime: node@latest
