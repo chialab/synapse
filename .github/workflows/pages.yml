@@ -33,10 +33,6 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Build documentation
         run: pnpm docs:build
