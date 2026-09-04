@@ -21,10 +21,6 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Lint
         run: pnpm lint
@@ -41,10 +37,6 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Run build script
         run: pnpm build
@@ -61,10 +53,6 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Install chromium
         run: pnpm playwright install --with-deps chromium
@@ -100,10 +88,6 @@ jobs:
         with:
           runtime: node@latest
           cache: true
-          install: false
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Run build script
         run: pnpm build
