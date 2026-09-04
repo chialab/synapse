@@ -31,8 +31,12 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
-          require-lockfile: true
+          install: false
+
+      - name: Install project dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Build documentation
         run: pnpm docs:build
