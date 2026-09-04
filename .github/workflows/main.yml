@@ -19,8 +19,8 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
-          require-lockfile: true
 
       - name: Lint
         run: pnpm lint
@@ -35,8 +35,8 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
-          require-lockfile: true
 
       - name: Run build script
         run: pnpm build
@@ -51,8 +51,8 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
-          require-lockfile: true
 
       - name: Install chromium
         run: pnpm playwright install --with-deps chromium
@@ -86,8 +86,8 @@ jobs:
       - name: Setup Node
         uses: pnpm/setup@v2
         with:
+          runtime: node@latest
           cache: true
-          require-lockfile: true
 
       - name: Run build script
         run: pnpm build
