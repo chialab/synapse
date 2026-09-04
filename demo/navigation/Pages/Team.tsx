@@ -4,7 +4,7 @@ export class Team extends Route {
     async exec(request: Request, response: Response) {
         response.setTitle('Team');
         response.setView(() => (
-            <ul class="list-disc">
+            <ul class="list">
                 <li>Alan</li>
                 <li>Bart</li>
                 <li>Carl</li>

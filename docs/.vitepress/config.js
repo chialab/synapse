@@ -78,7 +78,7 @@ export default defineConfig({
         socialLinks: [{ icon: 'github', link: 'https://github.com/chialab/synapse' }],
 
         footer: {
-            message: 'Client-side routing framework.',
+            message: 'Client-side routing, middlewares and page transitions on top of Web Components.',
             copyright: '© 2026 Chia Lab Srl. MIT license.',
         },
     },

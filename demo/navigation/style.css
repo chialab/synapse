@@ -1,0 +1,203 @@
+:root {
+    color-scheme: light dark;
+
+    --color-bg: #f4f4f5; /* zinc-100 */
+    --color-surface: #ffffff;
+    --color-text: #18181b; /* zinc-900 */
+    --color-text-muted: #71717a; /* zinc-500 */
+    --color-border: #d4d4d8; /* zinc-300 */
+    --color-nav-bg: #27272a; /* zinc-800 */
+    --color-nav-text: #d4d4d8; /* zinc-300 */
+    --color-nav-text-hover: #ffffff;
+    --color-nav-hover-bg: #3f3f46; /* zinc-700 */
+    --color-nav-active-bg: #18181b; /* zinc-900 */
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg: #18181b; /* zinc-900 */
+        --color-surface: #27272a; /* zinc-800 */
+        --color-text: #fafafa; /* zinc-50 */
+        --color-text-muted: #a1a1aa; /* zinc-400 */
+        --color-border: #3f3f46; /* zinc-700 */
+        --color-nav-bg: #09090b; /* zinc-950 */
+        --color-nav-text: #a1a1aa; /* zinc-400 */
+        --color-nav-text-hover: #ffffff;
+        --color-nav-hover-bg: #27272a; /* zinc-800 */
+        --color-nav-active-bg: #09090b; /* zinc-950 */
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+    }
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    display: flex;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+demo-app {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    width: 100%;
+}
+
+.app-history {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--color-bg);
+}
+
+.app-history-button {
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 9999px;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+}
+
+.app-history-button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.app-history-button svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.app-history-url {
+    flex: auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 9999px;
+    padding: 0.25rem 1rem;
+    font-size: 0.75rem;
+    font-family: ui-monospace, monospace;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.app-nav {
+    flex: none;
+    background: var(--color-nav-bg);
+    padding: 0 1rem;
+}
+
+.app-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 4rem;
+}
+
+.app-nav-links {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+}
+
+.app-nav-link {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--color-nav-text);
+}
+
+.app-nav-link:hover {
+    background: var(--color-nav-hover-bg);
+    color: var(--color-nav-text-hover);
+}
+
+.app-nav-link[aria-current='page'] {
+    background: var(--color-nav-active-bg);
+    color: #ffffff;
+}
+
+.app-main {
+    flex: auto;
+    background: var(--color-bg);
+}
+
+.app-header {
+    background: var(--color-surface);
+    box-shadow: var(--shadow);
+}
+
+.app-header-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+.app-header-title {
+    margin: 0;
+    font-size: 1.875rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--color-text);
+}
+
+.app-content {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+.list {
+    list-style: disc;
+    padding-left: 1.5rem;
+}
+
+@media (min-width: 640px) {
+    .app-header-inner,
+    .app-content {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .app-header-inner,
+    .app-content {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
