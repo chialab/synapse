@@ -16,17 +16,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: pnpm/setup@v2
         with:
-          node-version: latest
-          cache: pnpm
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
+          cache: true
+          require-lockfile: true
 
       - name: Lint
         run: pnpm lint
@@ -38,17 +32,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: pnpm/setup@v2
         with:
-          node-version: latest
-          cache: pnpm
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
+          cache: true
+          require-lockfile: true
 
       - name: Run build script
         run: pnpm build
@@ -60,17 +48,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: pnpm/setup@v2
         with:
-          node-version: latest
-          cache: pnpm
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
+          cache: true
+          require-lockfile: true
 
       - name: Install chromium
         run: pnpm playwright install --with-deps chromium
@@ -101,17 +83,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v6
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: pnpm/setup@v2
         with:
-          node-version: latest
-          cache: pnpm
-
-      - name: Install project dependencies
-        run: pnpm install --frozen-lockfile
+          cache: true
+          require-lockfile: true
 
       - name: Run build script
         run: pnpm build
